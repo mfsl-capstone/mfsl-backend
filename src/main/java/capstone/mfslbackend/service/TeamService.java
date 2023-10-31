@@ -68,7 +68,7 @@ public class TeamService {
             log.error("Team {} not found for creation", teamId);
             return null;
         }
-        return createTeam(teamsContainer.getResponse().get(0).getTeam());
+        return getTeamById(Long.parseLong(teamId)).orElse(createTeam(teamsContainer.getResponse().get(0).getTeam()));
     }
 
     private Team createTeam(TeamResponse teamResponse) {
