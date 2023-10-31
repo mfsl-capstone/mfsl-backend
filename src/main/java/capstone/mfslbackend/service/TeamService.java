@@ -12,7 +12,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,7 @@ import java.util.Optional;
 @Slf4j
 public class TeamService {
     @Value("${base.url}")
-    String baseUrl;
+    private String baseUrl;
     private final TeamRepository teamRepository;
     private final ApiService apiService;
 
@@ -47,9 +46,9 @@ public class TeamService {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(teamsContainer.getTeams().stream()
-                .map(team -> getTeamById(team.getId())
-                        .orElse(createTeamById(String.valueOf(team.getId()))))
+        return ResponseEntity.ok(teamsContainer.getResponse().stream()
+                .map(team -> getTeamById(team.getTeam().getId())
+                        .orElse(createTeamById(String.valueOf(team.getTeam().getId()))))
                 .toList());
     }
 
@@ -69,7 +68,7 @@ public class TeamService {
             log.error("Team {} not found for creation", teamId);
             return null;
         }
-        return createTeam(teamsContainer.getTeams().get(0));
+        return createTeam(teamsContainer.getResponse().get(0).getTeam());
     }
 
     private Team createTeam(TeamResponse teamResponse) {
