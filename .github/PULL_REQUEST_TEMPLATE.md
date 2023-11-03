@@ -36,7 +36,7 @@
 - [ ] I have ensured that new and existing integrations work with my changes.
 - [ ] I have set `@EnableMethodSecurity(securedEnabled)` to true in SecurityConfiguration.java
 
-**Dependencies:**
+**Dependencies (if applicable):**
 <!-- List any dependencies that this PR introduces and the steps taken to mitigate impact on other components. -->
 
 ---
