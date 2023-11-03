@@ -22,3 +22,7 @@ Spring while the frontend will be implemented using the React framework
 
 You might need to change the version of the docker image from latest if you are experiencing difficulties 
 with the second command. You can find the version of the image in the outputs of the first command
+
+## Running the app locally
+* `source YOUR_ENVIRONMENT_FILE` (`YOUR_ENVIRONMENT_FILE` should be replaced with the absolute path to a file with real environment variables.)
+* `mvn spring-boot:run`
