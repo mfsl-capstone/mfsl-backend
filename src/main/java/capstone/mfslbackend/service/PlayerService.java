@@ -58,7 +58,6 @@ public class PlayerService {
             log.error("empty squad found for team {}", teamId);
             return null;
         }
-        log.warn(playersContainer.toString());
         return playersContainer.getResponse().get(0).getPlayers().stream()
                 .map(playerResponse -> createPlayer(playerResponse, teamId))
                 .filter(Objects::nonNull)
@@ -76,12 +75,14 @@ public class PlayerService {
         if (p.isPresent()) {
             Player player = p.get();
 
-            if (!player.getPosition().equals(playerResponse.getPosition()))
-                updatePlayerPositionById(playerResponse.getId(), playerResponse.getPosition());
-
-            if (player.getNumber()!=null && !player.getNumber().equals(playerResponse.getNumber()))
-                updatePlayerNumberById(playerResponse.getId(), playerResponse.getNumber());
-
+            if (!player.getPosition().equals(playerResponse.getPosition())) {
+                player.setPosition(playerResponse.getPosition());
+                playerRepository.save(player);
+            }
+            if (playerResponse.getNumber()!=null && !playerResponse.getNumber().equals(player.getNumber()) ) {
+                player.setNumber(playerResponse.getNumber());
+                playerRepository.save(player);
+            }
             if (!player.getTeam().getTeamId().equals(teamId)){
                 player.setTeam(team);
                 playerRepository.save(player);
@@ -103,14 +104,5 @@ public class PlayerService {
         Optional<Player> player = playerRepository.findById(playerId);
         if (player.isEmpty()) log.warn("no player with id {} found", playerId);
         return player;
-    }
-
-    public void updatePlayerNumberById(Long playerId, Integer number) {
-        if (number == null) return;
-        playerRepository.updatePlayerNumberById(playerId, number);
-    }
-    public void updatePlayerPositionById(Long playerId, String position) {
-        if (position.isEmpty()) return;
-        playerRepository.updatePlayerPositionById(playerId, position);
     }
 }
