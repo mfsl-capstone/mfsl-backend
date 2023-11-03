@@ -4,6 +4,11 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
 import org.springframework.http.ResponseEntity;
+<<<<<<< HEAD
+=======
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+>>>>>>> 3506e50 (Implemented method level security)
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +28,10 @@ public class TeamController {
         this.teamService = teamService;
     }
 
-    @GetMapping("{teamId}")
-    public ResponseEntity<Team> getTeam(@PathVariable long teamId) {
+
+    @GetMapping("/team")
+    @Secured({"LEAGUE_MEMBER", "LEAGUE_ADMIN"})
+    public ResponseEntity<Team> getTeam(@RequestParam long teamId) {
         Optional<Team> team = teamService.getTeamById(teamId);
         return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
