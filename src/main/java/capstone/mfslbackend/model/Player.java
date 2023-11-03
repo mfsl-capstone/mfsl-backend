@@ -1,13 +1,13 @@
 package capstone.mfslbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -16,23 +16,25 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString
 @Entity
-public class Team {
+public class Player {
     @Id
-    private Long teamId;
+    private Long playerId;
     private String name;
+    private String position;
     private String url;
+    private Integer number;
 
-    @ToString.Exclude
-    @JsonIgnore
-    @OneToMany(mappedBy = "team")
-    private List<Player> players;
+    @ManyToOne(cascade = jakarta.persistence.CascadeType.PERSIST, optional = false)
+    @JoinColumn(name = "team_id", nullable = false)
+    private Team team;
 
-//    @ManyToMany
-//    @JsonIgnore
-//    @ToString.Exclude
-//    private List<Game> games;
+//    @OneToMany
+//    private List<PlayerGameStats> playerGameStats;
 
-//    IntelliJ suggests this stuff instead of @Data
+//    public void addMatchday(PlayerGameStats matchDay) {
+//        this.playerGameStats.add(matchDay);
+//    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -40,8 +42,8 @@ public class Team {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Team team = (Team) o;
-        return getTeamId() != null && Objects.equals(getTeamId(), team.getTeamId());
+        Player player = (Player) o;
+        return getPlayerId() != null && Objects.equals(getPlayerId(), player.getPlayerId());
     }
 
     @Override

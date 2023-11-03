@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.TeamRepository;
 import capstone.mfslbackend.response.container.TeamsContainer;
@@ -12,20 +13,23 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Slf4j
 public class TeamService {
-    @Value("${base.url}")
-    private String baseUrl;
+
+    private final String baseUrl;
     private final TeamRepository teamRepository;
     private final ApiService apiService;
 
-    public TeamService(TeamRepository teamRepository, ApiService apiService) {
+    public TeamService(TeamRepository teamRepository, ApiService apiService,
+                       @Value("${base.url}") String baseUrl) {
         this.teamRepository = teamRepository;
         this.apiService = apiService;
+        this.baseUrl = baseUrl;
     }
 
     public ResponseEntity<List<Team>> createTeamsInLeague(String leagueId, String season) {
@@ -48,11 +52,11 @@ public class TeamService {
 
         return ResponseEntity.ok(teamsContainer.getResponse().stream()
                 .map(team -> getTeamById(team.getTeam().getId())
-                        .orElse(createTeamById(String.valueOf(team.getTeam().getId()))))
+                        .orElse(createTeamById(team.getTeam().getId())))
                 .toList());
     }
 
-    public Team createTeamById(String teamId) {
+    public Team createTeamById(Long teamId) {
         TeamsContainer teamsContainer;
         try {
             URL url = UriComponentsBuilder.fromUriString(baseUrl)
@@ -68,11 +72,11 @@ public class TeamService {
             log.error("Team {} not found for creation", teamId);
             return null;
         }
-        return getTeamById(Long.parseLong(teamId)).orElse(createTeam(teamsContainer.getResponse().get(0).getTeam()));
+        return getTeamById(teamId).orElse(createTeam(teamsContainer.getResponse().get(0).getTeam()));
     }
 
     private Team createTeam(TeamResponse teamResponse) {
-        Team team = new Team(teamResponse.getId(), teamResponse.getName(), teamResponse.getLogo());
+        Team team = new Team(teamResponse.getId(), teamResponse.getName(), teamResponse.getLogo(), new ArrayList<>());
         return teamRepository.save(team);
     }
 
@@ -88,4 +92,9 @@ public class TeamService {
         return teams;
     }
 
+    public List<Player> getPlayersOnTeam(Long teamId) {
+        Optional<Team> team = getTeamById(teamId);
+        if (team.isEmpty()) return new ArrayList<>();
+        return team.get().getPlayers();
+    }
 }

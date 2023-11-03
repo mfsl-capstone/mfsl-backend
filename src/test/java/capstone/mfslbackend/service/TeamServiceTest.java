@@ -8,12 +8,10 @@ import capstone.mfslbackend.response.dto.TeamsResponse;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.CollectionUtils;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
@@ -34,14 +32,10 @@ public class TeamServiceTest {
     @Mock
     private ApiService apiService;
 
-    @InjectMocks
-    private TeamService teamService;
+    private final TeamService teamService = new TeamService(teamRepository, apiService,"https://test.com");
 
     @Before
     public void setup() {
-        ReflectionTestUtils.setField(teamService, "apiService", apiService);
-        ReflectionTestUtils.setField(teamService, "teamRepository", teamRepository);
-        ReflectionTestUtils.setField(teamService, "baseUrl", "http://test.com");
         lenient().when(teamRepository.save(Mockito.any()))
                 .then(returnsFirstArg());
     }
@@ -86,7 +80,7 @@ public class TeamServiceTest {
         String leagueId = "123";
         String season = "2023";
 
-        Long teamId = 1L;
+        long teamId = 1L;
         String teamName = "test";
         // Mock the ApiService to return a list of teams
         TeamsContainer teamsContainer = new TeamsContainer();
@@ -103,7 +97,7 @@ public class TeamServiceTest {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
         Long newTeamId = 2L;
-        Team team = new Team(newTeamId, teamName, teamName);
+        Team team = new Team(newTeamId, teamName, teamName, new ArrayList<>());
         Mockito.when(teamRepository.findById(Mockito.any()))
                 .thenReturn(Optional.of(team));
 
@@ -152,7 +146,7 @@ public class TeamServiceTest {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
 
-        Team team = teamService.createTeamById(String.valueOf(teamId));
+        Team team = teamService.createTeamById(teamId);
         assertNotNull(team);
         assertEquals(teamId, team.getTeamId());
         assertEquals(teamName, team.getName());
@@ -161,7 +155,7 @@ public class TeamServiceTest {
 
     @Test
     public void testCreateTeamById_SuccessExistsAlready() throws IOException {
-        Long teamId = 1L;
+        long teamId = 1L;
         String teamName = "test";
         TeamsContainer teamsContainer = new TeamsContainer();
         List<TeamsResponse> teamsResponses = new ArrayList<>();
@@ -177,11 +171,11 @@ public class TeamServiceTest {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
         Long newTeamId = 2L;
-        Team team2 = new Team(newTeamId, teamName, teamName);
+        Team team2 = new Team(newTeamId, teamName, teamName, new ArrayList<>());
         Mockito.when(teamRepository.findById(Mockito.any()))
                 .thenReturn(Optional.of(team2));
 
-        Team team = teamService.createTeamById(String.valueOf(teamId));
+        Team team = teamService.createTeamById(teamId);
         assertNotNull(team);
         assertEquals(newTeamId, team.getTeamId());
         assertEquals(teamName, team.getName());
@@ -192,7 +186,7 @@ public class TeamServiceTest {
     public void testCreateTeamById_Error() throws IOException {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenThrow(new IOException("test exception"));
-        Team team = teamService.createTeamById("1");
+        Team team = teamService.createTeamById(1L);
         assertNull(team);
     }
 
@@ -200,7 +194,7 @@ public class TeamServiceTest {
     public void testCreateTeamById_NotFound() throws IOException {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(new TeamsContainer());
-        Team team = teamService.createTeamById("1");
+        Team team = teamService.createTeamById(1L);
         assertNull(team);
     }
 }

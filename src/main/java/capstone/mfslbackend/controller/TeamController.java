@@ -1,18 +1,19 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 
-@Controller
+@RestController()
 public class TeamController {
     private final TeamService teamService;
     public TeamController(TeamService teamService) {
@@ -31,7 +32,7 @@ public class TeamController {
         return ResponseEntity.ok(teams);
     }
     @PostMapping("/team")
-    public ResponseEntity<Team> createTeam(@RequestParam String teamId) {
+    public ResponseEntity<Team> createTeam(@RequestParam Long teamId) {
         Team team = teamService.createTeamById(teamId);
         if (team == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(team);
@@ -40,5 +41,11 @@ public class TeamController {
     public ResponseEntity<List<Team>> createTeamByLeague(@RequestParam String leagueId,
                                                          @RequestParam String season) {
         return teamService.createTeamsInLeague(leagueId, season);
+    }
+    @GetMapping("/team/players")
+    public ResponseEntity<List<Player>> getPlayersOnTeam(@RequestParam Long teamId) {
+        List<Player> players = teamService.getPlayersOnTeam(teamId);
+        if (CollectionUtils.isEmpty(players)) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(players);
     }
 }
