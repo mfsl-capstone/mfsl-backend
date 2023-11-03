@@ -32,11 +32,11 @@
 - [ ] I have added tests that prove my fix is effective or that my feature works.
 - [ ] New and existing unit tests pass locally with my changes.
 - [ ] Any dependent changes have been merged and published in downstream modules. (If not, this should be a draft PR)
-- [ ] I have rebased my branch onto main before opening this PR, and resolved any merge conflicts.
+- [ ] I have [rebased](https://mfslcapstone.atlassian.net/wiki/spaces/SD/pages/4456479/How+To%3A+Rebase+Branch+Onto+Main) my branch onto main before opening this PR, and resolved any merge conflicts.
 - [ ] I have ensured that new and existing integrations work with my changes.
 - [ ] I have set `@EnableMethodSecurity(securedEnabled)` to true in SecurityConfiguration.java
 
-**Dependencies:**
+**Dependencies (if applicable):**
 <!-- List any dependencies that this PR introduces and the steps taken to mitigate impact on other components. -->
 
 ---
