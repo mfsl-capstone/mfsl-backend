@@ -1,5 +1,7 @@
 ## Description
 
+<!-- Upon completing this template, please ensure that the PR title and content accurately reflect the changes -->
+
 **JIRA Ticket:** [XXX-###](https://mfslcapstone.atlassian.net/browse/XXX-###)
 
 **Summary:**
@@ -17,18 +19,11 @@
 - [ ] Performance enhancement (non-breaking change which improves efficiency)
 - [ ] Code cleanup (non-functional change which does not add or remove functionality)
 
-## Testing
-
-**Test Configuration:**
-<!-- Please describe your test configuration and the tests that you ran to verify your changes. Include any third-party dependencies that are required for this test. -->
-
-**How to Run the Test:**
-<!-- Provide step-by-step instructions on how to run the tests. Also, list any relevant details of your test environment. -->
-
 ## Checklist
 
 <!-- Please check off the items you have completed and provide explanations as necessary. -->
 
+- [ ] My branch and PR name follow the naming conventions the team has established.
 - [ ] My code follows the style guidelines of this project.
 - [ ] I have performed a self-review of my own code.
 - [ ] I have commented my code, particularly in hard-to-understand areas.
@@ -45,6 +40,4 @@
 <!-- List any dependencies that this PR introduces and the steps taken to mitigate impact on other components. -->
 
 ---
-
-<!-- Upon completing this template, please ensure that the PR title and content accurately reflect the changes and follow any PR naming conventions our team has established. -->
 
