@@ -12,9 +12,13 @@ import java.net.URLConnection;
 
 @Service
 public class ApiService {
-    @Value("${football.api.key}")
-    String footballApiKey;
-    ObjectMapper mapper = new ObjectMapper();
+    private final String footballApiKey;
+    private final ObjectMapper mapper;
+    public ApiService(@Value("${football.api.key}") String footballApiKey) {
+        this.footballApiKey = footballApiKey;
+        this.mapper = new ObjectMapper();
+    }
+
     public <T> T getRequest(URL url, Class<T> type) throws IOException {
         URLConnection yc = url.openConnection();
         yc.setRequestProperty("x-rapidapi-key", footballApiKey);
