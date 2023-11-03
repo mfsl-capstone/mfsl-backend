@@ -23,7 +23,7 @@
 
 <!-- Please check off the items you have completed and provide explanations as necessary. -->
 
-- [ ] My branch and PR name follow the naming conventions the team has established.
+- [ ] My branch and PR name follow the [naming conventions](https://mfslcapstone.atlassian.net/wiki/spaces/SD/pages/4358145/Development+Naming+Conventions) the team has established.
 - [ ] My code follows the style guidelines of this project.
 - [ ] I have performed a self-review of my own code.
 - [ ] I have commented my code, particularly in hard-to-understand areas.
