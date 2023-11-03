@@ -17,11 +17,12 @@ Spring while the frontend will be implemented using the React framework
 ## Running the app
 
 ### Docker
-* `docker run --env-file YOUR_ENVIRONMENT_FILE -p 8080:8080 mfsl-backend:0.0.1-SNAPSHOT`
+* `source YOUR_ENVIRONMENT_FILE`
 * `mvn spring-boot:build-image`
+* `docker run --env-file YOUR_ENVIRONMENT_FILE -p 8080:8080 mfsl-backend:0.0.1-SNAPSHOT`
 
 You might need to change the version of the docker image from latest if you are experiencing difficulties 
-with the second command. You can find the version of the image in the outputs of the first command
+with the third command. You can find the version of the image in the outputs of the second command
 
 ### Locally
 * `source YOUR_ENVIRONMENT_FILE` 
