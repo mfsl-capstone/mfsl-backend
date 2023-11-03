@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.TeamRepository;
@@ -76,7 +77,7 @@ public class TeamService {
     }
 
     private Team createTeam(TeamResponse teamResponse) {
-        Team team = new Team(teamResponse.getId(), teamResponse.getName(), teamResponse.getLogo(), new ArrayList<>());
+        Team team = new Team(teamResponse.getId(), teamResponse.getName(), teamResponse.getLogo(), new ArrayList<>(), new ArrayList<>());
         return teamRepository.save(team);
     }
 
@@ -102,5 +103,10 @@ public class TeamService {
             return new ArrayList<>();
         }
         return team.get().getPlayers();
+    }
+
+//    todo: write this function
+    public void addGameToTeam(Long teamId, Game game) {
+        return;
     }
 }

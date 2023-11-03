@@ -11,9 +11,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TeamsResponse {
-    private TeamResponse team;
-    private TeamResponse home;
-    private TeamResponse away;
-
+public class FixtureResponse {
+    long id;
+    String date;
 }

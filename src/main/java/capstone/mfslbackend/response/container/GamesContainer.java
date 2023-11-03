@@ -1,19 +1,23 @@
-package capstone.mfslbackend.response.dto;
+package capstone.mfslbackend.response.container;
 
+import capstone.mfslbackend.response.dto.GamesResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TeamsResponse {
-    private TeamResponse team;
-    private TeamResponse home;
-    private TeamResponse away;
+public class GamesContainer {
+    Paging paging;
+    String message;
+    Integer results;
+    List<GamesResponse> response;
 
 }

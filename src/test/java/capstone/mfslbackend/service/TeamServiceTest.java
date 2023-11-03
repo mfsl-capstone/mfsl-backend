@@ -61,7 +61,7 @@ public class TeamServiceTest {
         teamResponse1.setName(teamName);
         teamResponse1.setLogo(teamName);
 
-        teamsResponses.add(new TeamsResponse(teamResponse1));
+        teamsResponses.add(new TeamsResponse(teamResponse1,null,null));
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
@@ -95,13 +95,13 @@ public class TeamServiceTest {
         teamResponse1.setName(teamName);
         teamResponse1.setLogo(teamName);
 
-        teamsResponses.add(new TeamsResponse(teamResponse1));
+        teamsResponses.add(new TeamsResponse(teamResponse1,null,null));
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
         Long newTeamId = 2L;
-        Team team = new Team(newTeamId, teamName, teamName, new ArrayList<>());
+        Team team = new Team(newTeamId, teamName, teamName, new ArrayList<>(), new ArrayList<>());
         Mockito.when(teamRepository.findById(Mockito.any()))
                 .thenReturn(Optional.of(team));
 
@@ -144,7 +144,7 @@ public class TeamServiceTest {
         teamResponse1.setName(teamName);
         teamResponse1.setLogo(teamName);
 
-        teamsResponses.add(new TeamsResponse(teamResponse1));
+        teamsResponses.add(new TeamsResponse(teamResponse1, null, null));
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
@@ -169,13 +169,13 @@ public class TeamServiceTest {
         teamResponse1.setName(teamName);
         teamResponse1.setLogo(teamName);
 
-        teamsResponses.add(new TeamsResponse(teamResponse1));
+        teamsResponses.add(new TeamsResponse(teamResponse1,null,null));
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
         Long newTeamId = 2L;
-        Team team2 = new Team(newTeamId, teamName, teamName, new ArrayList<>());
+        Team team2 = new Team(newTeamId, teamName, teamName, new ArrayList<>(), new ArrayList<>());
         Mockito.when(teamRepository.findById(Mockito.any()))
                 .thenReturn(Optional.of(team2));
 

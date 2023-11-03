@@ -3,6 +3,7 @@ package capstone.mfslbackend.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,10 +32,10 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private List<Player> players;
 
-//    @ManyToMany
-//    @JsonIgnore
-//    @ToString.Exclude
-//    private List<Game> games;
+    @ToString.Exclude
+    @JsonIgnore
+    @ManyToMany
+    private List<Game> games;
 
 //    IntelliJ suggests this stuff instead of @Data
     @Override
