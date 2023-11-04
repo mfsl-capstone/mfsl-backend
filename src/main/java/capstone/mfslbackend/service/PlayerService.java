@@ -51,12 +51,12 @@ public class PlayerService {
             playersContainer = apiService.getRequest(url, PlayersContainer.class);
         } catch (Exception e) {
             log.error("error getting squad for team {}", teamId, e);
-            return null;
+            return new ArrayList<>(); // Return an empty list if there's an error.
         }
         if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())
                 || CollectionUtils.isEmpty(playersContainer.getResponse().get(0).getPlayers())) {
             log.error("empty squad found for team {}", teamId);
-            return null;
+            return new ArrayList<>(); // Return an empty list if there's no data.
         }
         return playersContainer.getResponse().get(0).getPlayers().stream()
                 .map(playerResponse -> createPlayer(playerResponse, teamId))
@@ -77,27 +77,27 @@ public class PlayerService {
 
             if (!player.getPosition().equals(playerResponse.getPosition())) {
                 player.setPosition(playerResponse.getPosition());
-                playerRepository.save(player);
             }
             if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
                 player.setNumber(playerResponse.getNumber());
-                playerRepository.save(player);
             }
-            if (!player.getTeam().getTeamId().equals(teamId)) {
+
+            if (!player.getTeam().equals(team)) {
                 player.setTeam(team);
-                playerRepository.save(player);
             }
-            return player;
+
+            return playerRepository.save(player);
         }
-        Player player = new Player();
-        player.setPlayerId(playerResponse.getId());
-        player.setName(playerResponse.getName());
-        player.setUrl(playerResponse.getPhoto());
-        player.setPosition(playerResponse.getPosition());
-        player.setNumber(playerResponse.getNumber());
-        player.setTeam(team);
-        playerRepository.save(player);
-        return player;
+
+        Player player = new Player(
+                playerResponse.getId(),
+                playerResponse.getName(),
+                playerResponse.getPhoto(),
+                playerResponse.getPosition(),
+                playerResponse.getNumber(),
+                team
+        );
+        return playerRepository.save(player);
     }
 
     public Optional<Player> getPlayerById(Long playerId) {
@@ -106,5 +106,6 @@ public class PlayerService {
             log.warn("no player with id {} found", playerId);
         }
         return player;
+
     }
 }

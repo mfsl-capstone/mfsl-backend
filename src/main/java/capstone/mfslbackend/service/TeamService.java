@@ -105,8 +105,25 @@ public class TeamService {
         return team.get().getPlayers();
     }
 
-//    todo: write this function
-    public void addGameToTeam(Long teamId, Game game) {
-        return;
+    public List<Game> getGamesForTeam(Long teamId) {
+        Optional<Team> team = getTeamById(teamId);
+        if (team.isEmpty()) return new ArrayList<>();
+        return team.get().getGames();
     }
+
+    public void addGameToTeam(Long teamId, Game game) {
+        Optional<Team> optionalTeam = getTeamById(teamId);
+        if (optionalTeam.isPresent()) {
+            Team team = optionalTeam.get();
+            if (!team.getGames().contains(game)) {
+                team.getGames().add(game);
+                teamRepository.save(team);
+            } else {
+                log.warn("Game {} is already associated with Team {}", game.getId(), teamId);
+            }
+        } else {
+            log.error("Team with ID {} not found. Cannot add game.", teamId);
+        }
+    }
+
 }

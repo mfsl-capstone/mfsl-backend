@@ -38,6 +38,13 @@ public class Team {
     private List<Game> games;
 
 //    IntelliJ suggests this stuff instead of @Data
+
+    public Team(Long teamId, String name, String url){
+        this.teamId = teamId;
+        this.name = name;
+        this.url = url;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) {

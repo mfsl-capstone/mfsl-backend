@@ -9,16 +9,30 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+//@RequiredArgsConstructor
 @Entity
 public class Game {
     @Id
     Long id;
     String date;
     String round;
+
+    public Game() {
+        // Default constructor
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setRound(String round) {
+        this.round = round;
+    }
+
 
     @Override
     public final boolean equals(Object o) {

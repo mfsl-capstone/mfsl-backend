@@ -59,7 +59,12 @@ public class GameService {
         Team home = h.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getHome().getId()));
         Team away = a.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getAway().getId()));
 
-        Game game = new Game(gamesResponse.getFixture().getId(), gamesResponse.getFixture().getDate(), gamesResponse.getLeague().getRound());
+        //Game game = new Game(gamesResponse.getFixture().getId(), gamesResponse.getFixture().getDate(), gamesResponse.getLeague().getRound());
+        Game game = new Game();
+        game.setId(gamesResponse.getFixture().getId());
+        game.setDate(gamesResponse.getFixture().getDate());
+        game.setRound(gamesResponse.getLeague().getRound());
+
         gameRepository.save(game);
 
         teamService.addGameToTeam(home.getTeamId(), game);
@@ -67,4 +72,25 @@ public class GameService {
 
         return game;
     }
+
+
+    public Optional<Game> getGamebyID(long gameId) {
+            Optional<Game> game = gameRepository.findById(gameId);
+            if (game.isEmpty()) log.warn("could not find game with id {}", gameId);
+
+            return game;
+        }
+
+    public List<Game> getGamesByRound(String round) {
+        List<Game> allgames = gameRepository.findAll();
+        for(int i=0; i<allgames.size(); i++){
+            if(!allgames.get(i).getRound().equals(round)){
+                allgames.remove(i);
+                i--;
+            }
+        }
+      return allgames;
+    }
+
+
 }
