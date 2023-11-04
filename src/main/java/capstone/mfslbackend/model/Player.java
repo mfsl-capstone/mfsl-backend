@@ -1,10 +1,7 @@
 package capstone.mfslbackend.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -32,12 +31,8 @@ public class Player {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-//    @OneToMany
-//    private List<PlayerGameStats> playerGameStats;
-
-//    public void addMatchday(PlayerGameStats matchDay) {
-//        this.playerGameStats.add(matchDay);
-//    }
+    @OneToMany(mappedBy = "player")
+    private List<PlayerGameStats> playerGameStats = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {
