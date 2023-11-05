@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class GamesResponse {
-    TeamsResponse teams;
-    LeagueResponse league;
-    FixtureResponse fixture;
+    private TeamsResponse teams;
+    private LeagueResponse league;
+    private FixtureResponse fixture;
 }

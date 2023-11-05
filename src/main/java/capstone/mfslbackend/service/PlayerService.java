@@ -86,7 +86,7 @@ public class PlayerService {
                 player.setTeam(team);
             }
 
-            return playerRepository.save(player);
+            return player;
         }
 
         Player player = new Player(
@@ -97,15 +97,15 @@ public class PlayerService {
                 playerResponse.getNumber(),
                 team
         );
-        return playerRepository.save(player);
+        return player;
     }
 
     public Optional<Player> getPlayerById(Long playerId) {
         Optional<Player> player = playerRepository.findById(playerId);
+
         if (player.isEmpty()) {
             log.warn("no player with id {} found", playerId);
         }
         return player;
-
     }
 }

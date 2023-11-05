@@ -107,7 +107,9 @@ public class TeamService {
 
     public List<Game> getGamesForTeam(Long teamId) {
         Optional<Team> team = getTeamById(teamId);
-        if (team.isEmpty()) return new ArrayList<>();
+        if (team.isEmpty()) {
+            return new ArrayList<>();
+        }
         return team.get().getGames();
     }
 
@@ -125,5 +127,5 @@ public class TeamService {
             log.error("Team with ID {} not found. Cannot add game.", teamId);
         }
     }
-//committ
+
 }

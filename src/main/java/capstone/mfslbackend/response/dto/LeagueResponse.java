@@ -15,11 +15,11 @@ import java.io.Serializable;
 @ToString
 public class LeagueResponse implements Serializable {
 
-    Integer id;
-    String name;
-    String country;
-    String logo;
-    String flag;
-    Integer season;
-    String round;
+    private Integer id;
+    private String name;
+    private String country;
+    private String logo;
+    private String flag;
+    private Integer season;
+    private String round;
 }

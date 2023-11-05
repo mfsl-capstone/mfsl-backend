@@ -39,7 +39,7 @@ public class Team {
 
 //    IntelliJ suggests this stuff instead of @Data
 
-    public Team(Long teamId, String name, String url){
+    public Team(Long teamId, String name, String url) {
         this.teamId = teamId;
         this.name = name;
         this.url = url;

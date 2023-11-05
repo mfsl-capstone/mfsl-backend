@@ -12,6 +12,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class FixtureResponse {
-    long id;
-    String date;
+    private long id;
+    private String date;
 }

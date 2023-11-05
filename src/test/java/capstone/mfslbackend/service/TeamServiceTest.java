@@ -50,8 +50,9 @@ public class TeamServiceTest {
         String leagueId = "123";
         String season = "2023";
 
-        long teamId = 1L;
+        Long teamId = 1L;
         String teamName = "test";
+
         // Mock the ApiService to return a list of teams
         TeamsContainer teamsContainer = new TeamsContainer();
         List<TeamsResponse> teamsResponses = new ArrayList<>();
@@ -75,9 +76,7 @@ public class TeamServiceTest {
         assertEquals(200, responseEntity.getStatusCode().value()); // Status code should be OK
         List<Team> teams = responseEntity.getBody();
         assertFalse(CollectionUtils.isEmpty(teams)); // Teams should not be empty
-        Team actualTeam = teams.get(0);
-        assertEquals(Optional.of(teamId), Optional.ofNullable(actualTeam.getTeamId()));
-        assertEquals(teamName, teams.get(0).getName());
+        assertEquals(teamId, teams.get(0).getTeamId());
     }
 
     @Test
@@ -97,18 +96,13 @@ public class TeamServiceTest {
         teamResponse1.setName(teamName);
         teamResponse1.setLogo(teamName);
 
-        teamsResponses.add(new TeamsResponse(teamResponse1,null,null));
+        teamsResponses.add(new TeamsResponse(teamResponse1, null, null));
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
         Long newTeamId = 2L;
-
-        Team team = new Team();
-        team.setTeamId(newTeamId);
-        team.setName(teamName);
-        team.setUrl(teamName);
-
+        Team team = new Team(newTeamId, teamName, teamName, new ArrayList<>(), new ArrayList<>());
         Mockito.when(teamRepository.findById(Mockito.any()))
                 .thenReturn(Optional.of(team));
 
@@ -121,6 +115,7 @@ public class TeamServiceTest {
         assertFalse(CollectionUtils.isEmpty(teams)); // Teams should not be empty
         assertEquals(newTeamId, teams.get(0).getTeamId());
         assertEquals(teamName, teams.get(0).getName());
+
     }
 
     @Test
@@ -152,7 +147,6 @@ public class TeamServiceTest {
         teamResponse1.setLogo(teamName);
 
         teamsResponses.add(new TeamsResponse(teamResponse1, null, null));
-
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
@@ -172,12 +166,13 @@ public class TeamServiceTest {
         TeamsContainer teamsContainer = new TeamsContainer();
         List<TeamsResponse> teamsResponses = new ArrayList<>();
 
-        TeamResponse teamResponse1 = new TeamResponse(teamId, teamName, teamName, teamName, true, teamName, teamName, 1, true);
-//        teamResponse1.setId(teamId);
-//        teamResponse1.setName(teamName);
-//        teamResponse1.setLogo(teamName);
+        TeamResponse teamResponse1 = new TeamResponse();
+        teamResponse1.setId(teamId);
+        teamResponse1.setName(teamName);
+        teamResponse1.setLogo(teamName);
 
-        teamsResponses.add(new TeamsResponse(teamResponse1,null,null));
+        teamsResponses.add(new TeamsResponse(teamResponse1, null, null));
+
         teamsContainer.setResponse(teamsResponses);
 
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))

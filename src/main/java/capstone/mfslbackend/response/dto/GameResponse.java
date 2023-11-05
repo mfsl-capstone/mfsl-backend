@@ -14,10 +14,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class GameResponse implements Serializable {
-    Integer minutes;
-    Integer number;
-    String position;
-    Float rating;
-    boolean captain;
-    boolean substitute;
+    private Integer minutes;
+    private Integer number;
+    private String position;
+    private Float rating;
+    private boolean captain;
+    private boolean substitute;
 }

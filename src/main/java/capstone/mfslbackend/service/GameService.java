@@ -24,7 +24,7 @@ public class GameService {
     private final ApiService apiService;
     private final TeamService teamService;
     public GameService(GameRepository gameRepository, ApiService apiService, TeamService teamService,
-                       @Value("${base.url}") String baseUrl){
+                       @Value("${base.url}") String baseUrl) {
         this.gameRepository = gameRepository;
         this.apiService = apiService;
         this.teamService = teamService;
@@ -59,7 +59,6 @@ public class GameService {
         Team home = h.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getHome().getId()));
         Team away = a.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getAway().getId()));
 
-        //Game game = new Game(gamesResponse.getFixture().getId(), gamesResponse.getFixture().getDate(), gamesResponse.getLeague().getRound());
         Game game = new Game();
         game.setId(gamesResponse.getFixture().getId());
         game.setDate(gamesResponse.getFixture().getDate());
@@ -76,21 +75,16 @@ public class GameService {
 
     public Optional<Game> getGamebyID(long gameId) {
             Optional<Game> game = gameRepository.findById(gameId);
-            if (game.isEmpty()) log.warn("could not find game with id {}", gameId);
-
+            if (game.isEmpty()) {
+                log.warn("could not find game with id {}", gameId);
+            }
             return game;
         }
 
     public List<Game> getGamesByRound(String round) {
-        List<Game> allgames = gameRepository.findAll();
-        for(int i=0; i<allgames.size(); i++){
-            if(!allgames.get(i).getRound().equals(round)){
-                allgames.remove(i);
-                i--;
-            }
-        }
-      return allgames;
+        List<Game> allGames = gameRepository.findAll();
+      return allGames.stream().filter(game -> game.getRound().equals(round)).toList();
     }
-///commit
+
 
 }
