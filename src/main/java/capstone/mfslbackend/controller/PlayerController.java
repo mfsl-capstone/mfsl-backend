@@ -4,7 +4,12 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.service.PlayerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +30,9 @@ public class PlayerController {
     @PostMapping("create-team")
     public ResponseEntity<List<Player>> createPlayersInTeam(@RequestParam Long teamId) {
         List<Player> players = playerService.createAllPlayersForTeam(teamId);
-        if (CollectionUtils.isEmpty(players)) return ResponseEntity.notFound().build();
+        if (CollectionUtils.isEmpty(players)) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(players);
     }
     @PostMapping("create-all")

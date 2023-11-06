@@ -14,6 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class PlayersResponse {
-    TeamResponse team;
-    List<PlayerResponse> players;
+    private TeamResponse team;
+    private List<PlayerResponse> players;
 }

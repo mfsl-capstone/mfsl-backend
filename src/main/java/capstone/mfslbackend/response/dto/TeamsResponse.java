@@ -12,5 +12,5 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class TeamsResponse {
-    TeamResponse team;
+    private TeamResponse team;
 }

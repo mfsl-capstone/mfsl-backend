@@ -14,13 +14,13 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class TeamResponse implements Serializable {
-    long id;
-    String name;
-    String logo;
-    String update;
-    Boolean winner;
-    String code;
-    String country;
-    Integer founded;
-    Boolean national;
+    private long id;
+    private String name;
+    private String logo;
+    private String update;
+    private Boolean winner;
+    private String code;
+    private String country;
+    private Integer founded;
+    private Boolean national;
 }

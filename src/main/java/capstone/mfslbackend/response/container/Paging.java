@@ -12,6 +12,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class Paging {
-    Integer current;
-    Integer total;
+    private Integer current;
+    private Integer total;
 }
