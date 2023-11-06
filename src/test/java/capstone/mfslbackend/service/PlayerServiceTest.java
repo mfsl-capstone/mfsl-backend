@@ -7,12 +7,11 @@ import capstone.mfslbackend.response.container.PlayersContainer;
 import capstone.mfslbackend.response.dto.PlayerResponse;
 import capstone.mfslbackend.response.dto.PlayersResponse;
 import capstone.mfslbackend.response.dto.TeamResponse;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -29,7 +28,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class PlayerServiceTest {
 
     @Mock
@@ -39,7 +38,7 @@ public class PlayerServiceTest {
     @Mock
     private ApiService apiService;
     private final PlayerService playerService = new PlayerService(playerRepository, teamService, apiService, "http://test.url");
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         Player player1 = new Player(1L, "player1", "Attacker", "p1.pic", 9, null);
         Player player2 = new Player(2L, "player2", "Defender", "p2.pic", 5, null);

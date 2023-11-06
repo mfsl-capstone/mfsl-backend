@@ -5,14 +5,16 @@ import capstone.mfslbackend.repository.TeamRepository;
 import capstone.mfslbackend.response.container.TeamsContainer;
 import capstone.mfslbackend.response.dto.TeamResponse;
 import capstone.mfslbackend.response.dto.TeamsResponse;
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.CollectionUtils;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 import java.io.IOException;
@@ -20,10 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.lenient;
 
-@RunWith(MockitoJUnitRunner.class)
+@SpringBootTest
 public class TeamServiceTest {
 
     @Mock
@@ -32,10 +33,13 @@ public class TeamServiceTest {
     @Mock
     private ApiService apiService;
 
-    private final TeamService teamService = new TeamService(teamRepository, apiService,"https://test.com");
+    private final TeamService teamService = new TeamService(teamRepository, apiService, "https://test.com");
 
-    @Before
+    @BeforeEach
     public void setup() {
+        ReflectionTestUtils.setField(teamService, "apiService", apiService);
+        ReflectionTestUtils.setField(teamService, "teamRepository", teamRepository);
+        ReflectionTestUtils.setField(teamService, "baseUrl", "http://test.url");
         lenient().when(teamRepository.save(Mockito.any()))
                 .then(returnsFirstArg());
     }
