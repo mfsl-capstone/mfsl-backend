@@ -29,7 +29,9 @@ public class LoginService {
         try {
             User user = userRepository.findUserByUsername(username);
 
-            if (user == null) throw new UsernameNotFoundException("No user found for username: " + username);
+            if (user == null) {
+                throw new UsernameNotFoundException("No user found for username: " + username);
+            }
 
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), password)
@@ -39,8 +41,7 @@ public class LoginService {
 
             return new UserDTO(user.getUsername(), user.getAuthorities(), token);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Incorrect username or password!");
         }
     }
