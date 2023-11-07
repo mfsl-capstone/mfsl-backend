@@ -4,18 +4,14 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
 import org.springframework.http.ResponseEntity;
-<<<<<<< HEAD
-=======
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
->>>>>>> 3506e50 (Implemented method level security)
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;

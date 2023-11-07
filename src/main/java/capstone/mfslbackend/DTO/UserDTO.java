@@ -12,7 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class UserDTO {
 
-    public String username;
-    public Set<Authority> authorities;
-    public String token;
+    private String username;
+    private Set<Authority> authorities;
+    private String token;
 }

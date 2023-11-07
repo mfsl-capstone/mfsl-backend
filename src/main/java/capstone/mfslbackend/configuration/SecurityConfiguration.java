@@ -34,6 +34,8 @@ import java.security.interfaces.RSAPublicKey;
 @EnableMethodSecurity(securedEnabled = true)
 @EnableWebSecurity
 public class SecurityConfiguration {
+
+    private static final int KEYSIZE = 2048;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -72,7 +74,7 @@ public class SecurityConfiguration {
     @Bean
     JWKey rsaKeys() throws Exception {
         KeyPairGenerator kg = KeyPairGenerator.getInstance("RSA");
-        kg.initialize(2048);
+        kg.initialize(KEYSIZE);
         var kp = kg.generateKeyPair();
 
         RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) kp.getPrivate();

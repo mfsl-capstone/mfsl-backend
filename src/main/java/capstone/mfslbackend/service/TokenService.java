@@ -18,6 +18,8 @@ public class TokenService {
 
     private final JwtEncoder jwtEncoder;
 
+    private static final int VALIDTIME = 60;
+
     public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
 
@@ -28,7 +30,7 @@ public class TokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(60, ChronoUnit.MINUTES))
+                .expiresAt(now.plus(VALIDTIME, ChronoUnit.MINUTES))
                 .subject(authentication.getName())
                 .claim("scope", scope)
                 .build();
