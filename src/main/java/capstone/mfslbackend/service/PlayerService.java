@@ -53,8 +53,8 @@ public class PlayerService {
             log.error("error getting squad for team {}", teamId, e);
             return null;
         }
-        if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse()) ||
-                CollectionUtils.isEmpty(playersContainer.getResponse().get(0).getPlayers())) {
+        if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())
+                || CollectionUtils.isEmpty(playersContainer.getResponse().get(0).getPlayers())) {
             log.error("empty squad found for team {}", teamId);
             return null;
         }
@@ -79,11 +79,11 @@ public class PlayerService {
                 player.setPosition(playerResponse.getPosition());
                 playerRepository.save(player);
             }
-            if (playerResponse.getNumber()!=null && !playerResponse.getNumber().equals(player.getNumber()) ) {
+            if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
                 player.setNumber(playerResponse.getNumber());
                 playerRepository.save(player);
             }
-            if (!player.getTeam().getTeamId().equals(teamId)){
+            if (!player.getTeam().getTeamId().equals(teamId)) {
                 player.setTeam(team);
                 playerRepository.save(player);
             }
@@ -102,7 +102,9 @@ public class PlayerService {
 
     public Optional<Player> getPlayerById(Long playerId) {
         Optional<Player> player = playerRepository.findById(playerId);
-        if (player.isEmpty()) log.warn("no player with id {} found", playerId);
+        if (player.isEmpty()) {
+            log.warn("no player with id {} found", playerId);
+        }
         return player;
     }
 }

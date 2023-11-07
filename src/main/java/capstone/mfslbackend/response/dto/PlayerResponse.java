@@ -14,9 +14,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class PlayerResponse implements Serializable {
-    long id;
-    String name;
-    String photo;
-    Integer number;
-    String position;
+    private long id;
+    private String name;
+    private String photo;
+    private Integer number;
+    private String position;
 }

@@ -27,8 +27,9 @@ public class ApiService {
                         yc.getInputStream()));
         String inputLine;
         StringBuilder output = new StringBuilder();
-        while ((inputLine = in.readLine()) != null)
+        while ((inputLine = in.readLine()) != null) {
             output.append(inputLine);
+        }
         in.close();
         return mapper.readValue(output.toString(), type);
     }

@@ -15,9 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class TeamsContainer {
-    Paging paging;
-    String message;
-    Integer results;
-    List<TeamsResponse> response;
+    private Paging paging;
+    private String message;
+    private Integer results;
+    private List<TeamsResponse> response;
 
 }

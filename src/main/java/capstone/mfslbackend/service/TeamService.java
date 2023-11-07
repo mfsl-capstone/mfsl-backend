@@ -82,19 +82,25 @@ public class TeamService {
 
     public Optional<Team> getTeamById(long teamId) {
         Optional<Team> team = teamRepository.findById(teamId);
-        if (team.isEmpty()) log.warn("could not find team with id {}", teamId);
+        if (team.isEmpty()) {
+            log.warn("could not find team with id {}", teamId);
+        }
         return team;
     }
 
     public List<Team> getAllTeams() {
         List<Team> teams = teamRepository.findAll();
-        if (CollectionUtils.isEmpty(teams)) log.warn("no teams exist");
+        if (CollectionUtils.isEmpty(teams)) {
+            log.warn("no teams exist");
+        }
         return teams;
     }
 
     public List<Player> getPlayersOnTeam(Long teamId) {
         Optional<Team> team = getTeamById(teamId);
-        if (team.isEmpty()) return new ArrayList<>();
+        if (team.isEmpty()) {
+            return new ArrayList<>();
+        }
         return team.get().getPlayers();
     }
 }

@@ -15,8 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class PlayersContainer {
-    Paging paging;
-    String message;
-    Integer results;
-    List<PlayersResponse> response;
+    private Paging paging;
+    private String message;
+    private Integer results;
+    private List<PlayersResponse> response;
 }
