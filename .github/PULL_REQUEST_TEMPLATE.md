@@ -4,10 +4,7 @@
 
 **JIRA Ticket:** [XXX-###](https://mfslcapstone.atlassian.net/browse/XXX-###)
 
-**Summary:**
-<!-- Please include a summary of the change, the issue it addresses, or the feature it implements. Clearly state the impact of this change on the existing system and any new functionalities being introduced. -->
-
-**Screenshots/Examples:**
+**Screenshots/Examples of Changes:**
 <!-- If applicable, add screenshots or examples to help explain your change. Label screenshots as necessary for clarity. -->
 
 ## Type of change
@@ -21,7 +18,7 @@
 
 ## Checklist
 
-<!-- Please check off the items you have completed and provide explanations as necessary. -->
+<!-- Please check off the items you have completed and provide explanations as necessary. If you think an item does not apply, show that you considered it by checking it off.-->
 
 - [ ] My branch and PR name follow the [naming conventions](https://mfslcapstone.atlassian.net/wiki/spaces/SD/pages/4358145/Development+Naming+Conventions) the team has established.
 - [ ] My code follows the style guidelines of this project.
