@@ -32,7 +32,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User createUser(String username, String password) {
-        // todo check valid password
+        // todo check valid password, could do it in fe maybe
 
         User user = new User();
         user.setUsername(username);
