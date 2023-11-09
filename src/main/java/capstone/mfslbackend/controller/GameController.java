@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController()
-@RequestMapping("/player")
+@RequestMapping("/game")
 public class GameController {
     private final GameService gameService;
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
 
-    @GetMapping("get-game")
+    @GetMapping("")
     public ResponseEntity<Game> getGame(@RequestParam Long gameId) {
         Optional<Game> game = gameService.getGamebyID(gameId);
         return game.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -34,7 +34,17 @@ public class GameController {
         }
         return ResponseEntity.ok(game);
     }
-    @GetMapping("get-games-by-round")
+
+    @PostMapping("create-games-league")
+    public ResponseEntity<List<Game>> createGamesInLeague(@RequestParam String leagueId, @RequestParam String season) {
+        List<Game> games = gameService.createGamesInLeague(leagueId, season);
+        if (CollectionUtils.isEmpty(games)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(games);
+    }
+
+    @GetMapping("round")
     public ResponseEntity<List<Game>> getGamesByRound(@RequestParam String round) {
         List<Game> games = gameService.getGamesByRound(round);
         if (CollectionUtils.isEmpty(games)) {

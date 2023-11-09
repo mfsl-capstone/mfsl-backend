@@ -77,13 +77,16 @@ public class PlayerService {
 
             if (!player.getPosition().equals(playerResponse.getPosition())) {
                 player.setPosition(playerResponse.getPosition());
+                playerRepository.save(player);
             }
             if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
                 player.setNumber(playerResponse.getNumber());
+                playerRepository.save(player);
             }
 
             if (!player.getTeam().equals(team)) {
                 player.setTeam(team);
+                playerRepository.save(player);
             }
 
             return player;

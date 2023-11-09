@@ -85,7 +85,8 @@ public class TeamServiceTest {
         String leagueId = "123";
         String season = "2023";
 
-        long teamId = 1L;
+        Long teamId = 1L;
+
         String teamName = "test";
         // Mock the ApiService to return a list of teams
         TeamsContainer teamsContainer = new TeamsContainer();
@@ -115,6 +116,7 @@ public class TeamServiceTest {
         assertFalse(CollectionUtils.isEmpty(teams)); // Teams should not be empty
         assertEquals(newTeamId, teams.get(0).getTeamId());
         assertEquals(teamName, teams.get(0).getName());
+
 
     }
 
@@ -178,7 +180,11 @@ public class TeamServiceTest {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(teamsContainer);
         Long newTeamId = 2L;
-        Team team2 = new Team(newTeamId, teamName, teamName, new ArrayList<>(), new ArrayList<>());
+        Team team2 = new Team();
+        team2.setUrl(teamName);
+        team2.setTeamId(newTeamId);
+        team2.setName(teamName);
+        team2.setPlayers(new ArrayList<>());
 
         Mockito.when(teamRepository.findById(Mockito.any()))
                 .thenReturn(Optional.of(team2));
@@ -205,5 +211,5 @@ public class TeamServiceTest {
         Team team = teamService.createTeamById(1L);
         assertNull(team);
     }
-    //
+
 }
