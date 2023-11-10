@@ -1,7 +1,6 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.model.Game;
-import capstone.mfslbackend.response.dto.GamesResponse;
 import org.springframework.util.CollectionUtils;
 import capstone.mfslbackend.service.GameService;
 import org.springframework.http.ResponseEntity;
