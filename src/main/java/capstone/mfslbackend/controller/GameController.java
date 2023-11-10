@@ -26,22 +26,10 @@ public class GameController {
         Optional<Game> game = gameService.getGamebyID(gameId);
         return game.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    @PostMapping("create-game")
-    public ResponseEntity<Game> createGame(@RequestParam GamesResponse gamesResponse) {
-       Game game = gameService.createGame(gamesResponse);
-        if (game == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(game);
-    }
 
     @PostMapping("create-games-league")
     public ResponseEntity<List<Game>> createGamesInLeague(@RequestParam String leagueId, @RequestParam String season) {
-        List<Game> games = gameService.createGamesInLeague(leagueId, season);
-        if (CollectionUtils.isEmpty(games)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(games);
+        return gameService.createAllGamesForLeague(leagueId, season);
     }
 
     @GetMapping("round")
