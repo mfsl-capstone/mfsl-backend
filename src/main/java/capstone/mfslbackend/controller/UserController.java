@@ -5,6 +5,7 @@ import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.service.LoginService;
 import capstone.mfslbackend.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,15 @@ public class UserController {
     @PostMapping("signup")
     public ResponseEntity<?> register(@RequestParam String username, @RequestParam String password) {
         return ResponseEntity.ok(convertToDto(userService.createUser(username, password)));
+    }
+
+    @PostMapping("refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestParam String refreshToken) {
+        try {
+            return ResponseEntity.ok(loginService.refreshAccessToken(refreshToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 
     private UserDTO convertToDto(User user) {
