@@ -14,5 +14,6 @@ public class UserDTO {
 
     private String username;
     private Set<Authority> authorities;
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 }

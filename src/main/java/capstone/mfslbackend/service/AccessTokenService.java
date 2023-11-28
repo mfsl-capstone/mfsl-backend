@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class TokenService {
+public class AccessTokenService {
 
     private final JwtEncoder jwtEncoder;
 
-    private static final int VALIDTIME = 60;
+    private static final int VALID_TIME = 60; // in minutes
 
-    public String generateToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
         Instant now = Instant.now();
 
         String scope = authentication.getAuthorities().stream()
@@ -30,7 +30,7 @@ public class TokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(VALIDTIME, ChronoUnit.MINUTES))
+                .expiresAt(now.plus(VALID_TIME, ChronoUnit.MINUTES))
                 .subject(authentication.getName())
                 .claim("scope", scope)
                 .build();
