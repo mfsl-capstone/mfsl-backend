@@ -3,8 +3,9 @@ package capstone.mfslbackend.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -12,9 +13,10 @@ import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @ToString
-@Data
 
 public class Game {
     @Id

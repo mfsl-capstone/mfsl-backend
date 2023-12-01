@@ -117,14 +117,16 @@ public class PlayerServiceTest {
         when(apiService.getRequest(any(), any()))
                 .thenReturn(null);
         List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNull(players);
+        assertNotNull(players);
+        assertTrue(players.isEmpty());
     }
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingSquad() throws IOException {
         when(apiService.getRequest(any(), any()))
                 .thenThrow(new IOException("test exception"));
         List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNull(players);
+        assertNotNull(players);
+        assertTrue(players.isEmpty());
     }
 
     @Test

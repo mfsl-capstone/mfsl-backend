@@ -95,8 +95,8 @@ public class PlayerService {
         Player player = new Player(
                 playerResponse.getId(),
                 playerResponse.getName(),
-                playerResponse.getPhoto(),
                 playerResponse.getPosition(),
+                playerResponse.getPhoto(),
                 playerResponse.getNumber(),
                 team
         );
