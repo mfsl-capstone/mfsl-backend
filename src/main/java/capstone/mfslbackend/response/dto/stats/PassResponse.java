@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class PassResponse implements Serializable {
-    Integer total;
-    Integer key;
-    String accuracy;
+    private Integer total;
+    private Integer key;
+    private String accuracy;
 }

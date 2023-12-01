@@ -14,7 +14,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class DribbleResponse implements Serializable {
-    Integer attempts;
-    Integer success;
-    Integer past;
+    private Integer attempts;
+    private Integer success;
+    private Integer past;
 }

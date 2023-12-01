@@ -14,6 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class FoulResponse implements Serializable {
-    Integer drawn;
-    Integer committed;
+    private Integer drawn;
+    private Integer committed;
 }

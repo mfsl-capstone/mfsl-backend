@@ -14,6 +14,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 public class CardResponse implements Serializable {
-    Integer yellow;
-    Integer red;
+    private Integer yellow;
+    private Integer red;
 }

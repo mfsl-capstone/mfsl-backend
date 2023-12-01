@@ -16,16 +16,16 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class StatisticResponse implements Serializable {
-    TeamResponse team;
-    GameResponse games;
-    Integer offsides;
-    ShotResponse shots;
-    GoalResponse goals;
-    PassResponse passes;
-    TackleResponse tackles;
-    DuelResponse duels;
-    DribbleResponse dribbles;
-    FoulResponse fouls;
-    CardResponse cards;
-    PenaltyResponse penalty;
+    private TeamResponse team;
+    private GameResponse games;
+    private Integer offsides;
+    private ShotResponse shots;
+    private GoalResponse goals;
+    private PassResponse passes;
+    private TackleResponse tackles;
+    private DuelResponse duels;
+    private DribbleResponse dribbles;
+    private FoulResponse fouls;
+    private CardResponse cards;
+    private PenaltyResponse penalty;
 }

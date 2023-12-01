@@ -16,6 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class PlayerStatsResponse implements Serializable {
-    PlayerResponse player;
-    List<StatisticResponse> statistics;
+    private PlayerResponse player;
+    private List<StatisticResponse> statistics;
 }

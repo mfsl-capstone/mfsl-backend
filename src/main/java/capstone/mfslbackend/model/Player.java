@@ -1,7 +1,11 @@
 package capstone.mfslbackend.model;
 
-
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +35,8 @@ public class Player {
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
+    @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "player")
     private List<PlayerGameStats> playerGameStats = new ArrayList<>();
 

@@ -14,8 +14,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class GoalResponse implements Serializable {
-    Integer total;
-    Integer conceded;
-    Integer assists;
-    Integer saves;
+    private Integer total;
+    private Integer conceded;
+    private Integer assists;
+    private Integer saves;
 }

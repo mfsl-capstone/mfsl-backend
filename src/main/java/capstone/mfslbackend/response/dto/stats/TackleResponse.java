@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class TackleResponse implements Serializable {
-    Integer total;
-    Integer blocks;
-    Integer interceptions;
+    private Integer total;
+    private Integer blocks;
+    private Integer interceptions;
 }

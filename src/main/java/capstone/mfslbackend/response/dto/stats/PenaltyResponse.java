@@ -14,9 +14,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class PenaltyResponse implements Serializable {
-    Integer won;
-    Integer commited;
-    Integer scored;
-    Integer missed;
-    Integer saved;
+    private Integer won;
+    private Integer commited;
+    private Integer scored;
+    private Integer missed;
+    private Integer saved;
 }
