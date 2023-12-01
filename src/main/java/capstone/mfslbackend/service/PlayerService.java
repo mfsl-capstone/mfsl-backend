@@ -100,6 +100,7 @@ public class PlayerService {
                 playerResponse.getNumber(),
                 team
         );
+        playerRepository.save(player);
         return player;
     }
 

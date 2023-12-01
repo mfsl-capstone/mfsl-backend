@@ -83,7 +83,7 @@ public class GameService {
 
     public List<Game> getGamesByRound(String round) {
         List<Game> allGames = gameRepository.findAll();
-      return allGames.stream().filter(game -> game.getRound().equals(round)).toList();
+      return allGames.stream().filter(game -> game.getRound().equalsIgnoreCase(round)).toList();
     }
 
 
