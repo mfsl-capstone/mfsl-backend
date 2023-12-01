@@ -14,6 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class DuelResponse implements Serializable {
-    Integer total;
-    Integer won;
+    private Integer total;
+    private Integer won;
 }

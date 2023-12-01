@@ -1,9 +1,11 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.model.PlayerGameStats;
+import capstone.mfslbackend.repository.PlayerGameStatsRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
 import capstone.mfslbackend.response.dto.PlayerStatsResponse;
 import capstone.mfslbackend.response.dto.PlayersStatsResponse;
+import capstone.mfslbackend.response.dto.TeamResponse;
 import capstone.mfslbackend.response.dto.stats.StatisticResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,17 +25,24 @@ public class PlayerGameStatsService {
 
     private final ApiService apiService;
     private final String baseUrl;
+    private final PlayerService playerService;
+    private final PlayerGameStatsRepository playerGameStatsRepository;
 
-    public PlayerGameStatsService(ApiService apiService,
-                                  @Value("${base.url}") String baseUrl) {
+    public PlayerGameStatsService(ApiService apiService, PlayerGameStatsRepository playerGameStatsRepository,
+                                  PlayerService playerService, @Value("${base.url}") String baseUrl) {
         this.apiService = apiService;
         this.baseUrl = baseUrl;
+        this.playerService = playerService;
+        this.playerGameStatsRepository = playerGameStatsRepository;
     }
 
-
-    public ResponseEntity<List<PlayerGameStats>> getPlayerGameStats(String fixtureId) {
+    public Optional<PlayerGameStats> getPlayerGameStatsById(Long id) {
+        return playerGameStatsRepository.findById(id);
+    }
+    public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) {
         List<PlayerGameStats> playerGameStats = new ArrayList<>();
         StatsContainer statsResponse;
+        StatsContainer statsResponse2;
         try {
 //            get individual player stats for a specific game
             URL url = UriComponentsBuilder.fromUriString(baseUrl)
@@ -43,24 +52,35 @@ public class PlayerGameStatsService {
             statsResponse = apiService.getRequest(url, StatsContainer.class);
 
 //            This request will be useful for determining the winner of the game
-//            URL url = UriComponentsBuilder.fromUriString(baseUrl)
-//                    .path("/fixtures/")
-//                    .queryParam("id", fixtureId)
-//                    .build().toUri().toURL();
-//            statsResponse = apiService.getRequest(url, StatsResponseDTO.class);
+            url = UriComponentsBuilder.fromUriString(baseUrl)
+                    .path("/fixtures")
+                    .queryParam("id", fixtureId)
+                    .build().toUri().toURL();
+            statsResponse2 = apiService.getRequest(url, StatsContainer.class);
         } catch (Exception e) {
             log.error("error retrieving fixture {}", fixtureId, e);
             return ResponseEntity.notFound().build();
         }
 
-        if (statsResponse==null || CollectionUtils.isEmpty(statsResponse.getResponse())) {
+        if (statsResponse == null || CollectionUtils.isEmpty(statsResponse.getResponse())
+                || statsResponse2 == null || CollectionUtils.isEmpty(statsResponse2.getResponse())) {
             log.error("no results found for fixture {}", fixtureId);
             return ResponseEntity.notFound().build();
         }
         for (PlayersStatsResponse response: statsResponse.getResponse()) {
-            for (PlayerStatsResponse players : response.getPlayers()){
-                convert(players.getStatistics().get(0), response.getLeague().getRound(), true)
-                        .ifPresent(playerGameStats::add);
+            TeamResponse home = statsResponse2.getResponse().get(0).getTeams().getHome();
+            boolean winner = home.getWinner();
+            if (!home.equals(response.getTeam())) {
+                winner = !winner;
+            }
+
+            for (PlayerStatsResponse players : response.getPlayers()) {
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
+                        .ifPresent(stats -> {
+                            stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()).get());
+                            playerGameStatsRepository.save(stats);
+                            playerGameStats.add(stats);
+                        });
             }
         }
         log.debug("all players from fixture {}: {}", fixtureId, playerGameStats);
@@ -122,8 +142,11 @@ public class PlayerGameStatsService {
             playerGameStats.setRound(round);
         }
         if (winner != null) {
-            if (winner) playerGameStats.setResult(1);
-            else playerGameStats.setResult(0);
+            if (winner) {
+                playerGameStats.setResult(1);
+            } else {
+                playerGameStats.setResult(0);
+            }
         }
 
         return Optional.of(playerGameStats);

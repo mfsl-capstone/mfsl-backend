@@ -14,6 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class ShotResponse implements Serializable {
-    Integer total;
-    Integer on;
+    private Integer total;
+    private Integer on;
 }

@@ -98,7 +98,8 @@ public class PlayerService {
                 playerResponse.getPhoto(),
                 playerResponse.getPosition(),
                 playerResponse.getNumber(),
-                team
+                team,
+                null
         );
         return player;
     }

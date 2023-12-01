@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class StatsContainer implements Serializable {
-    String get;
-    List<String> errors;
-    List<PlayersStatsResponse> response;
+    private List<String> errors;
+    private List<PlayersStatsResponse> response;
 }
