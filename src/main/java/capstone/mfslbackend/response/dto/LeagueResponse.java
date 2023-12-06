@@ -6,15 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TeamsResponse {
-    private TeamResponse team;
-    private TeamResponse home;
-    private TeamResponse away;
+public class LeagueResponse implements Serializable {
 
-
+    private Integer id;
+    private String name;
+    private String country;
+    private String logo;
+    private String flag;
+    private Integer season;
+    private String round;
 }

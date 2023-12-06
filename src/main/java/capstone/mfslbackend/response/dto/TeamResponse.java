@@ -13,6 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+
 public class TeamResponse implements Serializable {
     private long id;
     private String name;
@@ -23,4 +24,7 @@ public class TeamResponse implements Serializable {
     private String country;
     private Integer founded;
     private Boolean national;
+
+
 }
+

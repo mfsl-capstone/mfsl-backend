@@ -42,7 +42,11 @@ public class PlayerServiceTest {
     public void setup() throws IOException {
         Player player1 = new Player(1L, "player1", "Attacker", "p1.pic", 9, null);
         Player player2 = new Player(2L, "player2", "Defender", "p2.pic", 5, null);
-        Team team1 = new Team(1L, "team1", "team1_url", List.of(player1, player2));
+        Team team1 = new Team() ;
+        team1.setTeamId(1L);
+        team1.setName("team1");
+        team1.setUrl("team1_url");
+        team1.setPlayers(List.of(player1, player2));
         player1.setTeam(team1);
         player2.setTeam(team1);
 
@@ -113,14 +117,16 @@ public class PlayerServiceTest {
         when(apiService.getRequest(any(), any()))
                 .thenReturn(null);
         List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNull(players);
+        assertNotNull(players);
+        assertTrue(players.isEmpty());
     }
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingSquad() throws IOException {
         when(apiService.getRequest(any(), any()))
                 .thenThrow(new IOException("test exception"));
         List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNull(players);
+        assertNotNull(players);
+        assertTrue(players.isEmpty());
     }
 
     @Test

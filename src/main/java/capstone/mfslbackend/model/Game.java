@@ -1,10 +1,7 @@
 package capstone.mfslbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.Id;;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,38 +9,20 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.List;
 import java.util.Objects;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Getter
+@Setter
 @Entity
-public class Team {
+@ToString
+
+public class Game {
     @Id
-    private Long teamId;
-    private String name;
-    private String url;
-
-    @ToString.Exclude
-    @JsonIgnore
-    @OneToMany(mappedBy = "team")
-    private List<Player> players;
-
-    @ToString.Exclude
-    @JsonIgnore
-    @ManyToMany
-    private List<Game> games;
-
-//    IntelliJ suggests this stuff instead of @Data
-
-    public Team(Long teamId, String name, String url) {
-        this.teamId = teamId;
-        this.name = name;
-        this.url = url;
-    }
+    private Long id;
+    private String date;
+    private String round;
 
     @Override
     public final boolean equals(Object o) {
@@ -68,8 +47,8 @@ public class Team {
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
         }
-        Team team = (Team) o;
-        return getTeamId() != null && Objects.equals(getTeamId(), team.getTeamId());
+        Game game = (Game) o;
+        return getId() != null && Objects.equals(getId(), game.getId());
     }
 
     @Override
@@ -79,4 +58,6 @@ public class Team {
         }
         return getClass().hashCode();
     }
+
 }
+

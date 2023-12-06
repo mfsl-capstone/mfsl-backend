@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.TeamRepository;
@@ -76,7 +77,7 @@ public class TeamService {
     }
 
     private Team createTeam(TeamResponse teamResponse) {
-        Team team = new Team(teamResponse.getId(), teamResponse.getName(), teamResponse.getLogo(), new ArrayList<>());
+        Team team = new Team(teamResponse.getId(), teamResponse.getName(), teamResponse.getLogo(), new ArrayList<>(), new ArrayList<>());
         return teamRepository.save(team);
     }
 
@@ -103,4 +104,28 @@ public class TeamService {
         }
         return team.get().getPlayers();
     }
+
+    public List<Game> getGamesForTeam(Long teamId) {
+        Optional<Team> team = getTeamById(teamId);
+        if (team.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return team.get().getGames();
+    }
+
+    public void addGameToTeam(Long teamId, Game game) {
+        Optional<Team> optionalTeam = getTeamById(teamId);
+        if (optionalTeam.isPresent()) {
+            Team team = optionalTeam.get();
+            if (!team.getGames().contains(game)) {
+                team.getGames().add(game);
+                teamRepository.save(team);
+            } else {
+                log.warn("Game {} is already associated with Team {}", game.getId(), teamId);
+            }
+        } else {
+            log.error("Team with ID {} not found. Cannot add game.", teamId);
+        }
+    }
+
 }

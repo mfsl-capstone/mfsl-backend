@@ -51,12 +51,12 @@ public class PlayerService {
             playersContainer = apiService.getRequest(url, PlayersContainer.class);
         } catch (Exception e) {
             log.error("error getting squad for team {}", teamId, e);
-            return null;
+            return new ArrayList<>(); // Return an empty list if there's an error.
         }
         if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())
                 || CollectionUtils.isEmpty(playersContainer.getResponse().get(0).getPlayers())) {
             log.error("empty squad found for team {}", teamId);
-            return null;
+            return new ArrayList<>(); // Return an empty list if there's no data.
         }
         return playersContainer.getResponse().get(0).getPlayers().stream()
                 .map(playerResponse -> createPlayer(playerResponse, teamId))
@@ -83,25 +83,30 @@ public class PlayerService {
                 player.setNumber(playerResponse.getNumber());
                 playerRepository.save(player);
             }
-            if (!player.getTeam().getTeamId().equals(teamId)) {
+
+            if (!player.getTeam().equals(team)) {
                 player.setTeam(team);
                 playerRepository.save(player);
             }
+
             return player;
         }
-        Player player = new Player();
-        player.setPlayerId(playerResponse.getId());
-        player.setName(playerResponse.getName());
-        player.setUrl(playerResponse.getPhoto());
-        player.setPosition(playerResponse.getPosition());
-        player.setNumber(playerResponse.getNumber());
-        player.setTeam(team);
+
+        Player player = new Player(
+                playerResponse.getId(),
+                playerResponse.getName(),
+                playerResponse.getPosition(),
+                playerResponse.getPhoto(),
+                playerResponse.getNumber(),
+                team
+        );
         playerRepository.save(player);
         return player;
     }
 
     public Optional<Player> getPlayerById(Long playerId) {
         Optional<Player> player = playerRepository.findById(playerId);
+
         if (player.isEmpty()) {
             log.warn("no player with id {} found", playerId);
         }

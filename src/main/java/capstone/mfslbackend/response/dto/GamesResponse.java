@@ -11,10 +11,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TeamsResponse {
-    private TeamResponse team;
-    private TeamResponse home;
-    private TeamResponse away;
-
-
+public class GamesResponse {
+    private TeamsResponse teams;
+    private LeagueResponse league;
+    private FixtureResponse fixture;
 }
