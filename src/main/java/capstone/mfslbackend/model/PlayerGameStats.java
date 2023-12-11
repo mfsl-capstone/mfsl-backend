@@ -24,7 +24,7 @@ import java.util.Objects;
 @Entity
 public class PlayerGameStats {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)     private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private int points;
     private int yellowCards;
