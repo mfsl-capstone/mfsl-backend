@@ -1,17 +1,11 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.model.PlayerGameStats;
-<<<<<<< HEAD
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
 import capstone.mfslbackend.response.dto.PlayerStatsResponse;
 import capstone.mfslbackend.response.dto.PlayersStatsResponse;
 import capstone.mfslbackend.response.dto.TeamResponse;
-=======
-import capstone.mfslbackend.response.container.StatsContainer;
-import capstone.mfslbackend.response.dto.PlayerStatsResponse;
-import capstone.mfslbackend.response.dto.PlayersStatsResponse;
->>>>>>> cb1704e (CAP-20 game stats initial commit)
 import capstone.mfslbackend.response.dto.stats.StatisticResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
