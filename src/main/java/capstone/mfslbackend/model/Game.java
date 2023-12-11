@@ -21,6 +21,7 @@ import java.util.Objects;
 public class Game {
     @Id
     private Long id;
+//    2020-02-06T14:00:00+00:00 is the date format
     private String date;
     private String round;
 
