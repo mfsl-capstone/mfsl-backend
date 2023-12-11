@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
@@ -15,10 +16,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 
@@ -76,7 +79,8 @@ public class PlayerGameStatsServiceTest {
         lenient().when(apiService.getRequest(eq(UriComponentsBuilder.fromUriString("http://test.url")
                 .path("/fixtures/players")
                 .queryParam("fixture", 1L)
-                .build().toUri().toURL()), eq(StatsContainer.class))).thenReturn(statsContainer);
+                .build().toUri().toURL()), eq(StatsContainer.class)))
+                .thenReturn(statsContainer);
 
         StatsContainer statsContainer2 = new StatsContainer();
         PlayersStatsResponse playersStatsResponse3 = new PlayersStatsResponse();
@@ -97,7 +101,11 @@ public class PlayerGameStatsServiceTest {
         lenient().when(apiService.getRequest(eq(UriComponentsBuilder.fromUriString("http://test.url")
                 .path("/fixtures")
                 .queryParam("id", "1")
-                .build().toUri().toURL()), eq(StatsContainer.class))).thenReturn(statsContainer2);
+                .build().toUri().toURL()), eq(StatsContainer.class)))
+                .thenReturn(statsContainer2);
+        Player p = new Player();
+        lenient().when(playerService.getPlayerById(any()))
+                .thenReturn(Optional.of(p));
     }
 
     @Test
@@ -106,5 +114,17 @@ public class PlayerGameStatsServiceTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
+    }
+
+    @Test
+    public void testErrorCreatePlayerGameStats() throws IOException {
+        lenient().when(apiService.getRequest(eq(UriComponentsBuilder.fromUriString("http://test.url")
+                .path("/fixtures")
+                .queryParam("id", "1")
+                .build().toUri().toURL()), eq(StatsContainer.class)))
+                .thenThrow(new RuntimeException());
+        ResponseEntity<List<PlayerGameStats>> response = playerGameStatsService.createPlayerGameStats("1");
+        assertEquals(404, response.getStatusCode().value());
+        assertNull(response.getBody());
     }
 }
