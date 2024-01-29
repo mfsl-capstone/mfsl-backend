@@ -17,7 +17,6 @@ import java.util.Objects;
 @Setter
 @Entity
 @ToString
-
 public class Game {
     @Id
     private Long id;
