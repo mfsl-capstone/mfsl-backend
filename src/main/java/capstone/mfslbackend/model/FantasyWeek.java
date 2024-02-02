@@ -7,20 +7,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @Entity
-public class FantasyTeam {
+public class FantasyWeek {
     @Id
     private Long id;
-    private String teamName;
+    private int weekNumber;
 
     @Override
     public final boolean equals(Object o) {
@@ -45,8 +45,8 @@ public class FantasyTeam {
         if (thisEffectiveClass != oEffectiveClass) {
             return false;
         }
-        FantasyTeam fantasyTeam = (FantasyTeam) o;
-        return id != null && Objects.equals(getId(), fantasyTeam.getId());
+        FantasyWeek fantasyWeek = (FantasyWeek) o;
+        return id != null && Objects.equals(getId(), fantasyWeek.getId());
     }
 
     @Override
