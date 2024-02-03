@@ -29,7 +29,6 @@ public class LoginService {
 
     private final UserRepository userRepository;
 
-    @Transactional
     public UserDTO loginUser(String username, String password) {
         try {
             User user = userRepository.findUserByUsername(username);
@@ -53,7 +52,6 @@ public class LoginService {
         }
     }
 
-    @Transactional
     public UserDTO refreshAccessToken(String refreshToken) {
         return refreshTokenService.validateRefreshToken(refreshToken)
                 .map(user -> {
