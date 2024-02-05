@@ -4,13 +4,14 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +24,10 @@ public class TeamController {
         this.teamService = teamService;
     }
 
-    @GetMapping("{teamId}")
-    public ResponseEntity<Team> getTeam(@PathVariable long teamId) {
+
+    @GetMapping("/team")
+    @Secured({"LEAGUE_MEMBER", "LEAGUE_ADMIN"})
+    public ResponseEntity<Team> getTeam(@RequestParam long teamId) {
         Optional<Team> team = teamService.getTeamById(teamId);
         return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
