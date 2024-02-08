@@ -25,7 +25,7 @@ public class FantasyTeamService {
     }
 
     public FantasyTeam createFantasyTeam(String teamName) {
-        if (StringUtils.isEmpty(teamName)){
+        if (StringUtils.isEmpty(teamName)) {
             log.warn("team name cannot be empty");
         }
         FantasyTeam fantasyTeam = new FantasyTeam();

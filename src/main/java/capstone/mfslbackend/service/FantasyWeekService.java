@@ -29,7 +29,7 @@ public class FantasyWeekService {
         return fantasyWeekRepository.findByWeekNumber(weekNumber);
     }
     public FantasyWeek createFantasyWeek(int weekNumber) {
-        if (weekNumber <=0){
+        if (weekNumber <= 0) {
             log.warn("week number cannot be negative");
         }
         FantasyWeek fantasyWeek = new FantasyWeek();
