@@ -2,7 +2,6 @@ package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
-import com.mysql.cj.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
