@@ -4,6 +4,7 @@ import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -24,6 +25,9 @@ public class FantasyTeamService {
     }
 
     public FantasyTeam createFantasyTeam(String teamName) {
+        if (StringUtils.isEmpty(teamName)){
+            log.warn("team name cannot be empty");
+        }
         FantasyTeam fantasyTeam = new FantasyTeam();
         fantasyTeam.setTeamName(teamName);
         fantasyTeamRepository.save(fantasyTeam);
