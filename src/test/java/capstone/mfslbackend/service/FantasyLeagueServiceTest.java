@@ -17,12 +17,12 @@ import static org.mockito.Mockito.lenient;
 public class FantasyLeagueServiceTest {
     @Mock
     private FantasyLeagueRepository fantasyLeagueRepository;
-    private final FantasyLeagueService fantasyLeagueService = new FantasyLeagueService(null);
+    private final FantasyLeagueService fantasyLeagueService = new FantasyLeagueService(null, null);
 
     @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(fantasyLeagueService, "fantasyLeagueRepository", fantasyLeagueRepository);
-        FantasyLeague fantasyLeague = new FantasyLeague(1L, "Test League");
+        FantasyLeague fantasyLeague = new FantasyLeague(1L, "Test League", null);
         lenient().when(fantasyLeagueRepository.save(any())).thenReturn(fantasyLeague);
     }
 

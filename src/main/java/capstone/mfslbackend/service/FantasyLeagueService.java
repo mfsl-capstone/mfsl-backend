@@ -1,6 +1,7 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,8 +13,11 @@ import java.util.Optional;
 @Slf4j
 public class FantasyLeagueService {
     private final FantasyLeagueRepository fantasyLeagueRepository;
-    public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository) {
+    private final UserService userService;
+
+    public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
+        this.userService = userService;
     }
     public FantasyLeague createFantasyLeague(String leagueName) {
         FantasyLeague fantasyLeague = new FantasyLeague();
@@ -27,4 +31,21 @@ public class FantasyLeagueService {
         String name = "%" + fantasyLeagueName + "%";
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
-}
+
+    public FantasyLeague joinFantasyLeague(String username, Long leagueId) {
+            Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(leagueId);
+            if (fantasyLeagueOptional.isEmpty()) {
+                log.error("Fantasy League with id {} not found", leagueId);
+                throw new IllegalArgumentException("Fantasy League with id " + leagueId + " not found");
+            }
+            if (userService.getUser(username) == null) {
+                log.error("User with username {} not found", username);
+                throw new IllegalArgumentException("User with username " + username + " not found");
+            }
+            FantasyLeague fantasyLeague = fantasyLeagueOptional.get();
+            User user = userService.getUser(username);
+            fantasyLeague.getUsers().add(user);
+            return fantasyLeagueRepository.save(fantasyLeague);
+        }
+
+    }

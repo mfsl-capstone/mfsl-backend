@@ -35,4 +35,10 @@ public class FantasyLeagueController {
         FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(leagueName);
         return ResponseEntity.ok(fantasyLeague);
     }
+
+    @PostMapping("join-league")
+    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.joinFantasyLeague(username, leagueId);
+        return ResponseEntity.ok(fantasyLeague);
+    }
 }
