@@ -30,6 +30,7 @@ public class User {
     @Id
     private String username;
 
+    @ToString.Exclude
     private String password;
 
     private Set<Authority> authorities = new HashSet<>();
