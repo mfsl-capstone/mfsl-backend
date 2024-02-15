@@ -1,6 +1,7 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import java.util.Optional;
 @Slf4j
 public class FantasyLeagueService {
     private final FantasyLeagueRepository fantasyLeagueRepository;
+
+
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
     }
@@ -27,4 +30,19 @@ public class FantasyLeagueService {
         String name = "%" + fantasyLeagueName + "%";
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
-}
+
+    public FantasyLeague joinFantasyLeague(String userName, Long leagueId) {
+            Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(leagueId);
+            if (fantasyLeagueOptional.isEmpty()) {
+                log.error("Fantasy League with id {} not found", leagueId);
+                throw new IllegalArgumentException("Fantasy League with id " + leagueId + " not found");
+            }
+
+            FantasyLeague fantasyLeague = fantasyLeagueOptional.get();
+            User user = new User();
+            user.setUsername(userName);
+            fantasyLeague.getUsers().add(user);
+            return fantasyLeagueRepository.save(fantasyLeague);
+        }
+
+    }

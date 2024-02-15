@@ -22,7 +22,7 @@ public class FantasyLeagueServiceTest {
     @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(fantasyLeagueService, "fantasyLeagueRepository", fantasyLeagueRepository);
-        FantasyLeague fantasyLeague = new FantasyLeague(1L, "Test League");
+        FantasyLeague fantasyLeague = new FantasyLeague(1L, "Test League", null);
         lenient().when(fantasyLeagueRepository.save(any())).thenReturn(fantasyLeague);
     }
 
