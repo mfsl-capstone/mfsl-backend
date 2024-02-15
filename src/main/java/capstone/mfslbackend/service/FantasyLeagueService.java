@@ -13,10 +13,11 @@ import java.util.Optional;
 @Slf4j
 public class FantasyLeagueService {
     private final FantasyLeagueRepository fantasyLeagueRepository;
+    private final UserService userService;
 
-
-    public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository) {
+    public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
+        this.userService = userService;
     }
     public FantasyLeague createFantasyLeague(String leagueName) {
         FantasyLeague fantasyLeague = new FantasyLeague();
@@ -31,7 +32,7 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
 
-    public FantasyLeague joinFantasyLeague(String userName, Long leagueId) {
+    public FantasyLeague joinFantasyLeague(String username, Long leagueId) {
             Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(leagueId);
             if (fantasyLeagueOptional.isEmpty()) {
                 log.error("Fantasy League with id {} not found", leagueId);
@@ -39,8 +40,7 @@ public class FantasyLeagueService {
             }
 
             FantasyLeague fantasyLeague = fantasyLeagueOptional.get();
-            User user = new User();
-            user.setUsername(userName);
+            User user = userService.getUser(username);
             fantasyLeague.getUsers().add(user);
             return fantasyLeagueRepository.save(fantasyLeague);
         }
