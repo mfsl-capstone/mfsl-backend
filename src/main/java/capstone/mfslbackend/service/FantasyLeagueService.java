@@ -38,7 +38,10 @@ public class FantasyLeagueService {
                 log.error("Fantasy League with id {} not found", leagueId);
                 throw new IllegalArgumentException("Fantasy League with id " + leagueId + " not found");
             }
-
+            if (userService.getUser(username) == null) {
+                log.error("User with username {} not found", username);
+                throw new IllegalArgumentException("User with username " + username + " not found");
+            }
             FantasyLeague fantasyLeague = fantasyLeagueOptional.get();
             User user = userService.getUser(username);
             fantasyLeague.getUsers().add(user);
