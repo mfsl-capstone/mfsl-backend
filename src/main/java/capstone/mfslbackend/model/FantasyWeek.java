@@ -1,7 +1,12 @@
 package capstone.mfslbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +24,15 @@ import java.util.Objects;
 @Entity
 public class FantasyWeek {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private int weekNumber;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "fantasy_team_id", nullable = false)
+    private FantasyTeam fantasyTeam;
 
     @Override
     public final boolean equals(Object o) {

@@ -1,7 +1,10 @@
 package capstone.mfslbackend.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +12,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,8 +24,12 @@ import java.util.Objects;
 @Entity
 public class FantasyTeam {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String teamName;
+
+    @OneToMany(mappedBy = "fantasyTeam", orphanRemoval = true)
+    private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {
