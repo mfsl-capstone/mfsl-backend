@@ -35,13 +35,12 @@ public class FantasyWeekController {
     }
 
     @PostMapping("")
-    public ResponseEntity<FantasyWeek> createFantasyWeek(@RequestParam int weekNumber) {
-        FantasyWeek fantasyWeek = fantasyWeekService.createFantasyWeek(weekNumber);
+    public ResponseEntity<FantasyWeek> createFantasyWeek(@RequestParam int fantasyTeamId, @RequestParam int weekNumber) {
+        FantasyWeek fantasyWeek = fantasyWeekService.createFantasyWeek(fantasyTeamId, weekNumber);
         if (fantasyWeek == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(fantasyWeek);
-
     }
 
 }
