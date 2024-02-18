@@ -1,5 +1,6 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
@@ -25,9 +26,9 @@ public class TeamController {
     }
 
 
-    @GetMapping("/team")
+    @GetMapping("/{teamId}")
     @Secured({"LEAGUE_MEMBER", "LEAGUE_ADMIN"})
-    public ResponseEntity<Team> getTeam(@RequestParam long teamId) {
+    public ResponseEntity<Team> getTeam(@PathVariable long teamId) {
         Optional<Team> team = teamService.getTeamById(teamId);
         return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -60,6 +61,13 @@ public class TeamController {
         }
         return ResponseEntity.ok(players);
     }
-
+    @GetMapping("games")
+    public ResponseEntity<List<Game>> getGamesForTeam(@RequestParam Long teamId) {
+        List<Game> players = teamService.getGamesForTeam(teamId);
+        if (CollectionUtils.isEmpty(players)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(players);
+    }
 
 }
