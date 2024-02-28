@@ -20,8 +20,8 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
     @PostMapping()
-    public void createTransaction(@RequestParam String date) {
-        transactionService.createTransaction(date);
+    public void createTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId, @RequestParam Long outgoingPlayerId) {
+        transactionService.createTransaction(fantasyTeamId, incomingPlayerId, outgoingPlayerId);
     }
     @GetMapping("{id}")
     public ResponseEntity<Transaction> getTransaction(@PathVariable Long id) {
