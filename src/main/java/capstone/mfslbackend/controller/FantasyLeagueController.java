@@ -25,9 +25,9 @@ public class FantasyLeagueController {
         Optional<FantasyLeague> fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
         return fantasyLeague.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    @GetMapping("{league-name}")
-    public ResponseEntity<List<FantasyLeague>> getFantasyLeagueByName(@PathVariable String fantasyTeamName) {
-        List<FantasyLeague> fantasyLeagues = fantasyLeagueService.getFantasyLeagueByName(fantasyTeamName);
+    @GetMapping("{fantasyLeagueName}")
+    public ResponseEntity<List<FantasyLeague>> getFantasyLeagueByName(@PathVariable String fantasyLeagueName) {
+        List<FantasyLeague> fantasyLeagues = fantasyLeagueService.getFantasyLeagueByName(fantasyLeagueName);
         return ResponseEntity.ok(fantasyLeagues);
     }
     @PostMapping("create-league")
@@ -37,8 +37,11 @@ public class FantasyLeagueController {
     }
 
     @PostMapping("join-league")
-    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId) {
-        FantasyLeague fantasyLeague = fantasyLeagueService.joinFantasyLeague(username, leagueId);
+    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId, @RequestParam String teamName) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.joinFantasyLeague(username, leagueId, teamName);
+        if (fantasyLeague == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(fantasyLeague);
     }
 }

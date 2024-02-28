@@ -1,11 +1,11 @@
 package capstone.mfslbackend.model;
 
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,8 +28,8 @@ public class FantasyLeague {
     private Long id;
     private String leagueName;
 
-
-    @ManyToMany(mappedBy = "fantasyLeagues")
-    private Set<User> users = new LinkedHashSet<>();
+    @ToString.Exclude
+    @OneToMany(mappedBy = "fantasyLeague", orphanRemoval = true)
+    private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
 
 }

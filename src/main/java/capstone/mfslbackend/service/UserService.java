@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 @AllArgsConstructor
@@ -24,13 +26,13 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username);
+        Optional<User> user = userRepository.findById(username);
 
-        if (user == null) {
+        if (user.isEmpty()) {
             throw new UsernameNotFoundException("No user found for username: " + username);
         }
 
-        return new SecurityUser(user);
+        return new SecurityUser(user.get());
     }
 
     public User createUser(String username, String password) {
@@ -44,8 +46,8 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public User getUser(String username) {
-        return userRepository.findUserByUsername(username);
+    public Optional<User> getUser(String username) {
+        return userRepository.findById(username);
     }
 
 }
