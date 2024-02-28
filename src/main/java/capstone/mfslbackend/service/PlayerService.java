@@ -98,9 +98,7 @@ public class PlayerService {
                 playerResponse.getPosition(),
                 playerResponse.getPhoto(),
                 playerResponse.getNumber(),
-                team,
-                null
-        );
+                team);
         playerRepository.save(player);
         return player;
     }
