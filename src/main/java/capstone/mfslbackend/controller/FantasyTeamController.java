@@ -1,5 +1,6 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.DTO.FantasyTeamLineup;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.service.FantasyTeamService;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,14 @@ public class FantasyTeamController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(fantasyTeam);
+    }
 
+    @GetMapping("lineup/{fantasyTeamId}")
+    public ResponseEntity<FantasyTeamLineup> getFantasyTeamLineup(@PathVariable long fantasyTeamId) {
+        return ResponseEntity.ok(fantasyTeamService.getFantasyTeamLineup(fantasyTeamId));
+    }
+    @PostMapping("lineup/{fantasyTeamId}")
+    public ResponseEntity<FantasyTeamLineup> setFantasyTeamLineup(@PathVariable long fantasyTeamId, @RequestParam String lineup) {
+        return ResponseEntity.ok(fantasyTeamService.setFantasyTeamLineup(fantasyTeamId, lineup));
     }
 }
