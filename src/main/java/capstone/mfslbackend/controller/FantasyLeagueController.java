@@ -25,12 +25,12 @@ public class FantasyLeagueController {
         Optional<FantasyLeague> fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
         return fantasyLeague.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    @GetMapping("{league-name}")
-    public ResponseEntity<List<FantasyLeague>> getFantasyLeagueByName(@PathVariable String fantasyTeamName) {
-        List<FantasyLeague> fantasyLeagues = fantasyLeagueService.getFantasyLeagueByName(fantasyTeamName);
+    @GetMapping("{fantasyLeagueName}")
+    public ResponseEntity<List<FantasyLeague>> getFantasyLeagueByName(@PathVariable String fantasyLeagueName) {
+        List<FantasyLeague> fantasyLeagues = fantasyLeagueService.getFantasyLeagueByName(fantasyLeagueName);
         return ResponseEntity.ok(fantasyLeagues);
     }
-    @PostMapping("create-league")
+    @PostMapping("")
     public ResponseEntity<FantasyLeague> createFantasyLeague(@RequestParam String leagueName) {
         FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(leagueName);
         return ResponseEntity.ok(fantasyLeague);
