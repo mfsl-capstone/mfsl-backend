@@ -30,7 +30,6 @@ public class TransactionService {
     public Transaction createTransaction(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) {
         Transaction transaction = new Transaction();
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         transaction.setDate(LocalDateTime.now());
 
         Optional<FantasyTeam> proposingFantasyTeamOptional = fantasyTeamService.getFantasyTeam(fantasyTeamId);
@@ -75,7 +74,6 @@ public class TransactionService {
     public Transaction draftTransaction(Long fantasyTeamId, Long incomingPlayerId) {
         Transaction transaction = new Transaction();
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         transaction.setDate(LocalDateTime.now());
 
         Optional<FantasyTeam> proposingFantasyTeamOptional = fantasyTeamService.getFantasyTeam(fantasyTeamId);
