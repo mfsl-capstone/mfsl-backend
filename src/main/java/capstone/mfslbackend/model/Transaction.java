@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 
@@ -34,6 +35,7 @@ public class Transaction {
     @Enumerated
     private TransactionStatus status;
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "proposing_fantasy_team_id", nullable = false)
     private FantasyTeam proposingFantasyTeam;
@@ -42,10 +44,11 @@ public class Transaction {
     @JoinColumn(name = "player_in_player_id", nullable = false)
     private Player playerIn;
 
-    @OneToOne(optional = false, orphanRemoval = true)
-    @JoinColumn(name = "player_out_player_id", nullable = false)
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "player_out_player_id")
     private Player playerOut;
 
+    @JsonIgnore
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "receiving_fantasy_team_id")

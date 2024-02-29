@@ -23,6 +23,10 @@ public class TransactionController {
     public void createTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId, @RequestParam Long outgoingPlayerId) {
         transactionService.createTransaction(fantasyTeamId, incomingPlayerId, outgoingPlayerId);
     }
+    @PostMapping("draft")
+    public void createDraftTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId) {
+        transactionService.draftTransaction(fantasyTeamId, incomingPlayerId);
+    }
     @GetMapping("{id}")
     public ResponseEntity<Transaction> getTransaction(@PathVariable Long id) {
         Optional<Transaction> transaction = transactionService.getTransactionById(id);

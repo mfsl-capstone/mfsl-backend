@@ -48,7 +48,7 @@ public class FantasyTeam {
     @OneToMany(mappedBy = "proposingFantasyTeam", orphanRemoval = true)
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "proposingFantasyTeam", orphanRemoval = true)
+    @OneToMany(mappedBy = "receivingFantasyTeam", orphanRemoval = true)
     private Set<Transaction> incomingTrades = new LinkedHashSet<>();
 
     @ToString.Exclude
