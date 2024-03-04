@@ -19,11 +19,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -113,7 +111,7 @@ public class FantasyLeagueService {
                 .findFirst();
     }
 
-    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, Boolean noTaken, int limit, int offset) {
+    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {
         Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(leagueId);
         if (fantasyLeagueOptional.isEmpty()) {
             log.error("Fantasy League with id {} not found", leagueId);
@@ -130,9 +128,29 @@ public class FantasyLeagueService {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.not(root.in(players)));
             }
 
+//          this might need changing later depending on what filters we want to implement (for example search by real life team/league)
+            if (!CollectionUtils.isEmpty(filters)) {
+                for (Map<String, String> filter : filters) {
+                    String field = filter.get("field");
+                    String value = filter.get("value");
+                    String[] values = value.split(",");
+                    List<Predicate> orPredicates = new ArrayList<>();
+                    for (String val : values) {
+                        if (root.get(field).getJavaType() == String.class) {
+                            orPredicates.add(criteriaBuilder.like(root.get(field), "%" + val + "%"));
+                        } else {
+                            orPredicates.add(criteriaBuilder.equal(root.get(field), val));
+                        }
+                    }
+                    Predicate orPredicate = criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
+                    predicate = criteriaBuilder.and(predicate, orPredicate);
+                }
+            }
+
             return predicate;
         };
-        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
         Page<Player> playerPage = playerRepository.findAll(spec, PageRequest.of(offset, limit, sort));
 
         playerPage.forEach(player -> {
