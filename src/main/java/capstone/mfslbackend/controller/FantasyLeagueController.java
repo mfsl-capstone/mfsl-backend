@@ -1,6 +1,8 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.service.FantasyLeagueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,5 +45,11 @@ public class FantasyLeagueController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(fantasyLeague);
+    }
+
+    @GetMapping("players")
+    public ResponseEntity<List<FantasyLeaguePlayer>> getFantasyLeaguePlayers(@RequestParam Long leagueId, @RequestParam Boolean noTaken, @RequestParam int limit, @RequestParam int offset) {
+        List<FantasyLeaguePlayer> players = fantasyLeagueService.getFantasyLeaguePlayers(leagueId, noTaken, limit, offset);
+        return ResponseEntity.ok(players);
     }
 }

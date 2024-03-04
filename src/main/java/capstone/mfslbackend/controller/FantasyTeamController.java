@@ -29,15 +29,6 @@ public class FantasyTeamController {
         return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("")
-    public ResponseEntity<FantasyTeam> createFantasyTeam(@RequestParam String teamName) {
-       FantasyTeam fantasyTeam = fantasyTeamService.createFantasyTeam(teamName);
-        if (fantasyTeam == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(fantasyTeam);
-    }
-
     @GetMapping("lineup/{fantasyTeamId}")
     public ResponseEntity<FantasyTeamLineup> getFantasyTeamLineup(@PathVariable long fantasyTeamId) {
         return ResponseEntity.ok(fantasyTeamService.getFantasyTeamLineup(fantasyTeamId));

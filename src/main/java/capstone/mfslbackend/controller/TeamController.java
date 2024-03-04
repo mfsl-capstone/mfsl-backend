@@ -25,9 +25,9 @@ public class TeamController {
     }
 
 
-    @GetMapping("/team")
+    @GetMapping("{teamId}")
     @Secured({"LEAGUE_MEMBER", "LEAGUE_ADMIN"})
-    public ResponseEntity<Team> getTeam(@RequestParam long teamId) {
+    public ResponseEntity<Team> getTeam(@PathVariable long teamId) {
         Optional<Team> team = teamService.getTeamById(teamId);
         return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
