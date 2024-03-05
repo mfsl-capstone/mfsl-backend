@@ -1,6 +1,8 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
+import capstone.mfslbackend.error.Error400;
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.service.FantasyLeagueService;
@@ -19,9 +21,12 @@ public class FantasyLeagueController {
         this.fantasyLeagueService = fantasyLeagueService;
     }
     @GetMapping("")
-    public ResponseEntity<FantasyLeague> getFantasyLeague(@RequestParam Long fantasyLeagueId) {
+    public ResponseEntity<FantasyLeague> getFantasyLeague(@RequestParam Long fantasyLeagueId) throws Error404 {
         Optional<FantasyLeague> fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
-        return fantasyLeague.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if (fantasyLeague.isEmpty()) {
+            throw new Error404("Fantasy League not found");
+        }
+        return ResponseEntity.ok(fantasyLeague.get());
     }
     @GetMapping("{fantasyLeagueName}")
     public ResponseEntity<List<FantasyLeague>> getFantasyLeagueByName(@PathVariable String fantasyLeagueName) {
@@ -35,11 +40,8 @@ public class FantasyLeagueController {
     }
 
     @PostMapping("join-league")
-    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId, @RequestParam String teamName) {
+    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId, @RequestParam String teamName) throws Error400 {
         FantasyLeague fantasyLeague = fantasyLeagueService.joinFantasyLeague(username, leagueId, teamName);
-        if (fantasyLeague == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(fantasyLeague);
     }
 
@@ -50,7 +52,7 @@ public class FantasyLeagueController {
                                                                              @RequestParam String sortField,
                                                                              @RequestParam(required = false, defaultValue = "100") int limit,
                                                                              @RequestParam(required = false, defaultValue = "0") int offset,
-                                                                             @RequestBody(required = false) List<Map<String, String>> filters) {
+                                                                             @RequestBody(required = false) List<Map<String, String>> filters) throws Error404 {
         List<FantasyLeaguePlayer> players = fantasyLeagueService.getFantasyLeaguePlayers(leagueId, filters, sortDirection, sortField, noTaken, limit, offset);
         return ResponseEntity.ok(players);
     }

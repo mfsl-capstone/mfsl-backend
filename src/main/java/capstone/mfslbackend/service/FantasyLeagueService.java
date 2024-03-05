@@ -1,6 +1,8 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
+import capstone.mfslbackend.error.Error400;
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
@@ -46,33 +48,28 @@ public class FantasyLeagueService {
         fantasyLeague.setLeagueName(leagueName);
         return fantasyLeagueRepository.save(fantasyLeague);
     }
-    public Optional<FantasyLeague> getFantasyLeagueById(Long fantasyLeagueId) {
-        return fantasyLeagueRepository.findById(fantasyLeagueId);
+    public FantasyLeague getFantasyLeagueById(Long fantasyLeagueId) throws Error404 {
+        return fantasyLeagueRepository.findById(fantasyLeagueId)
+                .orElseThrow(() -> new Error404("Fantasy League with id " + fantasyLeagueId + " not found"));
     }
     public List<FantasyLeague> getFantasyLeagueByName(String fantasyLeagueName) {
         String name = "%" + fantasyLeagueName + "%";
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
 
-    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName) {
-        Optional<User> userOptional = userService.getUser(username);
-        Optional<FantasyLeague> leagueOptional = fantasyLeagueRepository.findById(leagueId);
+    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName) throws Error400, Error404 {
+        User user = userService.getUser(username)
+                .orElseThrow(() -> new Error404("User " + username + " not found"));
+        FantasyLeague league = getFantasyLeagueById(leagueId);
         FantasyTeam fantasyTeam = new FantasyTeam();
         fantasyTeam.setTeamName(teamName);
-
-        if (userOptional.isEmpty() || leagueOptional.isEmpty()) {
-            return null;
-        }
-        FantasyLeague league = leagueOptional.get();
-        User user = userOptional.get();
 
 //        block users from registering two teams in a league
         for (FantasyTeam team : league.getFantasyTeams()) {
             if (team.getUser().equals(user)) {
-                return null;
+                throw new Error400("User already has a team in this league");
             }
         }
-
 
         fantasyTeam.setUser(user);
         fantasyTeam.setFantasyLeague(league);
@@ -82,41 +79,24 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findById(leagueId).get();
     }
 
-    public List<Player> getTakenPlayersByFantasyLeagueId(Long fantasyLeagueId) {
-        Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(fantasyLeagueId);
-        if (fantasyLeagueOptional.isEmpty()) {
-            log.error("Fantasy League with id {} not found", fantasyLeagueId);
-            throw new IllegalArgumentException("Fantasy League with id " + fantasyLeagueId + " not found");
-        }
+    public List<Player> getTakenPlayersByFantasyLeagueId(Long fantasyLeagueId) throws Error404 {
+        FantasyLeague fantasyLeague = getFantasyLeagueById(fantasyLeagueId);
 
         List<Player> players = new ArrayList<>();
-        FantasyLeague fantasyLeague = fantasyLeagueOptional.get();
         fantasyLeague.getFantasyTeams().forEach(fantasyTeam -> players.addAll(fantasyTeam.getPlayers()));
         return players;
     }
 
-    public Optional<FantasyTeam> getFantasyTeamOfTakenPlayer(Long fantasyLeagueId, Long playerId) {
-        Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(fantasyLeagueId);
-        if (fantasyLeagueOptional.isEmpty()) {
-            log.error("Fantasy League with id {} not found", fantasyLeagueId);
-            throw new IllegalArgumentException("Fantasy League with id " + fantasyLeagueId + " not found");
-        }
+    public Optional<FantasyTeam> getFantasyTeamOfTakenPlayer(Long fantasyLeagueId, Long playerId) throws Error404 {
+        FantasyLeague fantasyLeague = getFantasyLeagueById(fantasyLeagueId);
 
-        return fantasyLeagueOptional
-                .map(FantasyLeague::getFantasyTeams)
-                .orElse(Collections.emptySet())
-                .stream()
+        return fantasyLeague.getFantasyTeams().stream()
                 .filter(fantasyTeam -> fantasyTeam.getPlayers().stream()
                         .anyMatch(player -> player.getPlayerId().equals(playerId)))
                 .findFirst();
     }
 
-    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {
-        Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(leagueId);
-        if (fantasyLeagueOptional.isEmpty()) {
-            log.error("Fantasy League with id {} not found", leagueId);
-            return new ArrayList<>();
-        }
+    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) throws Error404 {
 
         List<FantasyLeaguePlayer> fantasyLeaguePlayers = new ArrayList<>();
         List<Player> players = getTakenPlayersByFantasyLeagueId(leagueId);

@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
@@ -36,10 +37,11 @@ public class PlayerGameStatsService {
         this.playerGameStatsRepository = playerGameStatsRepository;
     }
 
-    public Optional<PlayerGameStats> getPlayerGameStatsById(Long id) {
-        return playerGameStatsRepository.findById(id);
+    public PlayerGameStats getPlayerGameStatsById(Long id) throws Error404 {
+        return playerGameStatsRepository.findById(id)
+                .orElseThrow(() ->new Error404("Could not find player game stats with id: " + id));
     }
-    public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) {
+    public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) throws Error404 {
         List<PlayerGameStats> playerGameStats = new ArrayList<>();
         StatsContainer statsResponse;
         StatsContainer statsResponse2;
@@ -59,13 +61,13 @@ public class PlayerGameStatsService {
             statsResponse2 = apiService.getRequest(url, StatsContainer.class);
         } catch (Exception e) {
             log.error("error retrieving fixture {}", fixtureId, e);
-            return ResponseEntity.notFound().build();
+            throw new Error404("Could not find fixture: " + fixtureId);
         }
 
         if (statsResponse == null || CollectionUtils.isEmpty(statsResponse.getResponse())
                 || statsResponse2 == null || CollectionUtils.isEmpty(statsResponse2.getResponse())) {
             log.error("no results found for fixture {}", fixtureId);
-            return ResponseEntity.notFound().build();
+            throw new Error404("Could not find fixture: " + fixtureId);
         }
         for (PlayersStatsResponse response: statsResponse.getResponse()) {
             TeamResponse home = statsResponse2.getResponse().get(0).getTeams().getHome();

@@ -1,5 +1,7 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.error.Error400;
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.service.FantasyWeekService;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +25,9 @@ public class FantasyWeekController {
     }
 
     @GetMapping("{fantasyWeekId}")
-    public ResponseEntity<FantasyWeek> getFantasyWeekById(@PathVariable long fantasyWeekId) {
-        Optional<FantasyWeek> week = fantasyWeekService.getFantasyWeekById(fantasyWeekId);
-        return week.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<FantasyWeek> getFantasyWeekById(@PathVariable long fantasyWeekId) throws Error404 {
+        FantasyWeek week = fantasyWeekService.getFantasyWeekById(fantasyWeekId);
+        return ResponseEntity.ok(week);
     }
 
     @GetMapping("{week-number}")
@@ -35,7 +37,8 @@ public class FantasyWeekController {
     }
 
     @PostMapping("")
-    public ResponseEntity<FantasyWeek> createFantasyWeek(@RequestParam int fantasyTeamId, @RequestParam int weekNumber) {
+    public ResponseEntity<FantasyWeek> createFantasyWeek(@RequestParam int fantasyTeamId, @RequestParam int weekNumber)
+            throws Error404, Error400 {
         FantasyWeek fantasyWeek = fantasyWeekService.createFantasyWeek(fantasyTeamId, weekNumber);
         if (fantasyWeek == null) {
             return ResponseEntity.notFound().build();

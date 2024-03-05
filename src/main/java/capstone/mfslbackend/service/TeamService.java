@@ -1,5 +1,8 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error400;
+import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.error.Error500;
 import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
@@ -33,7 +36,7 @@ public class TeamService {
         this.baseUrl = baseUrl;
     }
 
-    public ResponseEntity<List<Team>> createTeamsInLeague(String leagueId, String season) {
+    public List<Team> createTeamsInLeague(String leagueId, String season) {
         TeamsContainer teamsContainer;
         try {
             URL url = UriComponentsBuilder.fromUriString(baseUrl)
@@ -43,18 +46,21 @@ public class TeamService {
                     .build().toUri().toURL();
             teamsContainer = apiService.getRequest(url, TeamsContainer.class);
         } catch (Exception e) {
-            log.error("Error finding teams in league: {} in season: {}", leagueId, season, e);
-            return ResponseEntity.notFound().build();
+            throw new Error500("Error creating teams for league: " + leagueId + " in season: " + season);
         }
         if (teamsContainer == null || CollectionUtils.isEmpty(teamsContainer.getResponse())) {
-            log.error("No teams found in league: {} in season: {}", leagueId, season);
-            return ResponseEntity.notFound().build();
+            throw new Error404("No teams found for league: " + leagueId + " in season: " + season);
         }
 
-        return ResponseEntity.ok(teamsContainer.getResponse().stream()
-                .map(team -> getTeamById(team.getTeam().getId())
-                        .orElse(createTeamById(team.getTeam().getId())))
-                .toList());
+        return teamsContainer.getResponse().stream()
+                .map(team -> {
+                    try {
+                        return getTeamById(team.getTeam().getId());
+                    } catch (Error404 e) {
+                        return createTeamById(team.getTeam().getId());
+                    }
+                })
+                .toList();
     }
 
     public Team createTeamById(Long teamId) {
@@ -66,14 +72,16 @@ public class TeamService {
                     .build().toUri().toURL();
             teamsContainer = apiService.getRequest(url, TeamsContainer.class);
         } catch (Exception e) {
-            log.error("Error finding team: {} for creating", teamId, e);
-            return null;
+            throw new Error500("Error finding team: " + teamId);
         }
         if (teamsContainer == null || CollectionUtils.isEmpty(teamsContainer.getResponse())) {
-            log.error("Team {} not found for creation", teamId);
-            return null;
+            throw new Error404("No team found with id: " + teamId);
         }
-        return getTeamById(teamId).orElse(createTeam(teamsContainer.getResponse().get(0).getTeam()));
+        try {
+            return getTeamById(teamId);
+        } catch (Error404 e) {
+            return createTeam(teamsContainer.getResponse().get(0).getTeam());
+        }
     }
 
     private Team createTeam(TeamResponse teamResponse) {
@@ -81,12 +89,9 @@ public class TeamService {
         return teamRepository.save(team);
     }
 
-    public Optional<Team> getTeamById(long teamId) {
-        Optional<Team> team = teamRepository.findById(teamId);
-        if (team.isEmpty()) {
-            log.warn("could not find team with id {}", teamId);
-        }
-        return team;
+    public Team getTeamById(long teamId) {
+        return teamRepository.findById(teamId)
+                .orElseThrow(() -> new Error404("Could not find team with id " + teamId));
     }
 
     public List<Team> getAllTeams() {
@@ -97,35 +102,16 @@ public class TeamService {
         return teams;
     }
 
-    public List<Player> getPlayersOnTeam(Long teamId) {
-        Optional<Team> team = getTeamById(teamId);
-        if (team.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return team.get().getPlayers();
-    }
-
-    public List<Game> getGamesForTeam(Long teamId) {
-        Optional<Team> team = getTeamById(teamId);
-        if (team.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return team.get().getGames();
-    }
-
     public void addGameToTeam(Long teamId, Game game) {
-        Optional<Team> optionalTeam = getTeamById(teamId);
-        if (optionalTeam.isPresent()) {
-            Team team = optionalTeam.get();
-            if (!team.getGames().contains(game)) {
-                team.getGames().add(game);
-                teamRepository.save(team);
-            } else {
-                log.warn("Game {} is already associated with Team {}", game.getId(), teamId);
-            }
+        Team team = getTeamById(teamId);
+
+        if (!team.getGames().contains(game)) {
+            List<Game> games = team.getGames();
+            games.add(game);
+            team.setGames(games);
+            teamRepository.save(team);
         } else {
-            log.error("Team with ID {} not found. Cannot add game.", teamId);
+            throw new Error400("Game already exists for team: " + teamId);
         }
     }
-
 }

@@ -1,5 +1,7 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error400;
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Transaction;
@@ -27,7 +29,7 @@ public class TransactionService {
         this.playerService = playerService;
         this.fantasyLeagueService = fantasyLeagueService;
     }
-    public Transaction createTransaction(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) {
+    public Transaction createTransaction(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) throws Error404 {
         Transaction transaction = new Transaction();
 
         transaction.setDate(LocalDateTime.now());
@@ -52,19 +54,14 @@ public class TransactionService {
         }
 
         Optional<FantasyTeam> takenTeamOptional = fantasyLeagueService.getFantasyTeamOfTakenPlayer(proposingFantasyTeam.getFantasyLeague().getId(), incomingPlayerId);
-        FantasyTeam takenTeam;
         if (takenTeamOptional.isPresent()) {
-            takenTeam = takenTeamOptional.get();
+            FantasyTeam takenTeam = takenTeamOptional.get();
             transaction.setReceivingFantasyTeam(takenTeam);
         }
 
-        Optional<Player> playerIn = playerService.getPlayerById(incomingPlayerId);
-        if (playerIn.isPresent()) {
-            transaction.setPlayerIn(playerIn.get());
-        } else {
-            log.error("Player with id {} not found", incomingPlayerId);
-            return null;
-        }
+        Player playerIn = playerService.getPlayerById(incomingPlayerId);
+        transaction.setPlayerIn(playerIn);
+
 
         transaction.setStatus(TransactionStatus.PROPOSED);
 
@@ -76,15 +73,8 @@ public class TransactionService {
 
         transaction.setDate(LocalDateTime.now());
 
-        Optional<FantasyTeam> proposingFantasyTeamOptional = fantasyTeamService.getFantasyTeam(fantasyTeamId);
-        FantasyTeam proposingFantasyTeam;
-        if (proposingFantasyTeamOptional.isPresent()) {
-            proposingFantasyTeam = proposingFantasyTeamOptional.get();
-            transaction.setProposingFantasyTeam(proposingFantasyTeam);
-        } else {
-            log.error("Fantasy team with id {} not found", fantasyTeamId);
-            return null;
-        }
+        FantasyTeam proposingFantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
+        transaction.setProposingFantasyTeam(proposingFantasyTeam);
 
         Optional<FantasyTeam> takenTeamOptional = fantasyLeagueService.getFantasyTeamOfTakenPlayer(proposingFantasyTeam.getFantasyLeague().getId(), incomingPlayerId);
         if (takenTeamOptional.isPresent()) {
@@ -92,13 +82,8 @@ public class TransactionService {
             return null;
         }
 
-        Optional<Player> playerIn = playerService.getPlayerById(incomingPlayerId);
-        if (playerIn.isPresent()) {
-            transaction.setPlayerIn(playerIn.get());
-        } else {
-            log.error("Player with id {} not found", incomingPlayerId);
-            return null;
-        }
+        Player playerIn = playerService.getPlayerById(incomingPlayerId);
+        transaction.setPlayerIn(playerIn);
 
 //        check if fantasy team has enough players in each position
         Set<Player> players = proposingFantasyTeam.getPlayers();
@@ -147,18 +132,17 @@ public class TransactionService {
             if (missingFwdCount > 0) {
                 missingPositions += "Attacker ";
             }
-            log.error("Fantasy team with id {} needs players in position(s): {}", fantasyTeamId, missingPositions);
-            return null;
+            throw new Error400("Fantasy team with id " + fantasyTeamId + " does not have enough players in the following positions: " + missingPositions);
         }
 
 //        add player to the team immediately
-        players.add(playerIn.get());
+        players.add(playerIn);
         proposingFantasyTeam.setPlayers(players);
         String lineup = proposingFantasyTeam.getPlayerIdsInOrder();
         if (lineup != null && !lineup.isEmpty()) {
             lineup += " ";
         }
-        lineup += playerIn.get().getPlayerId();
+        lineup += playerIn.getPlayerId();
         proposingFantasyTeam.setPlayerIdsInOrder(lineup);
         transaction.setStatus(TransactionStatus.ACCEPTED);
         return transactionRepository.save(transaction);
@@ -167,12 +151,8 @@ public class TransactionService {
 
 
     public Transaction acceptTransaction(Long transactionId) {
-        Optional<Transaction> transactionOptional = getTransactionById(transactionId);
-        if (transactionOptional.isEmpty()) {
-            log.error("Transaction with id {} not found", transactionId);
-            return null;
-        }
-        Transaction transaction = transactionOptional.get();
+        Transaction transaction = getTransactionById(transactionId);
+
         transaction.setStatus(TransactionStatus.ACCEPTED);
         Set<Player> proposingPlayers = transaction.getProposingFantasyTeam().getPlayers();
         proposingPlayers.remove(transaction.getPlayerOut());
@@ -183,7 +163,6 @@ public class TransactionService {
             transaction.setStatus(TransactionStatus.REJECTED);
             return transactionRepository.save(transaction);
         }
-
 
         if (transaction.getReceivingFantasyTeam() != null) {
             Set<Player> receivingPlayers = transaction.getReceivingFantasyTeam().getPlayers();
@@ -204,12 +183,7 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
     public Transaction rejectTransaction(Long transactionId) {
-        Optional<Transaction> transactionOptional = getTransactionById(transactionId);
-        if (transactionOptional.isEmpty()) {
-            log.error("Transaction with id {} not found", transactionId);
-            return null;
-        }
-        Transaction transaction = transactionOptional.get();
+        Transaction transaction = getTransactionById(transactionId);
         transaction.setStatus(TransactionStatus.REJECTED);
         return transactionRepository.save(transaction);
     }
@@ -252,7 +226,8 @@ public class TransactionService {
         }
         return true;
     }
-    public Optional<Transaction> getTransactionById(Long id) {
-        return transactionRepository.findById(id);
+    public Transaction getTransactionById(Long id) {
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new Error404("Transaction with id " + id + " not found"));
     }
 }

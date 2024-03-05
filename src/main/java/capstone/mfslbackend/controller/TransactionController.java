@@ -20,16 +20,18 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
     @PostMapping()
-    public void createTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId, @RequestParam Long outgoingPlayerId) {
-        transactionService.createTransaction(fantasyTeamId, incomingPlayerId, outgoingPlayerId);
+    public ResponseEntity<Transaction> createTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId, @RequestParam Long outgoingPlayerId) {
+        Transaction transaction = transactionService.createTransaction(fantasyTeamId, incomingPlayerId, outgoingPlayerId);
+        return ResponseEntity.ok(transaction);
     }
     @PostMapping("draft")
-    public void createDraftTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId) {
-        transactionService.draftTransaction(fantasyTeamId, incomingPlayerId);
+    public ResponseEntity<Transaction> createDraftTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId) {
+        Transaction transaction = transactionService.draftTransaction(fantasyTeamId, incomingPlayerId);
+        return ResponseEntity.ok(transaction);
     }
     @GetMapping("{id}")
     public ResponseEntity<Transaction> getTransaction(@PathVariable Long id) {
-        Optional<Transaction> transaction = transactionService.getTransactionById(id);
-        return transaction.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Transaction transaction = transactionService.getTransactionById(id);
+        return ResponseEntity.ok(transaction);
     }
 }
