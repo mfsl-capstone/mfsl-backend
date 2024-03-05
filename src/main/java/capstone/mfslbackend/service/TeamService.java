@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class TeamService {
 
     private final String baseUrl;
@@ -96,22 +95,16 @@ public class TeamService {
 
     public List<Team> getAllTeams() {
         List<Team> teams = teamRepository.findAll();
-        if (CollectionUtils.isEmpty(teams)) {
-            log.warn("no teams exist");
-        }
         return teams;
     }
 
-    public void addGameToTeam(Long teamId, Game game) {
-        Team team = getTeamById(teamId);
-
+    public void addGameToTeam(Team team, Game game) {
         if (!team.getGames().contains(game)) {
             List<Game> games = team.getGames();
             games.add(game);
             team.setGames(games);
-            teamRepository.save(team);
         } else {
-            throw new Error400("Game already exists for team: " + teamId);
+            throw new Error400("Game already exists for team: " + team.getTeamId());
         }
     }
 }

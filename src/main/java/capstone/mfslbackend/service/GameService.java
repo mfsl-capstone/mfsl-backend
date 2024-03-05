@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class GameService {
     private final String baseUrl;
     private final GameRepository gameRepository;
@@ -42,11 +41,9 @@ public class GameService {
                     .build().toUri().toURL();
             gamesContainer = apiService.getRequest(url, GamesContainer.class);
         } catch (Exception e) {
-            log.error("error getting all games for league: {} and season: {}", leagueId, season, e);
             throw new Error404("Could not find all games for league: " + leagueId + " and season: " + season);
         }
         if (gamesContainer == null || CollectionUtils.isEmpty(gamesContainer.getResponse())) {
-            log.error("Could not find any games for league: {} and season: {}", leagueId, season);
             throw new Error404("Could not find any games for league: " + leagueId + " and season: " + season);
         }
         return ResponseEntity.ok(gamesContainer.getResponse().stream()
@@ -55,20 +52,30 @@ public class GameService {
     }
 
     public Game createGame(GamesResponse gamesResponse) {
-        Optional<Team> h = teamService.getTeamById(gamesResponse.getTeams().getHome().getId());
-        Optional<Team> a = teamService.getTeamById(gamesResponse.getTeams().getAway().getId());
-        Team home = h.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getHome().getId()));
-        Team away = a.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getAway().getId()));
+        Team home;
+        try{
+            home = teamService.getTeamById(gamesResponse.getTeams().getHome().getId());
+        } catch (Error404 e) {
+            home = teamService.createTeamById(gamesResponse.getTeams().getHome().getId());
+        }
+        Team away;
+        try{
+            away = teamService.getTeamById(gamesResponse.getTeams().getAway().getId());
+        } catch (Error404 e) {
+            away = teamService.createTeamById(gamesResponse.getTeams().getAway().getId());
+        }
 
         Game game = new Game();
         game.setId(gamesResponse.getFixture().getId());
         game.setDate(gamesResponse.getFixture().getDate());
         game.setRound(gamesResponse.getLeague().getRound());
+        game.setHomeTeam(home);
+        game.setAwayTeam(away);
 
         gameRepository.save(game);
 
-        teamService.addGameToTeam(home.getTeamId(), game);
-        teamService.addGameToTeam(away.getTeamId(), game);
+        teamService.addGameToTeam(home, game);
+        teamService.addGameToTeam(away, game);
 
         return game;
     }
@@ -83,7 +90,6 @@ public class GameService {
         List<Game> allGames = gameRepository.findAll();
         List<Game> filteredGames = allGames.stream().filter(game -> game.getRound().equalsIgnoreCase(round)).toList();
         if (CollectionUtils.isEmpty(filteredGames)) {
-            log.warn("could not find any games for round {}", round);
             throw new Error404("Could not find any games for round " + round);
         }
         return filteredGames;

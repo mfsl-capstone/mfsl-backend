@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class PlayerService {
     private final String baseUrl;
     private final PlayerRepository playerRepository;
@@ -56,17 +55,17 @@ public class PlayerService {
         }
         if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())
                 || CollectionUtils.isEmpty(playersContainer.getResponse().get(0).getPlayers())) {
-            log.error("empty squad found for team {}", teamId);
             throw new Error404("No players found for team: " + teamId);
         }
+        Team team = teamService.getTeamById(teamId);
+        team.setPlayers(new ArrayList<>());
         return playersContainer.getResponse().get(0).getPlayers().stream()
-                .map(playerResponse -> createPlayer(playerResponse, teamId))
+                .map(playerResponse -> createPlayer(playerResponse, team))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    public Player createPlayer(PlayerResponse playerResponse, Long teamId) throws Error404 {
-        Team team = teamService.getTeamById(teamId);
+    public Player createPlayer(PlayerResponse playerResponse, Team team) throws Error404 {
 
         Player player;
         try {
@@ -85,16 +84,12 @@ public class PlayerService {
         }
         if (!player.getPosition().equals(playerResponse.getPosition())) {
             player.setPosition(playerResponse.getPosition());
-            playerRepository.save(player);
         }
         if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
             player.setNumber(playerResponse.getNumber());
-            playerRepository.save(player);
         }
-
         if (!player.getTeam().equals(team)) {
             player.setTeam(team);
-            playerRepository.save(player);
         }
 
         return player;

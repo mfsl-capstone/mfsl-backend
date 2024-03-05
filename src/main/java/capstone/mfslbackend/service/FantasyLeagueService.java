@@ -10,12 +10,7 @@ import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.PlayerRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,29 +21,25 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 
 @Service
-@Slf4j
 public class FantasyLeagueService {
     private final FantasyLeagueRepository fantasyLeagueRepository;
     private final UserService userService;
     private final PlayerRepository playerRepository;
     private final FantasyTeamRepository fantasyTeamRepository;
-    private final EntityManager entityManager;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
-                                FantasyTeamRepository fantasyTeamRepository, PlayerRepository playerRepository,
-                                EntityManager entityManager) {
+                                FantasyTeamRepository fantasyTeamRepository, PlayerRepository playerRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.userService = userService;
         this.fantasyTeamRepository = fantasyTeamRepository;
         this.playerRepository = playerRepository;
-        this.entityManager = entityManager;
     }
     public FantasyLeague createFantasyLeague(String leagueName) {
         FantasyLeague fantasyLeague = new FantasyLeague();
         fantasyLeague.setLeagueName(leagueName);
         return fantasyLeagueRepository.save(fantasyLeague);
     }
-    public FantasyLeague getFantasyLeagueById(Long fantasyLeagueId) throws Error404 {
+    public FantasyLeague getFantasyLeagueById(Long fantasyLeagueId) {
         return fantasyLeagueRepository.findById(fantasyLeagueId)
                 .orElseThrow(() -> new Error404("Fantasy League with id " + fantasyLeagueId + " not found"));
     }
@@ -57,9 +48,8 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
 
-    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName) throws Error400, Error404 {
-        User user = userService.getUser(username)
-                .orElseThrow(() -> new Error404("User " + username + " not found"));
+    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName) {
+        User user = userService.getUser(username);
         FantasyLeague league = getFantasyLeagueById(leagueId);
         FantasyTeam fantasyTeam = new FantasyTeam();
         fantasyTeam.setTeamName(teamName);
@@ -79,7 +69,7 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findById(leagueId).get();
     }
 
-    public List<Player> getTakenPlayersByFantasyLeagueId(Long fantasyLeagueId) throws Error404 {
+    public List<Player> getTakenPlayersByFantasyLeagueId(Long fantasyLeagueId) {
         FantasyLeague fantasyLeague = getFantasyLeagueById(fantasyLeagueId);
 
         List<Player> players = new ArrayList<>();
@@ -87,7 +77,7 @@ public class FantasyLeagueService {
         return players;
     }
 
-    public Optional<FantasyTeam> getFantasyTeamOfTakenPlayer(Long fantasyLeagueId, Long playerId) throws Error404 {
+    public Optional<FantasyTeam> getFantasyTeamOfTakenPlayer(Long fantasyLeagueId, Long playerId) {
         FantasyLeague fantasyLeague = getFantasyLeagueById(fantasyLeagueId);
 
         return fantasyLeague.getFantasyTeams().stream()
@@ -96,7 +86,7 @@ public class FantasyLeagueService {
                 .findFirst();
     }
 
-    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) throws Error404 {
+    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {
 
         List<FantasyLeaguePlayer> fantasyLeaguePlayers = new ArrayList<>();
         List<Player> players = getTakenPlayersByFantasyLeagueId(leagueId);

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class PlayerGameStatsService {
 
     private final ApiService apiService;
@@ -37,7 +36,7 @@ public class PlayerGameStatsService {
         this.playerGameStatsRepository = playerGameStatsRepository;
     }
 
-    public PlayerGameStats getPlayerGameStatsById(Long id) throws Error404 {
+    public PlayerGameStats getPlayerGameStatsById(Long id) {
         return playerGameStatsRepository.findById(id)
                 .orElseThrow(() ->new Error404("Could not find player game stats with id: " + id));
     }
@@ -60,13 +59,11 @@ public class PlayerGameStatsService {
                     .build().toUri().toURL();
             statsResponse2 = apiService.getRequest(url, StatsContainer.class);
         } catch (Exception e) {
-            log.error("error retrieving fixture {}", fixtureId, e);
             throw new Error404("Could not find fixture: " + fixtureId);
         }
 
         if (statsResponse == null || CollectionUtils.isEmpty(statsResponse.getResponse())
                 || statsResponse2 == null || CollectionUtils.isEmpty(statsResponse2.getResponse())) {
-            log.error("no results found for fixture {}", fixtureId);
             throw new Error404("Could not find fixture: " + fixtureId);
         }
         for (PlayersStatsResponse response: statsResponse.getResponse()) {
@@ -79,13 +76,12 @@ public class PlayerGameStatsService {
             for (PlayerStatsResponse players : response.getPlayers()) {
                 convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
                         .ifPresent(stats -> {
-                            stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()).get());
+                            stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
                             playerGameStatsRepository.save(stats);
                             playerGameStats.add(stats);
                         });
             }
         }
-        log.debug("all players from fixture {}: {}", fixtureId, playerGameStats);
         return ResponseEntity.ok(playerGameStats);
     }
 

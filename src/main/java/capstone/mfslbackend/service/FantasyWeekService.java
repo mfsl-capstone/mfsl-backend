@@ -13,7 +13,6 @@ import java.util.Optional;
 
 
 @Service
-@Slf4j
 public class FantasyWeekService {
 
     private final FantasyWeekRepository fantasyWeekRepository;
@@ -32,7 +31,6 @@ public class FantasyWeekService {
     }
     public FantasyWeek createFantasyWeek(int fantasyTeamId, int weekNumber) throws Error404, Error400 {
         if (weekNumber <= 0) {
-            log.warn("week number cannot be negative");
             throw new Error400("week number cannot be negative");
         }
         FantasyTeam fantasyTeam = fantasyTeamService.getFantasyTeam((long) fantasyTeamId);

@@ -31,8 +31,8 @@ public class Player {
     private String url;
     private Integer number;
 
-    @ManyToOne(cascade = jakarta.persistence.CascadeType.PERSIST, optional = false)
-    @JoinColumn(name = "team_id", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "team_id")
     private Team team;
 
     @ToString.Exclude

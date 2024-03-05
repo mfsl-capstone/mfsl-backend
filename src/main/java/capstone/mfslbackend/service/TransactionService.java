@@ -7,16 +7,13 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.model.TransactionStatus;
 import capstone.mfslbackend.repository.TransactionRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
 
 @Service
-@Slf4j
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final FantasyTeamService fantasyTeamService;
@@ -34,23 +31,14 @@ public class TransactionService {
 
         transaction.setDate(LocalDateTime.now());
 
-        Optional<FantasyTeam> proposingFantasyTeamOptional = fantasyTeamService.getFantasyTeam(fantasyTeamId);
-        FantasyTeam proposingFantasyTeam;
-        if (proposingFantasyTeamOptional.isPresent()) {
-            proposingFantasyTeam = proposingFantasyTeamOptional.get();
-            transaction.setProposingFantasyTeam(proposingFantasyTeam);
-        } else {
-            log.error("Fantasy team with id {} not found", fantasyTeamId);
-            return null;
-        }
-
+        FantasyTeam proposingFantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
+        transaction.setProposingFantasyTeam(proposingFantasyTeam);
 
         Optional<Player> playerOut = proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPlayerId().equals(outgoingPlayerId)).findFirst();
         if (playerOut.isPresent()) {
             transaction.setPlayerOut(playerOut.get());
         } else {
-            log.error("Player with id {} not found", outgoingPlayerId);
-            return null;
+            throw new Error404("Player with id " + outgoingPlayerId + " not found in fantasy team with id " + fantasyTeamId);
         }
 
         Optional<FantasyTeam> takenTeamOptional = fantasyLeagueService.getFantasyTeamOfTakenPlayer(proposingFantasyTeam.getFantasyLeague().getId(), incomingPlayerId);
@@ -61,7 +49,6 @@ public class TransactionService {
 
         Player playerIn = playerService.getPlayerById(incomingPlayerId);
         transaction.setPlayerIn(playerIn);
-
 
         transaction.setStatus(TransactionStatus.PROPOSED);
 
@@ -78,8 +65,7 @@ public class TransactionService {
 
         Optional<FantasyTeam> takenTeamOptional = fantasyLeagueService.getFantasyTeamOfTakenPlayer(proposingFantasyTeam.getFantasyLeague().getId(), incomingPlayerId);
         if (takenTeamOptional.isPresent()) {
-            log.error("Player with id {} already taken", incomingPlayerId);
-            return null;
+            throw new Error400("Player with id " + incomingPlayerId + " is already in a fantasy team");
         }
 
         Player playerIn = playerService.getPlayerById(incomingPlayerId);
@@ -94,26 +80,26 @@ public class TransactionService {
         int missingFwdCount = 2;
         for (Player player : players) {
             switch (player.getPosition()) {
-                case "Goalkeeper":
+                case "Goalkeeper" -> {
                     if (missingGkCount > 0) {
                         missingGkCount--;
                     }
-                    break;
-                case "Defender":
+                }
+                case "Defender" -> {
                     if (missingDefCount > 0) {
                         missingDefCount--;
                     }
-                    break;
-                case "Midfielder":
+                }
+                case "Midfielder" -> {
                     if (missingMidCount > 0) {
                         missingMidCount--;
                     }
-                    break;
-                case "Attacker":
+                }
+                case "Attacker" -> {
                     if (missingFwdCount > 0) {
                         missingFwdCount--;
                     }
-                    break;
+                }
             }
         }
         int missingPlayerCount = missingGkCount + missingDefCount + missingMidCount + missingFwdCount;
@@ -161,7 +147,7 @@ public class TransactionService {
 //        decline trade if not enough players in each position
         if (!approveTeam(proposingPlayers, transaction.getProposingFantasyTeam().getId())) {
             transaction.setStatus(TransactionStatus.REJECTED);
-            return transactionRepository.save(transaction);
+            return transaction;
         }
 
         if (transaction.getReceivingFantasyTeam() != null) {
@@ -171,7 +157,7 @@ public class TransactionService {
 
             if (!approveTeam(receivingPlayers, transaction.getReceivingFantasyTeam().getId())) {
                 transaction.setStatus(TransactionStatus.REJECTED);
-                return transactionRepository.save(transaction);
+                return transaction;
             }
             transaction.getReceivingFantasyTeam().setPlayers(receivingPlayers);
             transaction.getReceivingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getReceivingFantasyTeam().getPlayerIdsInOrder(),
@@ -180,12 +166,12 @@ public class TransactionService {
         transaction.getProposingFantasyTeam().setPlayers(proposingPlayers);
         transaction.getProposingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getProposingFantasyTeam().getPlayerIdsInOrder(),
                 transaction.getPlayerIn().getPlayerId().toString(), transaction.getPlayerOut().getPlayerId().toString()));
-        return transactionRepository.save(transaction);
+        return transaction;
     }
     public Transaction rejectTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
         transaction.setStatus(TransactionStatus.REJECTED);
-        return transactionRepository.save(transaction);
+        return transaction;
     }
     public String changeLineupString(String lineup, String idIn, String idOut) {
         String[] ids = lineup.split(" ");
@@ -205,26 +191,13 @@ public class TransactionService {
         int fwdCount = 0;
         for (Player player : players) {
             switch (player.getPosition()) {
-                case "Goalkeeper":
-                    gkCount++;
-                    break;
-                case "Defender":
-                    defCount++;
-                    break;
-                case "Midfielder":
-                    midCount++;
-                    break;
-                case "Attacker":
-                    fwdCount++;
-                    break;
+                case "Goalkeeper" -> gkCount++;
+                case "Defender" -> defCount++;
+                case "Midfielder" -> midCount++;
+                case "Attacker" -> fwdCount++;
             }
         }
-        if (gkCount <= 1 || defCount <= 4 || midCount <= 4 || fwdCount <= 2) {
-            log.error("Fantasy team with id {} does not have enough players in a position",
-                    teamId);
-            return false;
-        }
-        return true;
+        return gkCount > 1 && defCount > 4 && midCount > 4 && fwdCount > 2;
     }
     public Transaction getTransactionById(Long id) {
         return transactionRepository.findById(id)

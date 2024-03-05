@@ -25,9 +25,9 @@ public class StatsController {
         return playerGameStatsService.createPlayerGameStats(fixtureId);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<PlayerGameStats> getGameStats(@PathVariable Long id) {
-        Optional<PlayerGameStats> playerOptional = playerGameStatsService.getPlayerGameStatsById(id);
-        return playerOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        PlayerGameStats playerGameStats = playerGameStatsService.getPlayerGameStatsById(id);
+        return ResponseEntity.ok(playerGameStats);
     }
 }

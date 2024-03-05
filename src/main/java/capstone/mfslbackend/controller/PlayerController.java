@@ -24,15 +24,12 @@ public class PlayerController {
 
     @GetMapping("")
     public ResponseEntity<Player> getPlayer(@RequestParam Long playerId) {
-        Optional<Player> player = playerService.getPlayerById(playerId);
-        return player.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Player player = playerService.getPlayerById(playerId);
+        return ResponseEntity.ok(player);
     }
     @PostMapping("create-team")
     public ResponseEntity<List<Player>> createPlayersInTeam(@RequestParam Long teamId) {
         List<Player> players = playerService.createAllPlayersForTeam(teamId);
-        if (CollectionUtils.isEmpty(players)) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(players);
     }
     @PostMapping("create-all")

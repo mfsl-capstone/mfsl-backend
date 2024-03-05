@@ -6,15 +6,11 @@ import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Service
-@Slf4j
 public class FantasyTeamService {
 
     private final FantasyTeamRepository fantasyTeamRepository;
@@ -24,17 +20,6 @@ public class FantasyTeamService {
     public FantasyTeam getFantasyTeam(Long teamId) throws Error404 {
         return fantasyTeamRepository.findById(teamId)
                 .orElseThrow(() -> new Error404("Fantasy Team with id " + teamId + " not found"));
-    }
-
-    public FantasyTeam createFantasyTeam(String teamName) throws Error400 {
-        if (StringUtils.isEmpty(teamName)) {
-            log.warn("team name cannot be empty");
-            throw new Error400("team name cannot be empty");
-        }
-        FantasyTeam fantasyTeam = new FantasyTeam();
-        fantasyTeam.setTeamName(teamName);
-        fantasyTeamRepository.save(fantasyTeam);
-        return fantasyTeam;
     }
 
     public FantasyTeamLineup getFantasyTeamLineup(Long fantasyTeamId) throws Error404 {
@@ -59,17 +44,16 @@ public class FantasyTeamService {
                 throw new Error400("Lineup must have more than 11 players");
             }
             switch (p1.getPosition()) {
-                case "Goalkeeper":
-                    throw new Error400("Goalkeeper cannot be in any position other than the first");
-                case "Defender":
+                case "Goalkeeper" -> throw new Error400("Goalkeeper cannot be in any position other than the first");
+                case "Defender" -> {
                     if (!p0.getPosition().equals("Goalkeeper") && !p0.getPosition().equals("Defender")) {
                         throw new Error400("Defender cannot be in any position other than the first or after another defender");
                     }
                     if (i > 5) {
                         throw new Error400("There can only be 5 defenders in a lineup");
                     }
-                    break;
-                case "Midfielder":
+                }
+                case "Midfielder" -> {
                     midCount++;
                     if (!p0.getPosition().equals("Defender") && !p0.getPosition().equals("Midfielder")) {
                         throw new Error400("Midfielder cannot be in any position other than after a defender or another midfielder");
@@ -77,15 +61,15 @@ public class FantasyTeamService {
                     if (i < 4 || i > 9) {
                         throw new Error400("There can only be 3-5 midfielders in a lineup");
                     }
-                    break;
-                case "Attacker":
+                }
+                case "Attacker" -> {
                     if (!p0.getPosition().equals("Midfielder") && !p0.getPosition().equals("Attacker")) {
                         throw new Error400("Attacker cannot be in any position other than after a midfielder or another attacker");
                     }
                     if (i < 7) {
                         throw new Error400("There can only be 1-4 attackers in a lineup");
                     }
-                    break;
+                }
             }
         }
         if (midCount > 5) {

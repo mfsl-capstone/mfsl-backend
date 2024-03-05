@@ -1,15 +1,13 @@
 package capstone.mfslbackend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
+
+;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,10 +17,21 @@ import java.util.Objects;
 @ToString
 public class Game {
     @Id
+    @Column(nullable = false)
     private Long id;
 //    2020-02-06T14:00:00+00:00 is the date format
     private String date;
     private String round;
+
+    @ToString.Exclude
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "home_team_team_id", nullable = false)
+    private Team homeTeam;
+
+    @ToString.Exclude
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "away_team_team_id", nullable = false)
+    private Team awayTeam;
 
     @Override
     public final boolean equals(Object o) {
