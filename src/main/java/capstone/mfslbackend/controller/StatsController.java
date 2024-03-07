@@ -29,4 +29,12 @@ public class StatsController {
         Optional<PlayerGameStats> playerOptional = playerGameStatsService.getPlayerGameStatsById(id);
         return playerOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+    @GetMapping("/player")
+    public ResponseEntity<List<PlayerGameStats>> getPlayerGameStats(@RequestParam Long playerId) {
+        List<PlayerGameStats> playerGameStats = playerGameStatsService.getPlayerGameStatsByPlayerId(playerId);
+        if (playerGameStats.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(playerGameStats);
+    }
 }

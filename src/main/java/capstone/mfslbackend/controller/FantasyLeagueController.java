@@ -28,7 +28,7 @@ public class FantasyLeagueController {
         List<FantasyLeague> fantasyLeagues = fantasyLeagueService.getFantasyLeagueByName(fantasyLeagueName);
         return ResponseEntity.ok(fantasyLeagues);
     }
-    @PostMapping("create-league")
+    @PostMapping("")
     public ResponseEntity<FantasyLeague> createFantasyLeague(@RequestParam String leagueName) {
         FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(leagueName);
         return ResponseEntity.ok(fantasyLeague);
