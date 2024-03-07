@@ -3,10 +3,7 @@ package capstone.mfslbackend.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,17 +28,15 @@ public class User {
     private String username;
 
     @ToString.Exclude
+    @JsonIgnore
     private String password;
 
     private Set<Authority> authorities = new HashSet<>();
 
     @ToString.Exclude
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(name = "User_fantasyLeagues",
-            joinColumns = @JoinColumn(name = "user_username"),
-            inverseJoinColumns = @JoinColumn(name = "fantasyLeagues_id"))
-    private Set<FantasyLeague> fantasyLeagues = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {

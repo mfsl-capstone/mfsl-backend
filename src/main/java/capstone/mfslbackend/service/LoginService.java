@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,11 +32,13 @@ public class LoginService {
 
     public UserDTO loginUser(String username, String password) {
         try {
-            User user = userRepository.findUserByUsername(username);
+            Optional<User> userOptional = userRepository.findById(username);
 
-            if (user == null) {
+            if (userOptional.isEmpty()) {
                 throw new UsernameNotFoundException("No user found for username: " + username);
             }
+
+            User user = userOptional.get();
 
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), password)
