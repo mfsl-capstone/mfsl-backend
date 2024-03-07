@@ -1,5 +1,7 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.error.Error500;
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.Player;
@@ -23,7 +25,6 @@ import java.net.URL;
 import java.util.*;
 
 @Service
-@Slf4j
 public class PlayerService {
     private final String baseUrl;
     private final PlayerRepository playerRepository;
@@ -45,7 +46,7 @@ public class PlayerService {
         return ResponseEntity.ok(players);
     }
 
-    public List<Player> createAllPlayersForTeam(Long teamId) {
+    public List<Player> createAllPlayersForTeam(Long teamId) throws Error404, Error500 {
         PlayersContainer playersContainer;
         try {
             URL url = UriComponentsBuilder.fromUriString(baseUrl)
@@ -54,66 +55,53 @@ public class PlayerService {
                     .build().toUri().toURL();
             playersContainer = apiService.getRequest(url, PlayersContainer.class);
         } catch (Exception e) {
-            log.error("error getting squad for team {}", teamId, e);
-            return new ArrayList<>(); // Return an empty list if there's an error.
+            throw new Error500("Error creating players for team: " + teamId);
         }
         if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())
                 || CollectionUtils.isEmpty(playersContainer.getResponse().get(0).getPlayers())) {
-            log.error("empty squad found for team {}", teamId);
-            return new ArrayList<>(); // Return an empty list if there's no data.
+            throw new Error404("No players found for team: " + teamId);
         }
+        Team team = teamService.getTeamById(teamId);
+        team.setPlayers(new ArrayList<>());
         return playersContainer.getResponse().get(0).getPlayers().stream()
-                .map(playerResponse -> createPlayer(playerResponse, teamId))
+                .map(playerResponse -> createPlayer(playerResponse, team))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    public Player createPlayer(PlayerResponse playerResponse, Long teamId) {
-        Optional<Team> t = teamService.getTeamById(teamId);
-        if (t.isEmpty()) {
-            log.error("Team {} does not exist", teamId);
-            return null;
+    public Player createPlayer(PlayerResponse playerResponse, Team team) throws Error404 {
+
+        Player player;
+        try {
+            player = getPlayerById(playerResponse.getId());
         }
-        Team team = t.get();
-        Optional<Player> p = getPlayerById(playerResponse.getId());
-        if (p.isPresent()) {
-            Player player = p.get();
-
-            if (!player.getPosition().equals(playerResponse.getPosition())) {
-                player.setPosition(playerResponse.getPosition());
-                playerRepository.save(player);
-            }
-            if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
-                player.setNumber(playerResponse.getNumber());
-                playerRepository.save(player);
-            }
-
-            if (!player.getTeam().equals(team)) {
-                player.setTeam(team);
-                playerRepository.save(player);
-            }
-
+        catch (Error404 e) {
+            player = new Player(
+                    playerResponse.getId(),
+                    playerResponse.getName(),
+                    playerResponse.getPosition(),
+                    playerResponse.getPhoto(),
+                    playerResponse.getNumber(),
+                    team, null);
+            playerRepository.save(player);
             return player;
         }
+        if (!player.getPosition().equals(playerResponse.getPosition())) {
+            player.setPosition(playerResponse.getPosition());
+        }
+        if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
+            player.setNumber(playerResponse.getNumber());
+        }
+        if (!player.getTeam().equals(team)) {
+            player.setTeam(team);
+        }
 
-        Player player = new Player(
-                playerResponse.getId(),
-                playerResponse.getName(),
-                playerResponse.getPosition(),
-                playerResponse.getPhoto(),
-                playerResponse.getNumber(),
-                team, null);
-        playerRepository.save(player);
         return player;
     }
 
-    public Optional<Player> getPlayerById(Long playerId) {
-        Optional<Player> player = playerRepository.findById(playerId);
-
-        if (player.isEmpty()) {
-            log.warn("no player with id {} found", playerId);
-        }
-        return player;
+    public Player getPlayerById(Long playerId) throws Error404 {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new Error404("Player with id " + playerId + " not found"));
     }
 
     public List<Player> getPlayers(List<Player> players, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {

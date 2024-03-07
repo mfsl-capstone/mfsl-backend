@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
@@ -109,7 +110,7 @@ public class PlayerGameStatsServiceTest {
     }
 
     @Test
-    public void testCreatePlayerGameStats() {
+    public void testCreatePlayerGameStats() throws Error404 {
         ResponseEntity<List<PlayerGameStats>> response = playerGameStatsService.createPlayerGameStats("1");
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -117,7 +118,7 @@ public class PlayerGameStatsServiceTest {
     }
 
     @Test
-    public void testErrorCreatePlayerGameStats() throws IOException {
+    public void testErrorCreatePlayerGameStats() throws IOException, Error404 {
         lenient().when(apiService.getRequest(eq(UriComponentsBuilder.fromUriString("http://test.url")
                 .path("/fixtures")
                 .queryParam("id", "1")

@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Authority;
 import capstone.mfslbackend.model.SecurityUser;
 import capstone.mfslbackend.model.User;
@@ -25,14 +26,9 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findById(username);
-
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("No user found for username: " + username);
-        }
-
-        return new SecurityUser(user.get());
+    public UserDetails loadUserByUsername(String username) {
+        User user = getUser(username);
+        return new SecurityUser(user);
     }
 
     public User createUser(String username, String password) {
@@ -46,8 +42,9 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public Optional<User> getUser(String username) {
-        return userRepository.findById(username);
+    public User getUser(String username) {
+        return userRepository.findById(username)
+                .orElseThrow(() -> new Error404("No user found for username: " + username));
     }
 
 }

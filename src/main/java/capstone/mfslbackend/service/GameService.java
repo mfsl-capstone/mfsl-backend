@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.GameRepository;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class GameService {
     private final String baseUrl;
     private final GameRepository gameRepository;
@@ -31,7 +31,7 @@ public class GameService {
         this.baseUrl = baseUrl;
     }
 
-    public ResponseEntity<List<Game>> createAllGamesForLeague(String leagueId, String season) {
+    public ResponseEntity<List<Game>> createAllGamesForLeague(String leagueId, String season) throws Error404 {
         GamesContainer gamesContainer;
         try {
             URL url = UriComponentsBuilder.fromUriString(baseUrl)
@@ -41,12 +41,10 @@ public class GameService {
                     .build().toUri().toURL();
             gamesContainer = apiService.getRequest(url, GamesContainer.class);
         } catch (Exception e) {
-            log.error("error getting all games for league: {} and season: {}", leagueId, season, e);
-            return ResponseEntity.notFound().build();
+            throw new Error404("Could not find all games for league: " + leagueId + " and season: " + season);
         }
         if (gamesContainer == null || CollectionUtils.isEmpty(gamesContainer.getResponse())) {
-            log.error("Could not find any games for league: {} and season: {}", leagueId, season);
-            return ResponseEntity.notFound().build();
+            throw new Error404("Could not find any games for league: " + leagueId + " and season: " + season);
         }
         return ResponseEntity.ok(gamesContainer.getResponse().stream()
                 .map(this::createGame)
@@ -54,36 +52,47 @@ public class GameService {
     }
 
     public Game createGame(GamesResponse gamesResponse) {
-        Optional<Team> h = teamService.getTeamById(gamesResponse.getTeams().getHome().getId());
-        Optional<Team> a = teamService.getTeamById(gamesResponse.getTeams().getAway().getId());
-        Team home = h.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getHome().getId()));
-        Team away = a.orElseGet(() -> teamService.createTeamById(gamesResponse.getTeams().getAway().getId()));
+        Team home;
+        try{
+            home = teamService.getTeamById(gamesResponse.getTeams().getHome().getId());
+        } catch (Error404 e) {
+            home = teamService.createTeamById(gamesResponse.getTeams().getHome().getId());
+        }
+        Team away;
+        try{
+            away = teamService.getTeamById(gamesResponse.getTeams().getAway().getId());
+        } catch (Error404 e) {
+            away = teamService.createTeamById(gamesResponse.getTeams().getAway().getId());
+        }
 
         Game game = new Game();
         game.setId(gamesResponse.getFixture().getId());
         game.setDate(gamesResponse.getFixture().getDate());
         game.setRound(gamesResponse.getLeague().getRound());
+        game.setHomeTeam(home);
+        game.setAwayTeam(away);
 
         gameRepository.save(game);
 
-        teamService.addGameToTeam(home.getTeamId(), game);
-        teamService.addGameToTeam(away.getTeamId(), game);
+        teamService.addGameToTeam(home, game);
+        teamService.addGameToTeam(away, game);
 
         return game;
     }
 
 
-    public Optional<Game> getGamebyID(long gameId) {
-            Optional<Game> game = gameRepository.findById(gameId);
-            if (game.isEmpty()) {
-                log.warn("could not find game with id {}", gameId);
-            }
-            return game;
-        }
+    public Game getGameById(long gameId) throws Error404 {
+        return gameRepository.findById(gameId)
+                .orElseThrow(() -> new Error404("Could not find game with id " + gameId));
+    }
 
-    public List<Game> getGamesByRound(String round) {
+    public List<Game> getGamesByRound(String round) throws Error404 {
         List<Game> allGames = gameRepository.findAll();
-      return allGames.stream().filter(game -> game.getRound().equalsIgnoreCase(round)).toList();
+        List<Game> filteredGames = allGames.stream().filter(game -> game.getRound().equalsIgnoreCase(round)).toList();
+        if (CollectionUtils.isEmpty(filteredGames)) {
+            throw new Error404("Could not find any games for round " + round);
+        }
+        return filteredGames;
     }
 
 

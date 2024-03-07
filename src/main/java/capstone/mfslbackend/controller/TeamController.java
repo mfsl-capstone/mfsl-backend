@@ -29,8 +29,8 @@ public class TeamController {
     @GetMapping("{teamId}")
     @Secured({"LEAGUE_MEMBER", "LEAGUE_ADMIN"})
     public ResponseEntity<Team> getTeam(@PathVariable long teamId) {
-        Optional<Team> team = teamService.getTeamById(teamId);
-        return team.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Team team = teamService.getTeamById(teamId);
+        return ResponseEntity.ok(team);
     }
     @GetMapping()
     public ResponseEntity<List<Team>> getTeams() {
@@ -51,22 +51,13 @@ public class TeamController {
     @PostMapping("create-league")
     public ResponseEntity<List<Team>> createTeamByLeague(@RequestParam String leagueId,
                                                          @RequestParam String season) {
-        return teamService.createTeamsInLeague(leagueId, season);
+        List<Team> teams = teamService.createTeamsInLeague(leagueId, season);
+        return ResponseEntity.ok(teams);
     }
-    @GetMapping("players")
-    public ResponseEntity<List<Player>> getPlayersOnTeam(@RequestParam Long teamId) {
-        List<Player> players = teamService.getPlayersOnTeam(teamId);
-        if (CollectionUtils.isEmpty(players)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(players);
-    }
+
     @GetMapping("games")
     public ResponseEntity<List<Game>> getGamesForTeam(@RequestParam Long teamId) {
         List<Game> players = teamService.getGamesForTeam(teamId);
-        if (CollectionUtils.isEmpty(players)) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(players);
     }
 

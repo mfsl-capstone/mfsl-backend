@@ -17,7 +17,7 @@ import static org.mockito.Mockito.lenient;
 public class FantasyLeagueServiceTest {
     @Mock
     private FantasyLeagueRepository fantasyLeagueRepository;
-    private final FantasyLeagueService fantasyLeagueService = new FantasyLeagueService(null, null, null, null, null);
+    private final FantasyLeagueService fantasyLeagueService = new FantasyLeagueService(null, null, null, null);
 
     @BeforeEach
     public void setup() {

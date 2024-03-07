@@ -1,5 +1,7 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error400;
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
@@ -11,7 +13,6 @@ import java.util.Optional;
 
 
 @Service
-@Slf4j
 public class FantasyWeekService {
 
     private final FantasyWeekRepository fantasyWeekRepository;
@@ -20,27 +21,19 @@ public class FantasyWeekService {
         this.fantasyWeekRepository = fantasyWeekRepository;
         this.fantasyTeamService = fantasyTeamService;
     }
-    public Optional<FantasyWeek> getFantasyWeekById(Long weekId) {
-        Optional<FantasyWeek> fantasyWeek = fantasyWeekRepository.findById(weekId);
-        if (fantasyWeek.isEmpty()) {
-            log.warn("could not find week with id {}", weekId);
-        }
-        return fantasyWeek;
+    public FantasyWeek getFantasyWeekById(Long weekId) throws Error404 {
+        return fantasyWeekRepository.findById(weekId)
+                .orElseThrow(() -> new Error404("could not find week with id " + weekId));
     }
 
     public List<FantasyWeek> getFantasyWeekByWeekNumber(int weekNumber) {
         return fantasyWeekRepository.findByWeekNumber(weekNumber);
     }
-    public FantasyWeek createFantasyWeek(int fantasyTeamId, int weekNumber) {
+    public FantasyWeek createFantasyWeek(int fantasyTeamId, int weekNumber) throws Error404, Error400 {
         if (weekNumber <= 0) {
-            log.warn("week number cannot be negative");
-            return null;
+            throw new Error400("week number cannot be negative");
         }
-        FantasyTeam fantasyTeam = fantasyTeamService.getFantasyTeam((long) fantasyTeamId).orElse(null);
-        if (fantasyTeam == null) {
-            log.warn("could not find fantasy team with id {}", fantasyTeamId);
-            return null;
-        }
+        FantasyTeam fantasyTeam = fantasyTeamService.getFantasyTeam((long) fantasyTeamId);
         FantasyWeek fantasyWeek = new FantasyWeek();
         fantasyWeek.setWeekNumber(weekNumber);
         fantasyWeek.setFantasyTeam(fantasyTeam);

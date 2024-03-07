@@ -1,5 +1,6 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Game;
 import org.springframework.util.CollectionUtils;
 import capstone.mfslbackend.service.GameService;
@@ -21,22 +22,19 @@ public class GameController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Game> getGame(@RequestParam Long gameId) {
-        Optional<Game> game = gameService.getGamebyID(gameId);
-        return game.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Game> getGame(@RequestParam Long gameId) throws Error404 {
+        Game game = gameService.getGameById(gameId);
+        return ResponseEntity.ok(game);
     }
 
     @PostMapping("create-games-league")
-    public ResponseEntity<List<Game>> createGamesInLeague(@RequestParam String leagueId, @RequestParam String season) {
+    public ResponseEntity<List<Game>> createGamesInLeague(@RequestParam String leagueId, @RequestParam String season) throws Error404 {
         return gameService.createAllGamesForLeague(leagueId, season);
     }
 
     @GetMapping("round")
-    public ResponseEntity<List<Game>> getGamesByRound(@RequestParam String round) {
+    public ResponseEntity<List<Game>> getGamesByRound(@RequestParam String round) throws Error404 {
         List<Game> games = gameService.getGamesByRound(round);
-        if (CollectionUtils.isEmpty(games)) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(games);
     }
 }
