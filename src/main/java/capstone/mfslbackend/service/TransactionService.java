@@ -154,6 +154,12 @@ public class TransactionService {
 //        add player to the team immediately
         players.add(playerIn.get());
         proposingFantasyTeam.setPlayers(players);
+        String lineup = proposingFantasyTeam.getPlayerIdsInOrder();
+        if (lineup != null && !lineup.isEmpty()) {
+            lineup += " ";
+        }
+        lineup += playerIn.get().getPlayerId();
+        proposingFantasyTeam.setPlayerIdsInOrder(lineup);
         transaction.setStatus(TransactionStatus.ACCEPTED);
         return transactionRepository.save(transaction);
     }
@@ -189,8 +195,12 @@ public class TransactionService {
                 return transactionRepository.save(transaction);
             }
             transaction.getReceivingFantasyTeam().setPlayers(receivingPlayers);
+            transaction.getReceivingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getReceivingFantasyTeam().getPlayerIdsInOrder(),
+                    transaction.getPlayerOut().getPlayerId().toString(), transaction.getPlayerIn().getPlayerId().toString()));
         }
         transaction.getProposingFantasyTeam().setPlayers(proposingPlayers);
+        transaction.getProposingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getProposingFantasyTeam().getPlayerIdsInOrder(),
+                transaction.getPlayerIn().getPlayerId().toString(), transaction.getPlayerOut().getPlayerId().toString()));
         return transactionRepository.save(transaction);
     }
     public Transaction rejectTransaction(Long transactionId) {
@@ -202,6 +212,16 @@ public class TransactionService {
         Transaction transaction = transactionOptional.get();
         transaction.setStatus(TransactionStatus.REJECTED);
         return transactionRepository.save(transaction);
+    }
+    public String changeLineupString(String lineup, String idIn, String idOut) {
+        String[] ids = lineup.split(" ");
+        for (int i = 0; i < ids.length; i++) {
+            if (ids[i].equals(idOut)) {
+                ids[i] = idIn;
+                break;
+            }
+        }
+        return String.join(" ", ids);
     }
 
     public Boolean approveTeam(Set<Player> players, Long teamId) {

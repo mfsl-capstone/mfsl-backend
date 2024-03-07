@@ -18,6 +18,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ public class FantasyTeam {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String teamName;
+    private String playerIdsInOrder;
 
     @OneToMany(mappedBy = "fantasyTeam", orphanRemoval = true)
     private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
