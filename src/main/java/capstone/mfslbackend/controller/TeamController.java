@@ -1,5 +1,6 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
@@ -53,4 +54,11 @@ public class TeamController {
         List<Team> teams = teamService.createTeamsInLeague(leagueId, season);
         return ResponseEntity.ok(teams);
     }
+
+    @GetMapping("games")
+    public ResponseEntity<List<Game>> getGamesForTeam(@RequestParam Long teamId) {
+        List<Game> players = teamService.getGamesForTeam(teamId);
+        return ResponseEntity.ok(players);
+    }
+
 }

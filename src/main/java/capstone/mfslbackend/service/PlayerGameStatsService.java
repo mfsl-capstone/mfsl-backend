@@ -1,6 +1,7 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
@@ -40,7 +41,15 @@ public class PlayerGameStatsService {
         return playerGameStatsRepository.findById(id)
                 .orElseThrow(() ->new Error404("Could not find player game stats with id: " + id));
     }
-    public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) throws Error404 {
+
+    public List<PlayerGameStats> getPlayerGameStatsByPlayerId(Long playerId) {
+        Optional<Player> player = playerService.getPlayerById(playerId);
+        if (player.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return playerGameStatsRepository.findByPlayer(player.get());
+    }
+    public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) {
         List<PlayerGameStats> playerGameStats = new ArrayList<>();
         StatsContainer statsResponse;
         StatsContainer statsResponse2;

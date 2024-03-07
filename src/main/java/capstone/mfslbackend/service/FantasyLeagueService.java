@@ -24,7 +24,7 @@ import java.util.*;
 public class FantasyLeagueService {
     private final FantasyLeagueRepository fantasyLeagueRepository;
     private final UserService userService;
-    private final PlayerRepository playerRepository;
+    private final PlayerService playerService;
     private final FantasyTeamRepository fantasyTeamRepository;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
@@ -33,6 +33,7 @@ public class FantasyLeagueService {
         this.userService = userService;
         this.fantasyTeamRepository = fantasyTeamRepository;
         this.playerRepository = playerRepository;
+
     }
     public FantasyLeague createFantasyLeague(String leagueName) {
         FantasyLeague fantasyLeague = new FantasyLeague();
@@ -88,48 +89,10 @@ public class FantasyLeagueService {
 
     public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {
 
-        List<FantasyLeaguePlayer> fantasyLeaguePlayers = new ArrayList<>();
         List<Player> players = getTakenPlayersByFantasyLeagueId(leagueId);
 
-        Specification<Player> spec = (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction();
-
-            if (noTaken) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.not(root.in(players)));
-            }
-
-//          this might need changing later depending on what filters we want to implement (for example search by real life team/league)
-            if (!CollectionUtils.isEmpty(filters)) {
-                for (Map<String, String> filter : filters) {
-                    String field = filter.get("field");
-                    String value = filter.get("value");
-                    String[] values = value.split(",");
-                    List<Predicate> orPredicates = new ArrayList<>();
-                    for (String val : values) {
-                        if (root.get(field).getJavaType() == String.class) {
-                            orPredicates.add(criteriaBuilder.like(root.get(field), "%" + val + "%"));
-                        } else {
-                            orPredicates.add(criteriaBuilder.equal(root.get(field), val));
-                        }
-                    }
-                    Predicate orPredicate = criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
-                    predicate = criteriaBuilder.and(predicate, orPredicate);
-                }
-            }
-
-            return predicate;
-        };
-
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
-        Page<Player> playerPage = playerRepository.findAll(spec, PageRequest.of(offset, limit, sort));
-
-        playerPage.forEach(player -> {
-            if (players.contains(player)) {
-                fantasyLeaguePlayers.add(new FantasyLeaguePlayer(player, true));
-            } else {
-                fantasyLeaguePlayers.add(new FantasyLeaguePlayer(player, false));
-            };
-        });
-        return fantasyLeaguePlayers;
+        return playerService.getPlayers(players, filters, sortDirection, sortField, noTaken, limit, offset).stream()
+                .map(player -> new FantasyLeaguePlayer(player, players.contains(player)))
+                .toList();
     }
 }

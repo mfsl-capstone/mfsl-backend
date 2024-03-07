@@ -30,4 +30,12 @@ public class StatsController {
         PlayerGameStats playerGameStats = playerGameStatsService.getPlayerGameStatsById(id);
         return ResponseEntity.ok(playerGameStats);
     }
+    @GetMapping("/player")
+    public ResponseEntity<List<PlayerGameStats>> getPlayerGameStats(@RequestParam Long playerId) {
+        List<PlayerGameStats> playerGameStats = playerGameStatsService.getPlayerGameStatsByPlayerId(playerId);
+        if (playerGameStats.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(playerGameStats);
+    }
 }
