@@ -1,16 +1,14 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.service.FantasyLeagueService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController()
@@ -43,5 +41,17 @@ public class FantasyLeagueController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(fantasyLeague);
+    }
+
+    @GetMapping("players")
+    public ResponseEntity<List<FantasyLeaguePlayer>> getFantasyLeaguePlayers(@RequestParam Long leagueId,
+                                                                             @RequestParam(required = false, defaultValue = "false") Boolean noTaken,
+                                                                             @RequestParam(required = false, defaultValue = "desc") String sortDirection,
+                                                                             @RequestParam(required = false, defaultValue = "playerId") String sortField,
+                                                                             @RequestParam(required = false, defaultValue = "100") int limit,
+                                                                             @RequestParam(required = false, defaultValue = "0") int offset,
+                                                                             @RequestBody(required = false) List<Map<String, String>> filters) {
+        List<FantasyLeaguePlayer> players = fantasyLeagueService.getFantasyLeaguePlayers(leagueId, filters, sortDirection, sortField, noTaken, limit, offset);
+        return ResponseEntity.ok(players);
     }
 }

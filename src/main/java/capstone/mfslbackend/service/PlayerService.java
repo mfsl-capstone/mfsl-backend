@@ -1,22 +1,26 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
+import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.PlayerRepository;
 import capstone.mfslbackend.response.container.PlayersContainer;
 import capstone.mfslbackend.response.dto.PlayerResponse;
+import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -110,5 +114,42 @@ public class PlayerService {
             log.warn("no player with id {} found", playerId);
         }
         return player;
+    }
+
+    public List<Player> getPlayers(List<Player> players, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {
+
+        Specification<Player> spec = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+
+            if (noTaken && !CollectionUtils.isEmpty(players)) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.not(root.in(players)));
+            }
+
+//          this might need changing later depending on what filters we want to implement (for example search by real life team/league)
+            if (!CollectionUtils.isEmpty(filters)) {
+                for (Map<String, String> filter : filters) {
+                    String field = filter.get("field");
+                    String value = filter.get("value");
+                    String[] values = value.split(",");
+                    List<Predicate> orPredicates = new ArrayList<>();
+                    for (String val : values) {
+                        if (root.get(field).getJavaType() == String.class) {
+                            orPredicates.add(criteriaBuilder.like(root.get(field), "%" + val + "%"));
+                        } else {
+                            orPredicates.add(criteriaBuilder.equal(root.get(field), val));
+                        }
+                    }
+                    Predicate orPredicate = criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
+                    predicate = criteriaBuilder.and(predicate, orPredicate);
+                }
+            }
+
+            return predicate;
+        };
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Page<Player> playerPage = playerRepository.findAll(spec, PageRequest.of(offset, limit, sort));
+
+        return playerPage.toList();
     }
 }

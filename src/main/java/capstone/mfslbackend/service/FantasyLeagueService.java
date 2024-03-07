@@ -1,31 +1,45 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
+import capstone.mfslbackend.repository.PlayerRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
 public class FantasyLeagueService {
     private final FantasyLeagueRepository fantasyLeagueRepository;
     private final UserService userService;
+    private final PlayerService playerService;
     private final FantasyTeamRepository fantasyTeamRepository;
+    private final EntityManager entityManager;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
-                                FantasyTeamRepository fantasyTeamRepository) {
+                                FantasyTeamRepository fantasyTeamRepository, PlayerService playerService,
+                                EntityManager entityManager) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.userService = userService;
         this.fantasyTeamRepository = fantasyTeamRepository;
+        this.playerService = playerService;
+        this.entityManager = entityManager;
     }
     public FantasyLeague createFantasyLeague(String leagueName) {
         FantasyLeague fantasyLeague = new FantasyLeague();
@@ -95,5 +109,19 @@ public class FantasyLeagueService {
                 .filter(fantasyTeam -> fantasyTeam.getPlayers().stream()
                         .anyMatch(player -> player.getPlayerId().equals(playerId)))
                 .findFirst();
+    }
+
+    public List<FantasyLeaguePlayer> getFantasyLeaguePlayers(Long leagueId, List<Map<String, String>> filters, String sortDirection, String sortField, Boolean noTaken, int limit, int offset) {
+        Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(leagueId);
+        if (fantasyLeagueOptional.isEmpty()) {
+            log.error("Fantasy League with id {} not found", leagueId);
+            return new ArrayList<>();
+        }
+
+        List<Player> players = getTakenPlayersByFantasyLeagueId(leagueId);
+
+        return playerService.getPlayers(players, filters, sortDirection, sortField, noTaken, limit, offset).stream()
+                .map(player -> new FantasyLeaguePlayer(player, players.contains(player)))
+                .toList();
     }
 }
