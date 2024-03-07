@@ -47,7 +47,7 @@ public class FantasyLeagueController {
     public ResponseEntity<List<FantasyLeaguePlayer>> getFantasyLeaguePlayers(@RequestParam Long leagueId,
                                                                              @RequestParam(required = false, defaultValue = "false") Boolean noTaken,
                                                                              @RequestParam(required = false, defaultValue = "desc") String sortDirection,
-                                                                             @RequestParam String sortField,
+                                                                             @RequestParam(required = false, defaultValue = "playerId") String sortField,
                                                                              @RequestParam(required = false, defaultValue = "100") int limit,
                                                                              @RequestParam(required = false, defaultValue = "0") int offset,
                                                                              @RequestBody(required = false) List<Map<String, String>> filters) {
