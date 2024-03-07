@@ -7,7 +7,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +44,19 @@ public class FantasyTeam {
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_league_id", nullable = false)
     private FantasyLeague fantasyLeague;
+
+    @OneToMany(mappedBy = "proposingFantasyTeam", orphanRemoval = true)
+    private Set<Transaction> transactions = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "receivingFantasyTeam", orphanRemoval = true)
+    private Set<Transaction> incomingTrades = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "fantasy_team_players",
+            joinColumns = @JoinColumn(name = "fantasy_team_id"),
+            inverseJoinColumns = @JoinColumn(name = "players_player_id"))
+    private Set<Player> players = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {

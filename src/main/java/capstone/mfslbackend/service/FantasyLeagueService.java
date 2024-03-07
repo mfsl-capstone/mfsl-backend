@@ -2,12 +2,15 @@ package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.FantasyTeam;
+import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,4 +68,32 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findById(leagueId).get();
     }
 
+    public List<Player> getTakenPlayersByFantasyLeagueId(Long fantasyLeagueId) {
+        Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(fantasyLeagueId);
+        if (fantasyLeagueOptional.isEmpty()) {
+            log.error("Fantasy League with id {} not found", fantasyLeagueId);
+            throw new IllegalArgumentException("Fantasy League with id " + fantasyLeagueId + " not found");
+        }
+
+        List<Player> players = new ArrayList<>();
+        FantasyLeague fantasyLeague = fantasyLeagueOptional.get();
+        fantasyLeague.getFantasyTeams().forEach(fantasyTeam -> players.addAll(fantasyTeam.getPlayers()));
+        return players;
+    }
+
+    public Optional<FantasyTeam> getFantasyTeamOfTakenPlayer(Long fantasyLeagueId, Long playerId) {
+        Optional<FantasyLeague> fantasyLeagueOptional = getFantasyLeagueById(fantasyLeagueId);
+        if (fantasyLeagueOptional.isEmpty()) {
+            log.error("Fantasy League with id {} not found", fantasyLeagueId);
+            throw new IllegalArgumentException("Fantasy League with id " + fantasyLeagueId + " not found");
+        }
+
+        return fantasyLeagueOptional
+                .map(FantasyLeague::getFantasyTeams)
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(fantasyTeam -> fantasyTeam.getPlayers().stream()
+                        .anyMatch(player -> player.getPlayerId().equals(playerId)))
+                .findFirst();
+    }
 }
