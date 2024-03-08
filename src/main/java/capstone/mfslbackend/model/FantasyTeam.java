@@ -33,6 +33,8 @@ public class FantasyTeam {
     private Long id;
     private String teamName;
     private String playerIdsInOrder;
+    private int orderNumber;
+    private int opponentNumber;
 
     @OneToMany(mappedBy = "fantasyTeam", orphanRemoval = true)
     private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();

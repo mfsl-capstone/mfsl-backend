@@ -5,10 +5,13 @@ import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.FantasyTeam;
+import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
+import capstone.mfslbackend.repository.FantasyWeekRepository;
+import capstone.mfslbackend.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,23 +26,37 @@ public class FantasyLeagueService {
     private final PlayerService playerService;
     private final FantasyTeamRepository fantasyTeamRepository;
 
+    private final FantasyTeamService fantasyTeamService;
+    private final PlayerRepository playerRepository;
+
+    private final FantasyWeekService fantasyWeekService;
+
+    private final FantasyWeekRepository fantasyWeekRepository;
+
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
-                                FantasyTeamRepository fantasyTeamRepository, PlayerService playerService) {
+                                FantasyTeamRepository fantasyTeamRepository, FantasyTeamService fantasyTeamService, PlayerRepository playerRepository, PlayerService playerService, FantasyWeekService fantasyWeekService, FantasyWeekRepository fantasyWeekRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.userService = userService;
-        this.fantasyTeamRepository = fantasyTeamRepository;
+        this.fantasyTeamService = fantasyTeamService;
         this.playerService = playerService;
+        this.playerRepository = playerRepository;
+        this.fantasyTeamRepository = fantasyTeamRepository;
 
+        this.fantasyWeekService = fantasyWeekService;
+        this.fantasyWeekRepository = fantasyWeekRepository;
     }
+
     public FantasyLeague createFantasyLeague(String leagueName) {
         FantasyLeague fantasyLeague = new FantasyLeague();
         fantasyLeague.setLeagueName(leagueName);
         return fantasyLeagueRepository.save(fantasyLeague);
     }
+
     public FantasyLeague getFantasyLeagueById(Long fantasyLeagueId) {
         return fantasyLeagueRepository.findById(fantasyLeagueId)
                 .orElseThrow(() -> new Error404("Fantasy League with id " + fantasyLeagueId + " not found"));
     }
+
     public List<FantasyLeague> getFantasyLeagueByName(String fantasyLeagueName) {
         String name = "%" + fantasyLeagueName + "%";
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
@@ -90,5 +107,109 @@ public class FantasyLeagueService {
         return playerService.getPlayers(players, filters, sortDirection, sortField, noTaken, limit, offset).stream()
                 .map(player -> new FantasyLeaguePlayer(player, players.contains(player)))
                 .toList();
+    }
+
+
+    public List<FantasyWeek> createFantasyLeagueSchedule(Long leagueId) {
+        List<FantasyTeam> teams = fantasyTeamService.getFantasyTeamsByLeagueId(leagueId);
+        int numTeams = teams.size();
+        boolean hasGhostTeam = false;
+
+        //schedule builder
+
+        if (numTeams % 2 != 0) {
+            FantasyTeam ghostTeam = new FantasyTeam();
+            ghostTeam.setId(-1L);
+            teams.add(ghostTeam);
+            numTeams++;
+            hasGhostTeam = true;
+        }
+
+        List<List<Long>> schedule = new ArrayList<>();
+        List<Long> matches = new ArrayList<>();
+        // Each week
+        for (int week = 0; week < numTeams - 1; week++) {
+
+            // Each match in a week
+            for (int match = 0; match < numTeams / 2; match++) {
+                int homeTeam = (week + match) % (numTeams - 1);
+                int awayTeam = (numTeams - 1 - match + week) % (numTeams - 1);
+
+                if (match == 0) {
+                    awayTeam = numTeams - 1;
+                }
+
+                Long homeTeamId = teams.get(homeTeam).getId();
+                Long awayTeamId = teams.get(awayTeam).getId();
+
+
+                // Exclude matches involving the ghost team
+                if (!hasGhostTeam || (homeTeamId != -1L && awayTeamId != -1L)) {
+                    matches.add(homeTeamId);
+                    matches.add(awayTeamId);
+                }
+            }
+            schedule.add(matches);
+
+        }
+
+        // Create the weeks
+            for (int w = 0; w < schedule.size(); w++) {
+                List<Long> games = schedule.get(w);
+                FantasyWeek fantasyWeek = new FantasyWeek();
+                fantasyWeek.setWeekNumber(w + 1);
+
+                // Iterate through each match in the week
+                for (int matchIndex = 0; matchIndex < matches.size(); matchIndex += 2) {
+                    Long homeTeamId = matches.get(matchIndex);
+                    Long awayTeamId = matches.get(matchIndex + 1);
+
+                    FantasyTeam teamA = fantasyTeamRepository.findFantasyTeamById(homeTeamId);
+                    FantasyTeam teamB = fantasyTeamRepository.findFantasyTeamById(awayTeamId);
+
+                    fantasyWeek.setFantasyTeamA(teamA);
+                    fantasyWeek.setFantasyTeamB(teamB);
+
+                    teamA.setOrderNumber(matchIndex);
+                    teamB.setOrderNumber(matchIndex + 1);
+                    teamB.setOpponentNumber(Math.toIntExact(homeTeamId));
+                    teamA.setOpponentNumber(Math.toIntExact(awayTeamId));
+
+                }
+
+                fantasyWeekRepository.save(fantasyWeek);
+            }
+
+            return getFantasyWeeksByLeagueId(leagueId);
+        }
+
+
+public List<FantasyWeek> getFantasyLeagueMatchups(Long leagueId, int weekNumber) {
+
+        List<FantasyWeek> schedule = getFantasyWeeksByLeagueId(leagueId);
+        List<FantasyWeek> leagueMatchups = new ArrayList<>();
+
+        if (weekNumber < 1 || weekNumber > schedule.size()) {
+            for (FantasyWeek fantasyW : schedule) {
+                int newWeekNumber = fantasyW.getWeekNumber() % schedule.size();
+                if (newWeekNumber == 0) {
+                    newWeekNumber = schedule.size(); // If modulo is 0, set week number to the maximum
+                }
+                fantasyW.setWeekNumber(newWeekNumber);
+                fantasyWeekRepository.save(fantasyW);
+            }
+        }
+
+        for (FantasyWeek fantasyW : schedule) {
+            if (fantasyW.getWeekNumber() == weekNumber) {
+                leagueMatchups.add(fantasyW);
+            }
+        }
+
+        return leagueMatchups;
+    }
+
+    public List<FantasyWeek> getFantasyWeeksByLeagueId(Long leagueId) {
+        return fantasyWeekRepository.findAllByFantasyLeagueId(leagueId);
     }
 }

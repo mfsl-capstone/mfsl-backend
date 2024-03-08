@@ -37,7 +37,7 @@ public class FantasyWeekController {
     @PostMapping("")
     public ResponseEntity<FantasyWeek> createFantasyWeek(@RequestParam int fantasyTeamId, @RequestParam int weekNumber)
             throws Error404, Error400 {
-        FantasyWeek fantasyWeek = fantasyWeekService.createFantasyWeek(fantasyTeamId, weekNumber);
+        FantasyWeek fantasyWeek = fantasyWeekService.createFantasyWeek(fantasyTeamId, weekNumber, -1, null);
         if (fantasyWeek == null) {
             return ResponseEntity.notFound().build();
         }

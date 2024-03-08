@@ -27,7 +27,7 @@ public class FantasyWeekService {
     public List<FantasyWeek> getFantasyWeekByWeekNumber(int weekNumber) {
         return fantasyWeekRepository.findByWeekNumber(weekNumber);
     }
-    public FantasyWeek createFantasyWeek(int fantasyTeamId, int weekNumber) throws Error404, Error400 {
+    public FantasyWeek createFantasyWeek(int fantasyTeamId, int weekNumber, int order, Long opponentId) throws Error404, Error400 {
         if (weekNumber <= 0) {
             throw new Error400("week number cannot be negative");
         }
@@ -37,5 +37,9 @@ public class FantasyWeekService {
         fantasyWeek.setFantasyTeam(fantasyTeam);
         fantasyWeekRepository.save(fantasyWeek);
         return fantasyWeek;
+    }
+
+    public FantasyWeek getFantasyWeek(Long weekId) {
+        return fantasyWeekRepository.findById(weekId).orElse(null);
     }
 }

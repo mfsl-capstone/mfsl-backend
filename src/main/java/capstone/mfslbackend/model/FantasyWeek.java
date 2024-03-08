@@ -1,12 +1,7 @@
 package capstone.mfslbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +27,17 @@ public class FantasyWeek {
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_team_id", nullable = false)
-    private FantasyTeam fantasyTeam;
+    private FantasyTeam fantasyTeamA;
+
+    @ToString.Exclude
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "fantasy_week_id")
+    private FantasyWeek fantasyWeek;
+
+    @ToString.Exclude
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "fantasy_team_b_id", nullable = false)
+    private FantasyTeam fantasyTeamB;
 
     @Override
     public final boolean equals(Object o) {
