@@ -117,24 +117,34 @@ public class PlayerServiceTest {
     public void testCreateAllPlayersOnTeam_ErrorSquadDoesntExist() throws IOException {
         when(apiService.getRequest(any(), any()))
                 .thenReturn(null);
-        List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNotNull(players);
-        assertTrue(players.isEmpty());
+        try {
+            playerService.createAllPlayersForTeam(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingSquad() throws IOException {
         when(apiService.getRequest(any(), any()))
                 .thenThrow(new IOException("test exception"));
-        List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNotNull(players);
-        assertTrue(players.isEmpty());
+        try {
+            playerService.createAllPlayersForTeam(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingTeam()  {
         lenient().when(teamService.getTeamById(anyLong()))
                 .thenReturn(null);
-        List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertTrue(CollectionUtils.isEmpty(players));
+        try {
+            List<Player> players = playerService.createAllPlayersForTeam(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 }

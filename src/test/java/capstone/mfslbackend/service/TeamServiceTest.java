@@ -204,16 +204,24 @@ public class TeamServiceTest {
     public void testCreateTeamById_Error() throws IOException {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenThrow(new IOException("test exception"));
-        Team team = teamService.createTeamById(1L);
-        assertNull(team);
+        try {
+            teamService.createTeamById(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 
     @Test
     public void testCreateTeamById_NotFound() throws IOException {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(new TeamsContainer());
-        Team team = teamService.createTeamById(1L);
-        assertNull(team);
+        try {
+            teamService.createTeamById(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 
 }
