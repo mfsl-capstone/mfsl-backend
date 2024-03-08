@@ -88,15 +88,16 @@ public class PlayerGameStatsService {
 
             for (PlayerStatsResponse players : response.getPlayers()) {
                 try {
-                    convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
+                    playerService.getPlayerById(players.getPlayer().getId());
+                } catch (Error404 e) {
+                    playerService.createPlayerById(players.getPlayer().getId(), statsResponse2.getResponse().get(0).getLeague().getSeason());
+                }
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
                             .ifPresent(stats -> {
                                 stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
                                 playerGameStatsRepository.save(stats);
                                 playerGameStats.add(stats);
                             });
-                } catch (Error404 e) {
-                    playerService.createPlayerById(players.getPlayer().getId(), statsResponse2.getResponse().get(0).getLeague().getSeason());
-                }
             }
         }
         return ResponseEntity.ok(playerGameStats);
