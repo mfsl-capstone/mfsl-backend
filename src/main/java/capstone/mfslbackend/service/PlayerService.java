@@ -139,4 +139,22 @@ public class PlayerService {
 
         return playerPage.toList();
     }
+
+    public Player createPlayerById(Long playerId, Integer season) {
+        PlayersContainer playersContainer;
+        try {
+            URL url = UriComponentsBuilder.fromUriString(baseUrl)
+                    .path("/players")
+                    .queryParam("id", playerId)
+                    .queryParam("season", season)
+                    .build().toUri().toURL();
+            playersContainer = apiService.getRequest(url, PlayersContainer.class);
+        } catch (Exception e) {
+            throw new Error500("Error creating player:" + playerId + " for season: " + season);
+        }
+        if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())) {
+            throw new Error404("No players found for player: " + playerId + " in season: " + season);
+        }
+        return createPlayer(playersContainer.getResponse().get(0).getPlayer(), null);
+    }
 }

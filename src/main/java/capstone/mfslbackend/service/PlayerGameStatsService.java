@@ -1,6 +1,7 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
@@ -27,13 +28,16 @@ public class PlayerGameStatsService {
     private final String baseUrl;
     private final PlayerService playerService;
     private final PlayerGameStatsRepository playerGameStatsRepository;
+    private final GameService gameService;
 
     public PlayerGameStatsService(ApiService apiService, PlayerGameStatsRepository playerGameStatsRepository,
-                                  PlayerService playerService, @Value("${base.url}") String baseUrl) {
+                                  PlayerService playerService, @Value("${base.url}") String baseUrl,
+                                  GameService gameService) {
         this.apiService = apiService;
         this.baseUrl = baseUrl;
         this.playerService = playerService;
         this.playerGameStatsRepository = playerGameStatsRepository;
+        this.gameService = gameService;
     }
 
     public PlayerGameStats getPlayerGameStatsById(Long id) {
@@ -71,6 +75,10 @@ public class PlayerGameStatsService {
                 || statsResponse2 == null || CollectionUtils.isEmpty(statsResponse2.getResponse())) {
             throw new Error404("Could not find fixture: " + fixtureId);
         }
+        Game g = gameService.getGameById(Long.parseLong(fixtureId));
+        g.setHomeTeamScore(statsResponse2.getResponse().get(0).getGoals().getHome());
+        g.setAwayTeamScore(statsResponse2.getResponse().get(0).getGoals().getAway());
+
         for (PlayersStatsResponse response: statsResponse.getResponse()) {
             TeamResponse home = statsResponse2.getResponse().get(0).getTeams().getHome();
             boolean winner = home.getWinner();
@@ -79,12 +87,16 @@ public class PlayerGameStatsService {
             }
 
             for (PlayerStatsResponse players : response.getPlayers()) {
-                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
-                        .ifPresent(stats -> {
-                            stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
-                            playerGameStatsRepository.save(stats);
-                            playerGameStats.add(stats);
-                        });
+                try {
+                    convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
+                            .ifPresent(stats -> {
+                                stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
+                                playerGameStatsRepository.save(stats);
+                                playerGameStats.add(stats);
+                            });
+                } catch (Error404 e) {
+                    playerService.createPlayerById(players.getPlayer().getId(), statsResponse2.getResponse().get(0).getLeague().getSeason());
+                }
             }
         }
         return ResponseEntity.ok(playerGameStats);

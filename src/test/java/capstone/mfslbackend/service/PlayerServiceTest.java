@@ -67,7 +67,7 @@ public class PlayerServiceTest {
         TeamResponse teamResponse = new TeamResponse(1L, "team1", "team1_url", null, null, null, null, null, null);
         PlayerResponse playerResponse1 = new PlayerResponse(1L, "player1", "p1.pic", 9, "Attacker");
         PlayerResponse playerResponse2 = new PlayerResponse(2L, "player2", "p2.pic", 5, "Defender");
-        PlayersResponse playersResponse = new PlayersResponse(teamResponse, List.of(playerResponse1, playerResponse2));
+        PlayersResponse playersResponse = new PlayersResponse(teamResponse, List.of(playerResponse1, playerResponse2), null);
         PlayersContainer playersContainer = new PlayersContainer(null, null, 1, List.of(playersResponse));
 
         when(apiService.getRequest(any(), any()))

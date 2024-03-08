@@ -34,13 +34,15 @@ public class PlayerGameStatsServiceTest {
     private PlayerGameStatsRepository playerGameStatsRepository;
     @Mock
     PlayerService playerService;
-    private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url");
-    @BeforeEach
+    @Mock
+    GameService gameService;
+    private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url", gameService);    @BeforeEach
     public void setup() throws IOException {
         ReflectionTestUtils.setField(playerGameStatsService, "apiService", apiService);
         ReflectionTestUtils.setField(playerGameStatsService, "baseUrl", "http://test.url");
         ReflectionTestUtils.setField(playerGameStatsService, "playerGameStatsRepository", playerGameStatsRepository);
         ReflectionTestUtils.setField(playerGameStatsService, "playerService", playerService);
+        ReflectionTestUtils.setField(playerGameStatsService, "gameService", gameService);
 
         StatsContainer statsContainer = new StatsContainer();
         PlayersStatsResponse playersStatsResponse = new PlayersStatsResponse();
