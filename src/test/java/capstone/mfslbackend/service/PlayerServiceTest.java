@@ -51,7 +51,7 @@ public class PlayerServiceTest {
         player2.setTeam(team1);
 
         lenient().when(teamService.getTeamById(1L))
-                        .thenReturn(Optional.of(team1));
+                        .thenReturn(team1);
         lenient().when(playerRepository.save(Mockito.any()))
                 .then(returnsFirstArg());
         lenient().when(playerRepository.findById(1L))
@@ -133,7 +133,7 @@ public class PlayerServiceTest {
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingTeam()  {
         lenient().when(teamService.getTeamById(anyLong()))
-                .thenReturn(Optional.empty());
+                .thenReturn(null);
         List<Player> players = playerService.createAllPlayersForTeam(1L);
         assertTrue(CollectionUtils.isEmpty(players));
     }

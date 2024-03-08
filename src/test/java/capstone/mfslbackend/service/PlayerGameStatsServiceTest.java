@@ -106,7 +106,7 @@ public class PlayerGameStatsServiceTest {
                 .thenReturn(statsContainer2);
         Player p = new Player();
         lenient().when(playerService.getPlayerById(any()))
-                .thenReturn(Optional.of(p));
+                .thenReturn(p);
     }
 
     @Test

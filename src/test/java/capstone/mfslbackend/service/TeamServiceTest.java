@@ -70,11 +70,9 @@ public class TeamServiceTest {
                 .thenReturn(teamsContainer);
 
         // Act
-        ResponseEntity<List<Team>> responseEntity = teamService.createTeamsInLeague(leagueId, season);
+        List<Team> teams = teamService.createTeamsInLeague(leagueId, season);
 
         // Assert
-        assertEquals(200, responseEntity.getStatusCode().value()); // Status code should be OK
-        List<Team> teams = responseEntity.getBody();
         assertFalse(CollectionUtils.isEmpty(teams)); // Teams should not be empty
         assertEquals(teamId, teams.get(0).getTeamId());
     }
@@ -108,11 +106,9 @@ public class TeamServiceTest {
                 .thenReturn(Optional.of(team));
 
         // Act
-        ResponseEntity<List<Team>> responseEntity = teamService.createTeamsInLeague(leagueId, season);
+        List<Team> teams = teamService.createTeamsInLeague(leagueId, season);
 
         // Assert
-        assertEquals(200, responseEntity.getStatusCode().value()); // Status code should be OK
-        List<Team> teams = responseEntity.getBody();
         assertFalse(CollectionUtils.isEmpty(teams)); // Teams should not be empty
         assertEquals(newTeamId, teams.get(0).getTeamId());
         assertEquals(teamName, teams.get(0).getName());
@@ -124,16 +120,24 @@ public class TeamServiceTest {
     public void testCreateTeamsInLeague_Error() throws IOException {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenThrow(new IOException("test exception"));
-        ResponseEntity<List<Team>> responseEntity = teamService.createTeamsInLeague("1", "2024");
-        assertEquals(404, responseEntity.getStatusCode().value());
+        try {
+            teamService.createTeamsInLeague("1", "2024");
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 
     @Test
     public void testCreateTeamsInLeague_NotFound() throws IOException {
         Mockito.when(apiService.getRequest(Mockito.any(), Mockito.eq(TeamsContainer.class)))
                 .thenReturn(new TeamsContainer());
-        ResponseEntity<List<Team>> responseEntity = teamService.createTeamsInLeague("1", "2024");
-        assertEquals(404, responseEntity.getStatusCode().value());
+        try {
+            teamService.createTeamsInLeague("1", "2024");
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 
     @Test

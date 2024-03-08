@@ -4,14 +4,11 @@ import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.error.Error500;
 import capstone.mfslbackend.model.Game;
-import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.TeamRepository;
 import capstone.mfslbackend.response.container.TeamsContainer;
 import capstone.mfslbackend.response.dto.TeamResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TeamService {

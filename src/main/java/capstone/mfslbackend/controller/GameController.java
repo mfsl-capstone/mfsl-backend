@@ -2,7 +2,6 @@ package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Game;
-import org.springframework.util.CollectionUtils;
 import capstone.mfslbackend.service.GameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
-import java.util.Optional;
 
 @RestController()
 @RequestMapping("/game")

@@ -9,7 +9,6 @@ import capstone.mfslbackend.response.dto.PlayerStatsResponse;
 import capstone.mfslbackend.response.dto.PlayersStatsResponse;
 import capstone.mfslbackend.response.dto.TeamResponse;
 import capstone.mfslbackend.response.dto.stats.StatisticResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,15 +38,12 @@ public class PlayerGameStatsService {
 
     public PlayerGameStats getPlayerGameStatsById(Long id) {
         return playerGameStatsRepository.findById(id)
-                .orElseThrow(() ->new Error404("Could not find player game stats with id: " + id));
+                .orElseThrow(() -> new Error404("Could not find player game stats with id: " + id));
     }
 
     public List<PlayerGameStats> getPlayerGameStatsByPlayerId(Long playerId) {
-        Optional<Player> player = playerService.getPlayerById(playerId);
-        if (player.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return playerGameStatsRepository.findByPlayer(player.get());
+        Player player = playerService.getPlayerById(playerId);
+        return playerGameStatsRepository.findByPlayer(player);
     }
     public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) {
         List<PlayerGameStats> playerGameStats = new ArrayList<>();

@@ -54,13 +54,13 @@ public class TransactionServiceTest {
         lenient().when(transactionRepository.save(Mockito.any(Transaction.class)))
                 .thenAnswer(AdditionalAnswers.returnsFirstArg());
         lenient().when(fantasyTeamService.getFantasyTeam(Mockito.anyLong()))
-                .thenReturn(java.util.Optional.of(fantasyTeam));
+                .thenReturn(fantasyTeam);
 
         lenient().when(fantasyLeagueService.getFantasyTeamOfTakenPlayer(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(java.util.Optional.empty());
 
         lenient().when(playerService.getPlayerById(Mockito.anyLong()))
-                .thenReturn(java.util.Optional.of(player2));
+                .thenReturn(player2);
         Transaction t = transactionService.createTransaction(1L, 2L, 1L);
 
 //        dont check transaction id because it is auto generated
