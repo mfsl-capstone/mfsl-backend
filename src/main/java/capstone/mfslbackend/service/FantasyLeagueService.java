@@ -209,6 +209,13 @@ public List<FantasyWeek> getFantasyLeagueMatchups(Long leagueId, int weekNumber)
     }
 
     public List<FantasyWeek> getFantasyWeeksByLeagueId(Long leagueId) {
-        return fantasyWeekRepository.findAllByFantasyLeagueId(leagueId);
+        List<FantasyTeam> teams = fantasyTeamRepository.findFantasyTeamsByFantasyLeagueId(leagueId);
+        Set<FantasyWeek> weeks = new HashSet<>();
+        for (FantasyTeam team : teams) {
+            weeks.addAll(team.getFantasyWeeksA());
+            weeks.addAll(team.getFantasyWeeksB());
+        }
+        return new ArrayList<>(weeks);
     }
+
 }

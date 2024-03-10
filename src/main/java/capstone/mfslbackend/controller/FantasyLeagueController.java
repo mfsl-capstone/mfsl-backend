@@ -71,7 +71,7 @@ public class FantasyLeagueController {
         return ResponseEntity.ok(weeks);
     }
 
-    @PostMapping("")
+    @PostMapping("matchups")
     public ResponseEntity<List<FantasyWeek>> createFantasyLeagueMatchups(@RequestParam Long leagueId) {
         List<FantasyWeek> fantasyWeeks = fantasyLeagueService.createFantasyLeagueSchedule(leagueId);
         return ResponseEntity.ok(fantasyWeeks);
