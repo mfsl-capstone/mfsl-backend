@@ -1,7 +1,5 @@
 package capstone.mfslbackend.controller;
 
-import capstone.mfslbackend.model.Game;
-import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.service.TeamService;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
-
 @RestController()
 @RequestMapping("/team")
 public class TeamController {
@@ -53,12 +49,6 @@ public class TeamController {
                                                          @RequestParam String season) {
         List<Team> teams = teamService.createTeamsInLeague(leagueId, season);
         return ResponseEntity.ok(teams);
-    }
-
-    @GetMapping("games")
-    public ResponseEntity<List<Game>> getGamesForTeam(@RequestParam Long teamId) {
-        List<Game> players = teamService.getGamesForTeam(teamId);
-        return ResponseEntity.ok(players);
     }
 
 }

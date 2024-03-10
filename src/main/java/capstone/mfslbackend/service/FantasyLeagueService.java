@@ -9,16 +9,12 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
-import capstone.mfslbackend.repository.PlayerRepository;
-import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class FantasyLeagueService {
@@ -28,11 +24,11 @@ public class FantasyLeagueService {
     private final FantasyTeamRepository fantasyTeamRepository;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
-                                FantasyTeamRepository fantasyTeamRepository, PlayerRepository playerRepository) {
+                                FantasyTeamRepository fantasyTeamRepository, PlayerService playerService) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.userService = userService;
         this.fantasyTeamRepository = fantasyTeamRepository;
-        this.playerRepository = playerRepository;
+        this.playerService = playerService;
 
     }
     public FantasyLeague createFantasyLeague(String leagueName) {

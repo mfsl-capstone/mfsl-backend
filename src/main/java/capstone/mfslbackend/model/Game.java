@@ -1,14 +1,18 @@
 package capstone.mfslbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
-
-;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -27,11 +31,13 @@ public class Game {
     @ManyToOne(optional = false)
     @JoinColumn(name = "home_team_team_id", nullable = false)
     private Team homeTeam;
+    private int homeTeamScore;
 
     @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "away_team_team_id", nullable = false)
     private Team awayTeam;
+    private int awayTeamScore;
 
     @Override
     public final boolean equals(Object o) {

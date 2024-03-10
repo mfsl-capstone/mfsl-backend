@@ -16,4 +16,5 @@ import java.util.List;
 public class PlayersResponse {
     private TeamResponse team;
     private List<PlayerResponse> players;
+    private PlayerResponse player;
 }

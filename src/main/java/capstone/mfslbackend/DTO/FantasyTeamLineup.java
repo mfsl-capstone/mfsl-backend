@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FantasyTeamLineup {
-    List<Player> players;
+    private List<Player> players;
     public FantasyTeamLineup(Set<Player> players, String playerIdsInOrder) {
         List<Player> playersInOrder = new ArrayList<>();
         String[] playerIds = playerIdsInOrder.split(" ");

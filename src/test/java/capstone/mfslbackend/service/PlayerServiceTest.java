@@ -51,7 +51,7 @@ public class PlayerServiceTest {
         player2.setTeam(team1);
 
         lenient().when(teamService.getTeamById(1L))
-                        .thenReturn(Optional.of(team1));
+                        .thenReturn(team1);
         lenient().when(playerRepository.save(Mockito.any()))
                 .then(returnsFirstArg());
         lenient().when(playerRepository.findById(1L))
@@ -67,7 +67,7 @@ public class PlayerServiceTest {
         TeamResponse teamResponse = new TeamResponse(1L, "team1", "team1_url", null, null, null, null, null, null);
         PlayerResponse playerResponse1 = new PlayerResponse(1L, "player1", "p1.pic", 9, "Attacker");
         PlayerResponse playerResponse2 = new PlayerResponse(2L, "player2", "p2.pic", 5, "Defender");
-        PlayersResponse playersResponse = new PlayersResponse(teamResponse, List.of(playerResponse1, playerResponse2));
+        PlayersResponse playersResponse = new PlayersResponse(teamResponse, List.of(playerResponse1, playerResponse2), null);
         PlayersContainer playersContainer = new PlayersContainer(null, null, 1, List.of(playersResponse));
 
         when(apiService.getRequest(any(), any()))
@@ -117,24 +117,34 @@ public class PlayerServiceTest {
     public void testCreateAllPlayersOnTeam_ErrorSquadDoesntExist() throws IOException {
         when(apiService.getRequest(any(), any()))
                 .thenReturn(null);
-        List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNotNull(players);
-        assertTrue(players.isEmpty());
+        try {
+            playerService.createAllPlayersForTeam(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingSquad() throws IOException {
         when(apiService.getRequest(any(), any()))
                 .thenThrow(new IOException("test exception"));
-        List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertNotNull(players);
-        assertTrue(players.isEmpty());
+        try {
+            playerService.createAllPlayersForTeam(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 
     @Test
     public void testCreateAllPlayersOnTeam_ErrorGettingTeam()  {
         lenient().when(teamService.getTeamById(anyLong()))
-                .thenReturn(Optional.empty());
-        List<Player> players = playerService.createAllPlayersForTeam(1L);
-        assertTrue(CollectionUtils.isEmpty(players));
+                .thenReturn(null);
+        try {
+            List<Player> players = playerService.createAllPlayersForTeam(1L);
+        } catch (Exception e) {
+            return;
+        }
+        fail();
     }
 }

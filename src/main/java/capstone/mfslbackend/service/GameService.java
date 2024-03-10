@@ -6,7 +6,6 @@ import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.GameRepository;
 import capstone.mfslbackend.response.container.GamesContainer;
 import capstone.mfslbackend.response.dto.GamesResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class GameService {
@@ -53,13 +51,13 @@ public class GameService {
 
     public Game createGame(GamesResponse gamesResponse) {
         Team home;
-        try{
+        try {
             home = teamService.getTeamById(gamesResponse.getTeams().getHome().getId());
         } catch (Error404 e) {
             home = teamService.createTeamById(gamesResponse.getTeams().getHome().getId());
         }
         Team away;
-        try{
+        try {
             away = teamService.getTeamById(gamesResponse.getTeams().getAway().getId());
         } catch (Error404 e) {
             away = teamService.createTeamById(gamesResponse.getTeams().getAway().getId());

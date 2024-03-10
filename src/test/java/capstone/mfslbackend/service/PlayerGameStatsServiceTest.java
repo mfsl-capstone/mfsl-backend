@@ -1,6 +1,7 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
@@ -22,8 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.lenient;
 
 @SpringBootTest
@@ -34,13 +34,15 @@ public class PlayerGameStatsServiceTest {
     private PlayerGameStatsRepository playerGameStatsRepository;
     @Mock
     PlayerService playerService;
-    private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url");
-    @BeforeEach
+    @Mock
+    GameService gameService;
+    private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url", gameService);    @BeforeEach
     public void setup() throws IOException {
         ReflectionTestUtils.setField(playerGameStatsService, "apiService", apiService);
         ReflectionTestUtils.setField(playerGameStatsService, "baseUrl", "http://test.url");
         ReflectionTestUtils.setField(playerGameStatsService, "playerGameStatsRepository", playerGameStatsRepository);
         ReflectionTestUtils.setField(playerGameStatsService, "playerService", playerService);
+        ReflectionTestUtils.setField(playerGameStatsService, "gameService", gameService);
 
         StatsContainer statsContainer = new StatsContainer();
         PlayersStatsResponse playersStatsResponse = new PlayersStatsResponse();
@@ -98,6 +100,7 @@ public class PlayerGameStatsServiceTest {
         leagueResponse.setRound("Regular Season - 1");
         playersStatsResponse3.setLeague(leagueResponse);
         playersStatsResponse3.setTeams(teamsResponse);
+        playersStatsResponse3.setGoals(new GoalsResponse(1,2));
         statsContainer2.setResponse(List.of(playersStatsResponse3));
         lenient().when(apiService.getRequest(eq(UriComponentsBuilder.fromUriString("http://test.url")
                 .path("/fixtures")
@@ -106,7 +109,11 @@ public class PlayerGameStatsServiceTest {
                 .thenReturn(statsContainer2);
         Player p = new Player();
         lenient().when(playerService.getPlayerById(any()))
-                .thenReturn(Optional.of(p));
+                .thenReturn(p);
+
+        Game g = new Game();
+        lenient().when(gameService.getGameById(anyLong()))
+                .thenReturn(g);
     }
 
     @Test
@@ -124,8 +131,12 @@ public class PlayerGameStatsServiceTest {
                 .queryParam("id", "1")
                 .build().toUri().toURL()), eq(StatsContainer.class)))
                 .thenThrow(new RuntimeException());
-        ResponseEntity<List<PlayerGameStats>> response = playerGameStatsService.createPlayerGameStats("1");
-        assertEquals(404, response.getStatusCode().value());
-        assertNull(response.getBody());
+        try {
+            playerGameStatsService.createPlayerGameStats("1");
+        } catch (Error404 e) {
+            assertEquals("Could not find fixture: 1", e.getMessage());
+            return;
+        }
+        fail();
     }
 }

@@ -2,15 +2,12 @@ package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.error.Error500;
-import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
-import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.PlayerRepository;
 import capstone.mfslbackend.response.container.PlayersContainer;
 import capstone.mfslbackend.response.dto.PlayerResponse;
 import jakarta.persistence.criteria.Predicate;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +19,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Map;
 
 @Service
 public class PlayerService {
@@ -74,8 +74,7 @@ public class PlayerService {
         Player player;
         try {
             player = getPlayerById(playerResponse.getId());
-        }
-        catch (Error404 e) {
+        } catch (Error404 e) {
             player = new Player(
                     playerResponse.getId(),
                     playerResponse.getName(),
@@ -139,5 +138,23 @@ public class PlayerService {
         Page<Player> playerPage = playerRepository.findAll(spec, PageRequest.of(offset, limit, sort));
 
         return playerPage.toList();
+    }
+
+    public Player createPlayerById(Long playerId, Integer season) {
+        PlayersContainer playersContainer;
+        try {
+            URL url = UriComponentsBuilder.fromUriString(baseUrl)
+                    .path("/players")
+                    .queryParam("id", playerId)
+                    .queryParam("season", season)
+                    .build().toUri().toURL();
+            playersContainer = apiService.getRequest(url, PlayersContainer.class);
+        } catch (Exception e) {
+            throw new Error500("Error creating player:" + playerId + " for season: " + season);
+        }
+        if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())) {
+            throw new Error404("No players found for player: " + playerId + " in season: " + season);
+        }
+        return createPlayer(playersContainer.getResponse().get(0).getPlayer(), null);
     }
 }

@@ -1,6 +1,7 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
@@ -9,7 +10,6 @@ import capstone.mfslbackend.response.dto.PlayerStatsResponse;
 import capstone.mfslbackend.response.dto.PlayersStatsResponse;
 import capstone.mfslbackend.response.dto.TeamResponse;
 import capstone.mfslbackend.response.dto.stats.StatisticResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,26 +28,26 @@ public class PlayerGameStatsService {
     private final String baseUrl;
     private final PlayerService playerService;
     private final PlayerGameStatsRepository playerGameStatsRepository;
+    private final GameService gameService;
 
     public PlayerGameStatsService(ApiService apiService, PlayerGameStatsRepository playerGameStatsRepository,
-                                  PlayerService playerService, @Value("${base.url}") String baseUrl) {
+                                  PlayerService playerService, @Value("${base.url}") String baseUrl,
+                                  GameService gameService) {
         this.apiService = apiService;
         this.baseUrl = baseUrl;
         this.playerService = playerService;
         this.playerGameStatsRepository = playerGameStatsRepository;
+        this.gameService = gameService;
     }
 
     public PlayerGameStats getPlayerGameStatsById(Long id) {
         return playerGameStatsRepository.findById(id)
-                .orElseThrow(() ->new Error404("Could not find player game stats with id: " + id));
+                .orElseThrow(() -> new Error404("Could not find player game stats with id: " + id));
     }
 
     public List<PlayerGameStats> getPlayerGameStatsByPlayerId(Long playerId) {
-        Optional<Player> player = playerService.getPlayerById(playerId);
-        if (player.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return playerGameStatsRepository.findByPlayer(player.get());
+        Player player = playerService.getPlayerById(playerId);
+        return playerGameStatsRepository.findByPlayer(player);
     }
     public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) {
         List<PlayerGameStats> playerGameStats = new ArrayList<>();
@@ -75,6 +75,10 @@ public class PlayerGameStatsService {
                 || statsResponse2 == null || CollectionUtils.isEmpty(statsResponse2.getResponse())) {
             throw new Error404("Could not find fixture: " + fixtureId);
         }
+        Game g = gameService.getGameById(Long.parseLong(fixtureId));
+        g.setHomeTeamScore(statsResponse2.getResponse().get(0).getGoals().getHome());
+        g.setAwayTeamScore(statsResponse2.getResponse().get(0).getGoals().getAway());
+
         for (PlayersStatsResponse response: statsResponse.getResponse()) {
             TeamResponse home = statsResponse2.getResponse().get(0).getTeams().getHome();
             boolean winner = home.getWinner();
@@ -83,12 +87,17 @@ public class PlayerGameStatsService {
             }
 
             for (PlayerStatsResponse players : response.getPlayers()) {
+                try {
+                    playerService.getPlayerById(players.getPlayer().getId());
+                } catch (Error404 e) {
+                    playerService.createPlayerById(players.getPlayer().getId(), statsResponse2.getResponse().get(0).getLeague().getSeason());
+                }
                 convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
-                        .ifPresent(stats -> {
-                            stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
-                            playerGameStatsRepository.save(stats);
-                            playerGameStats.add(stats);
-                        });
+                            .ifPresent(stats -> {
+                                stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
+                                playerGameStatsRepository.save(stats);
+                                playerGameStats.add(stats);
+                            });
             }
         }
         return ResponseEntity.ok(playerGameStats);

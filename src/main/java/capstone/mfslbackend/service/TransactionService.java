@@ -15,6 +15,11 @@ import java.util.Set;
 
 @Service
 public class TransactionService {
+    private static final int MAX_PLAYERS = 15;
+    private static final int MIN_GK = 1;
+    private static final int MIN_DEF = 4;
+    private static final int MIN_MID = 4;
+    private static final int MIN_FWD = 2;
     private final TransactionRepository transactionRepository;
     private final FantasyTeamService fantasyTeamService;
     private final FantasyLeagueService fantasyLeagueService;
@@ -74,10 +79,10 @@ public class TransactionService {
 //        check if fantasy team has enough players in each position
         Set<Player> players = proposingFantasyTeam.getPlayers();
 
-        int missingGkCount = 1;
-        int missingDefCount = 4;
-        int missingMidCount = 4;
-        int missingFwdCount = 2;
+        int missingGkCount = MIN_GK;
+        int missingDefCount = MIN_DEF;
+        int missingMidCount = MIN_MID;
+        int missingFwdCount = MIN_FWD;
         for (Player player : players) {
             switch (player.getPosition()) {
                 case "Goalkeeper" -> {
@@ -100,11 +105,12 @@ public class TransactionService {
                         missingFwdCount--;
                     }
                 }
+                default -> throw new Error400("Invalid position for player with id " + player.getPlayerId());
             }
         }
         int missingPlayerCount = missingGkCount + missingDefCount + missingMidCount + missingFwdCount;
 
-        if (missingPlayerCount > (15 - players.size())) {
+        if (missingPlayerCount > (MAX_PLAYERS - players.size())) {
             String missingPositions = "";
             if (missingGkCount > 0) {
                 missingPositions += "Goalkeeper ";
@@ -145,7 +151,7 @@ public class TransactionService {
         proposingPlayers.add(transaction.getPlayerIn());
 
 //        decline trade if not enough players in each position
-        if (!approveTeam(proposingPlayers, transaction.getProposingFantasyTeam().getId())) {
+        if (!approveTeam(proposingPlayers)) {
             transaction.setStatus(TransactionStatus.REJECTED);
             return transaction;
         }
@@ -155,7 +161,7 @@ public class TransactionService {
             receivingPlayers.add(transaction.getPlayerOut());
             receivingPlayers.remove(transaction.getPlayerIn());
 
-            if (!approveTeam(receivingPlayers, transaction.getReceivingFantasyTeam().getId())) {
+            if (!approveTeam(receivingPlayers)) {
                 transaction.setStatus(TransactionStatus.REJECTED);
                 return transaction;
             }
@@ -184,7 +190,7 @@ public class TransactionService {
         return String.join(" ", ids);
     }
 
-    public Boolean approveTeam(Set<Player> players, Long teamId) {
+    public Boolean approveTeam(Set<Player> players) {
         int gkCount = 0;
         int defCount = 0;
         int midCount = 0;
@@ -195,9 +201,10 @@ public class TransactionService {
                 case "Defender" -> defCount++;
                 case "Midfielder" -> midCount++;
                 case "Attacker" -> fwdCount++;
+                default -> throw new Error400("Invalid position for player with id " + player.getPlayerId());
             }
         }
-        return gkCount > 1 && defCount > 4 && midCount > 4 && fwdCount > 2;
+        return gkCount > MIN_GK && defCount > MIN_DEF && midCount > MIN_MID && fwdCount > MIN_FWD;
     }
     public Transaction getTransactionById(Long id) {
         return transactionRepository.findById(id)
