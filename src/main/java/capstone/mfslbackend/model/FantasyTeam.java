@@ -36,8 +36,8 @@ public class FantasyTeam {
     private int orderNumber;
     private int opponentNumber;
 
-    @OneToMany(mappedBy = "fantasyTeam", orphanRemoval = true)
-    private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "fantasyTeamA", orphanRemoval = true)
+    private Set<FantasyWeek> fantasyWeeksA = new LinkedHashSet<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_username", nullable = false)
@@ -60,6 +60,10 @@ public class FantasyTeam {
             joinColumns = @JoinColumn(name = "fantasy_team_id"),
             inverseJoinColumns = @JoinColumn(name = "players_player_id"))
     private Set<Player> players = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "fantasyTeamB", orphanRemoval = true)
+    private Set<FantasyWeek> fantasyWeeksB = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {

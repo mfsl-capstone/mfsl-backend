@@ -11,13 +11,9 @@ import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
-import capstone.mfslbackend.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class FantasyLeagueService {
@@ -27,22 +23,17 @@ public class FantasyLeagueService {
     private final FantasyTeamRepository fantasyTeamRepository;
 
     private final FantasyTeamService fantasyTeamService;
-    private final PlayerRepository playerRepository;
 
-    private final FantasyWeekService fantasyWeekService;
 
     private final FantasyWeekRepository fantasyWeekRepository;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
-                                FantasyTeamRepository fantasyTeamRepository, FantasyTeamService fantasyTeamService, PlayerRepository playerRepository, PlayerService playerService, FantasyWeekService fantasyWeekService, FantasyWeekRepository fantasyWeekRepository) {
+                                FantasyTeamRepository fantasyTeamRepository, FantasyTeamService fantasyTeamService, PlayerService playerService, FantasyWeekRepository fantasyWeekRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.userService = userService;
         this.fantasyTeamService = fantasyTeamService;
         this.playerService = playerService;
-        this.playerRepository = playerRepository;
         this.fantasyTeamRepository = fantasyTeamRepository;
-
-        this.fantasyWeekService = fantasyWeekService;
         this.fantasyWeekRepository = fantasyWeekRepository;
     }
 
@@ -167,8 +158,16 @@ public class FantasyLeagueService {
                     FantasyTeam teamA = fantasyTeamRepository.findFantasyTeamById(homeTeamId);
                     FantasyTeam teamB = fantasyTeamRepository.findFantasyTeamById(awayTeamId);
 
+                    Set<FantasyWeek> weeksA = teamA.getFantasyWeeksA();
+                    Set<FantasyWeek> weeksB = teamB.getFantasyWeeksB();
+
                     fantasyWeek.setFantasyTeamA(teamA);
                     fantasyWeek.setFantasyTeamB(teamB);
+
+                    weeksA.add(fantasyWeek);
+                    weeksB.add(fantasyWeek);
+                    teamA.setFantasyWeeksA(weeksA);
+                    teamB.setFantasyWeeksB(weeksB);
 
                     teamA.setOrderNumber(matchIndex);
                     teamB.setOrderNumber(matchIndex + 1);

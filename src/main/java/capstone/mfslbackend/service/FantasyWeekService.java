@@ -1,12 +1,9 @@
 package capstone.mfslbackend.service;
 
-import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
-import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 
@@ -27,17 +24,7 @@ public class FantasyWeekService {
     public List<FantasyWeek> getFantasyWeekByWeekNumber(int weekNumber) {
         return fantasyWeekRepository.findByWeekNumber(weekNumber);
     }
-    public FantasyWeek createFantasyWeek(int fantasyTeamId, int weekNumber, int order, Long opponentId) throws Error404, Error400 {
-        if (weekNumber <= 0) {
-            throw new Error400("week number cannot be negative");
-        }
-        FantasyTeam fantasyTeam = fantasyTeamService.getFantasyTeam((long) fantasyTeamId);
-        FantasyWeek fantasyWeek = new FantasyWeek();
-        fantasyWeek.setWeekNumber(weekNumber);
-        fantasyWeek.setFantasyTeam(fantasyTeam);
-        fantasyWeekRepository.save(fantasyWeek);
-        return fantasyWeek;
-    }
+
 
     public FantasyWeek getFantasyWeek(Long weekId) {
         return fantasyWeekRepository.findById(weekId).orElse(null);
