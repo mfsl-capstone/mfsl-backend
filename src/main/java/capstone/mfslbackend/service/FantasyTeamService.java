@@ -102,4 +102,5 @@ public class FantasyTeamService {
     public List<FantasyTeam> getFantasyTeamsByLeagueId(Long leagueId) {
         return fantasyTeamRepository.findFantasyTeamsByFantasyLeagueId(leagueId);
     }
+
 }

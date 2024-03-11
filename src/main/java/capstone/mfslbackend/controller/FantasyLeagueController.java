@@ -60,7 +60,7 @@ public class FantasyLeagueController {
     }
 
     @GetMapping("matchups")
-    public ResponseEntity<List<FantasyWeek>> getFantasyLeagueMatchups(@RequestParam Long leagueId, @RequestParam Long teamId, @RequestParam int weekNumber) throws Error404 {
+    public ResponseEntity<List<FantasyWeek>> getFantasyLeagueMatchups(@RequestParam Long leagueId, @RequestParam int weekNumber) throws Error404 {
         List<FantasyWeek> matchups = fantasyLeagueService.getFantasyLeagueMatchups(leagueId, weekNumber);
         return ResponseEntity.ok(matchups);
     }

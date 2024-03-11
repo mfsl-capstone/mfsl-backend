@@ -1,6 +1,7 @@
 package capstone.mfslbackend.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,6 +30,7 @@ public class FantasyLeague {
     private String leagueName;
 
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "fantasyLeague", orphanRemoval = true)
     private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
 

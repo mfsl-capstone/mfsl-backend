@@ -1,6 +1,5 @@
 package capstone.mfslbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +42,6 @@ public class FantasyTeam {
     @JoinColumn(name = "user_username", nullable = false)
     private User user;
 
-    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_league_id", nullable = false)
     private FantasyLeague fantasyLeague;

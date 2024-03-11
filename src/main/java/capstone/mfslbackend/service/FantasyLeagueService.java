@@ -23,8 +23,7 @@ public class FantasyLeagueService {
     private final FantasyTeamRepository fantasyTeamRepository;
 
     private final FantasyTeamService fantasyTeamService;
-
-
+    
     private final FantasyWeekRepository fantasyWeekRepository;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
@@ -59,7 +58,7 @@ public class FantasyLeagueService {
         FantasyTeam fantasyTeam = new FantasyTeam();
         fantasyTeam.setTeamName(teamName);
 
-//        block users from registering two teams in a league
+        //block users from registering two teams in a league
         for (FantasyTeam team : league.getFantasyTeams()) {
             if (team.getUser().equals(user)) {
                 throw new Error400("User already has a team in this league");
@@ -140,7 +139,7 @@ public class FantasyLeagueService {
                     matches.add(awayTeamId);
                 }
             }
-            schedule.add(matches);
+            schedule.add(new ArrayList<>(matches));
 
         }
 
@@ -151,9 +150,9 @@ public class FantasyLeagueService {
                 fantasyWeek.setWeekNumber(w + 1);
 
                 // Iterate through each match in the week
-                for (int matchIndex = 0; matchIndex < matches.size(); matchIndex += 2) {
-                    Long homeTeamId = matches.get(matchIndex);
-                    Long awayTeamId = matches.get(matchIndex + 1);
+                for (int matchIndex = 0; matchIndex < games.size(); matchIndex += 2) {
+                    Long homeTeamId = games.get(matchIndex);
+                    Long awayTeamId = games.get(matchIndex + 1);
 
                     FantasyTeam teamA = fantasyTeamRepository.findFantasyTeamById(homeTeamId);
                     FantasyTeam teamB = fantasyTeamRepository.findFantasyTeamById(awayTeamId);
@@ -169,8 +168,10 @@ public class FantasyLeagueService {
                     teamA.setFantasyWeeksA(weeksA);
                     teamB.setFantasyWeeksB(weeksB);
 
+                    //fix order number once decided
                     teamA.setOrderNumber(matchIndex);
                     teamB.setOrderNumber(matchIndex + 1);
+
                     teamB.setOpponentNumber(Math.toIntExact(homeTeamId));
                     teamA.setOpponentNumber(Math.toIntExact(awayTeamId));
 
