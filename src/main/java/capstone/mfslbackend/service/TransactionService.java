@@ -9,7 +9,7 @@ import capstone.mfslbackend.model.TransactionStatus;
 import capstone.mfslbackend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class TransactionService {
     public Transaction createTransaction(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) throws Error404 {
         Transaction transaction = new Transaction();
 
-        transaction.setDate(LocalDateTime.now());
+        transaction.setDate(LocalDate.now());
 
         FantasyTeam proposingFantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
         transaction.setProposingFantasyTeam(proposingFantasyTeam);
@@ -63,7 +63,7 @@ public class TransactionService {
     public Transaction draftTransaction(Long fantasyTeamId, Long incomingPlayerId) {
         Transaction transaction = new Transaction();
 
-        transaction.setDate(LocalDateTime.now());
+        transaction.setDate(LocalDate.now());
 
         FantasyTeam proposingFantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
         transaction.setProposingFantasyTeam(proposingFantasyTeam);

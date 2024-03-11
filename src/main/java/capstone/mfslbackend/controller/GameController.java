@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController()
@@ -33,6 +35,13 @@ public class GameController {
     @GetMapping("round")
     public ResponseEntity<List<Game>> getGamesByRound(@RequestParam String round) throws Error404 {
         List<Game> games = gameService.getGamesByRound(round);
+        return ResponseEntity.ok(games);
+    }
+
+    @GetMapping("date")
+    public ResponseEntity<List<Game>> getGamesByDate(@RequestParam LocalDate start,
+                                                     @RequestParam LocalDate end) {
+        List<Game> games = gameService.getGamesBetweenDates(start, end);
         return ResponseEntity.ok(games);
     }
 }

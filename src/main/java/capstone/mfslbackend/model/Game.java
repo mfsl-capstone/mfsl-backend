@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,7 +25,7 @@ public class Game {
     @Column(nullable = false)
     private Long id;
 //    2020-02-06T14:00:00+00:00 is the date format
-    private String date;
+    private LocalDateTime date;
     private String round;
 
     @ToString.Exclude

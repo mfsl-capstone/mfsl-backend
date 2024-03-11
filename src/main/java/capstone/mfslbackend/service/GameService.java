@@ -1,5 +1,6 @@
 package capstone.mfslbackend.service;
 
+import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Team;
@@ -13,6 +14,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -65,15 +70,21 @@ public class GameService {
 
         Game game = new Game();
         game.setId(gamesResponse.getFixture().getId());
-        game.setDate(gamesResponse.getFixture().getDate());
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+        game.setDate(LocalDateTime.parse(gamesResponse.getFixture().getDate(), formatter));
         game.setRound(gamesResponse.getLeague().getRound());
         game.setHomeTeam(home);
         game.setAwayTeam(away);
+        game.setHomeTeamScore(gamesResponse.getGoals().getHome());
+        game.setAwayTeamScore(gamesResponse.getGoals().getAway());
 
         gameRepository.save(game);
 
-        teamService.addGameToTeam(home, game);
-        teamService.addGameToTeam(away, game);
+        try {
+            teamService.addGameToTeam(home, game);
+            teamService.addGameToTeam(away, game);
+        } catch (Error400 ignored) {
+        }
 
         return game;
     }
@@ -93,5 +104,10 @@ public class GameService {
         return filteredGames;
     }
 
+    public List<Game> getGamesBetweenDates(LocalDate start, LocalDate end) {
+        LocalDateTime startTime = start.atStartOfDay();
+        LocalDateTime endTime = end.atTime(LocalTime.MAX);
+        return gameRepository.findGamesByDateBetween(startTime, endTime);
+    }
 
 }
