@@ -100,6 +100,7 @@ public class FantasyLeagueService {
     }
 
 
+
     public List<FantasyWeek> createFantasyLeagueSchedule(Long leagueId) {
         List<FantasyTeam> teams = fantasyTeamService.getFantasyTeamsByLeagueId(leagueId);
         int numTeams = teams.size();
@@ -142,46 +143,36 @@ public class FantasyLeagueService {
             schedule.add(new ArrayList<>(matches));
 
         }
-
+        int w =0;
         // Create the weeks
-            for (int w = 0; w < schedule.size(); w++) {
-                List<Long> games = schedule.get(w);
-                FantasyWeek fantasyWeek = new FantasyWeek();
-                fantasyWeek.setWeekNumber(w + 1);
+        for (List<Long> weekMatches : schedule) {
+            FantasyWeek fantasyWeek = new FantasyWeek();
+            for (int matchIndex = 0; matchIndex < weekMatches.size(); matchIndex += 2) {
+                Long homeTeamId = weekMatches.get(matchIndex);
+                Long awayTeamId = weekMatches.get(matchIndex + 1);
 
-                // Iterate through each match in the week
-                for (int matchIndex = 0; matchIndex < games.size(); matchIndex += 2) {
-                    Long homeTeamId = games.get(matchIndex);
-                    Long awayTeamId = games.get(matchIndex + 1);
+                FantasyTeam teamA = fantasyTeamRepository.findById(homeTeamId).orElseThrow();
+                FantasyTeam teamB = fantasyTeamRepository.findById(awayTeamId).orElseThrow();
 
-                    FantasyTeam teamA = fantasyTeamRepository.findFantasyTeamById(homeTeamId);
-                    FantasyTeam teamB = fantasyTeamRepository.findFantasyTeamById(awayTeamId);
-
-                    Set<FantasyWeek> weeksA = teamA.getFantasyWeeksA();
-                    Set<FantasyWeek> weeksB = teamB.getFantasyWeeksB();
-
-                    fantasyWeek.setFantasyTeamA(teamA);
-                    fantasyWeek.setFantasyTeamB(teamB);
-
-                    weeksA.add(fantasyWeek);
-                    weeksB.add(fantasyWeek);
-                    teamA.setFantasyWeeksA(weeksA);
-                    teamB.setFantasyWeeksB(weeksB);
-
-                    //fix order number once decided
-                    teamA.setOrderNumber(matchIndex);
-                    teamB.setOrderNumber(matchIndex + 1);
-
-                    teamB.setOpponentNumber(Math.toIntExact(homeTeamId));
-                    teamA.setOpponentNumber(Math.toIntExact(awayTeamId));
-
-                }
+                fantasyWeek.setWeekNumber(w + 1); // w is not defined in your snippet, make sure it's correctly set
+                fantasyWeek.setFantasyTeamA(teamA);
+                fantasyWeek.setFantasyTeamB(teamB);
 
                 fantasyWeekRepository.save(fantasyWeek);
-            }
 
-            return getFantasyWeeksByLeagueId(leagueId);
+                // fix order number once decided
+                teamA.setOrderNumber(matchIndex);
+                teamB.setOrderNumber(matchIndex + 1);
+
+                teamB.setOpponentNumber(Math.toIntExact(homeTeamId));
+                teamA.setOpponentNumber(Math.toIntExact(awayTeamId));
+            }
+            w+=1;
         }
+
+        return getFantasyWeeksByLeagueId(leagueId); // Ensure this method fetches the weeks correctly
+    }
+
 
 
 public List<FantasyWeek> getFantasyLeagueMatchups(Long leagueId, int weekNumber) {
