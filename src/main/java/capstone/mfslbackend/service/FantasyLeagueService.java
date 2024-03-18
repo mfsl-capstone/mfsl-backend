@@ -13,7 +13,12 @@ import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class FantasyLeagueService {
@@ -21,9 +26,7 @@ public class FantasyLeagueService {
     private final UserService userService;
     private final PlayerService playerService;
     private final FantasyTeamRepository fantasyTeamRepository;
-
     private final FantasyTeamService fantasyTeamService;
-    
     private final FantasyWeekRepository fantasyWeekRepository;
 
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
@@ -59,11 +62,11 @@ public class FantasyLeagueService {
         fantasyTeam.setTeamName(teamName);
 
         //block users from registering two teams in a league
-//        for (FantasyTeam team : league.getFantasyTeams()) {
-//            if (team.getUser().equals(user)) {
-//                throw new Error400("User already has a team in this league");
-//            }
-//        }
+        for (FantasyTeam team : league.getFantasyTeams()) {
+            if (team.getUser().equals(user)) {
+                throw new Error400("User already has a team in this league");
+            }
+        }
 
         fantasyTeam.setUser(user);
         fantasyTeam.setFantasyLeague(league);
@@ -102,72 +105,67 @@ public class FantasyLeagueService {
 
 
     public List<FantasyWeek> createFantasyLeagueSchedule(Long leagueId) {
-        List<FantasyTeam> teams = fantasyTeamService.getFantasyTeamsByLeagueId(leagueId);
+        FantasyLeague league = getFantasyLeagueById(leagueId);
+        List<FantasyTeam> teams = new ArrayList<>(league.getFantasyTeams());
+
         int numTeams = teams.size();
         boolean hasGhostTeam = false;
 
         //schedule builder
 
         if (numTeams % 2 != 0) {
-            FantasyTeam ghostTeam = new FantasyTeam();
-            ghostTeam.setId(-1L);
-            teams.add(ghostTeam);
+
             numTeams++;
-            hasGhostTeam = true;
+
         }
 
-        List<List<Long>> schedule = new ArrayList<>();
-        List<Long> matches = new ArrayList<>();
+        List<List<FantasyTeam>> schedule = new ArrayList<>();
+        List<FantasyTeam> matches = new ArrayList<>();
 
         // Each week
         for (int week = 0; week < numTeams - 1; week++) {
             // Each match in a week
             for (int match = 0; match < numTeams / 2; match++) {
-                int homeTeam = (week + match) % (numTeams - 1);
-                int awayTeam = (numTeams - 1 - match + week) % (numTeams - 1);
+                int homeTeamIndex = (week + match) % (numTeams - 1);
+                int awayTeamIndex = (numTeams - 1 - match + week) % (numTeams - 1);
 
                 if (match == 0) {
-                    awayTeam = numTeams - 1;
+                    awayTeamIndex = numTeams - 1;
                 }
+                FantasyTeam homeTeam = teams.get(homeTeamIndex);
+                FantasyTeam awayTeam = null;
 
-                Long homeTeamId = teams.get(homeTeam).getId();
-                Long awayTeamId = teams.get(awayTeam).getId();
-
-
-                // Exclude matches involving the ghost team
-                if (!hasGhostTeam || (homeTeamId != -1L && awayTeamId != -1L)) {
-                    matches.add(homeTeamId);
-                    matches.add(awayTeamId);
+                if (awayTeamIndex < teams.size()) {
+                    awayTeam = teams.get(awayTeamIndex);
                 }
+                matches.add(homeTeam);
+                matches.add(awayTeam);
+
             }
             schedule.add(new ArrayList<>(matches));
 
         }
-        int w =0;
+        int w = 0;
         // Create the weeks
         for (int matchIndex = 0; matchIndex < matches.size(); matchIndex += 2) {
             FantasyWeek fantasyWeek = new FantasyWeek();
-            Long homeTeamId = matches.get(matchIndex);
-            Long awayTeamId = matches.get(matchIndex + 1);
+            FantasyTeam teamA = matches.get(matchIndex);
+            FantasyTeam teamB = matches.get(matchIndex + 1);
 
-            FantasyTeam teamA = fantasyTeamRepository.findFantasyTeamById(homeTeamId);
-            FantasyTeam teamB = fantasyTeamRepository.findFantasyTeamById(awayTeamId);
 
-            Set<FantasyWeek> weeksA = teamA.getFantasyWeeksA();
-            Set<FantasyWeek> weeksB = teamB.getFantasyWeeksB();
+            Set<FantasyWeek> weeksA = teamA.getFantasyWeeks();
+            Set<FantasyWeek> weeksB = teamB.getFantasyWeeks();
             fantasyWeek.setFantasyTeamA(teamA);
             fantasyWeek.setFantasyTeamB(teamB);
             weeksA.add(fantasyWeek);
             weeksB.add(fantasyWeek);
-            teamA.setFantasyWeeksA(weeksA);
-            teamB.setFantasyWeeksB(weeksB);
+            teamA.setFantasyWeeks(weeksA);
+            teamB.setFantasyWeeks(weeksB);
 
             //fix order number once decided
             teamA.setOrderNumber(matchIndex);
             teamB.setOrderNumber(matchIndex + 1);
 
-            teamB.setOpponentNumber(Math.toIntExact(homeTeamId));
-            teamA.setOpponentNumber(Math.toIntExact(awayTeamId));
             fantasyWeekRepository.save(fantasyWeek);
         }
         return getFantasyWeeksByLeagueId(leagueId);
@@ -202,11 +200,11 @@ public List<FantasyWeek> getFantasyLeagueMatchups(Long leagueId, int weekNumber)
     }
 
     public List<FantasyWeek> getFantasyWeeksByLeagueId(Long leagueId) {
-        List<FantasyTeam> teams = fantasyTeamRepository.findFantasyTeamsByFantasyLeagueId(leagueId);
+        FantasyLeague league = getFantasyLeagueById(leagueId);
+        Set<FantasyTeam> teams = league.getFantasyTeams();
         Set<FantasyWeek> weeks = new HashSet<>();
         for (FantasyTeam team : teams) {
-            weeks.addAll(team.getFantasyWeeksA());
-            weeks.addAll(team.getFantasyWeeksB());
+            weeks.addAll(team.getFantasyWeeks());
         }
         return new ArrayList<>(weeks);
     }

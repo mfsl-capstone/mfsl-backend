@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface FantasyTeamRepository extends JpaRepository<FantasyTeam, Long> {
     List<FantasyTeam> findFantasyTeamsByFantasyLeagueId(Long leagueId);
-
-    FantasyTeam findFantasyTeamById(Long homeTeamId);
 }

@@ -12,10 +12,12 @@ public class FantasyWeekService {
 
     private final FantasyWeekRepository fantasyWeekRepository;
     private final FantasyTeamService fantasyTeamService;
+
     public FantasyWeekService(FantasyWeekRepository fantasyWeekRepository, FantasyTeamService fantasyTeamService) {
         this.fantasyWeekRepository = fantasyWeekRepository;
         this.fantasyTeamService = fantasyTeamService;
     }
+
     public FantasyWeek getFantasyWeekById(Long weekId) throws Error404 {
         return fantasyWeekRepository.findById(weekId)
                 .orElseThrow(() -> new Error404("could not find week with id " + weekId));
@@ -23,10 +25,5 @@ public class FantasyWeekService {
 
     public List<FantasyWeek> getFantasyWeekByWeekNumber(int weekNumber) {
         return fantasyWeekRepository.findByWeekNumber(weekNumber);
-    }
-
-
-    public FantasyWeek getFantasyWeek(Long weekId) {
-        return fantasyWeekRepository.findById(weekId).orElse(null);
     }
 }

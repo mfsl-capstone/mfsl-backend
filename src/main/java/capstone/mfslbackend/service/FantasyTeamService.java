@@ -8,7 +8,6 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -99,8 +98,5 @@ public class FantasyTeamService {
         throw new Error404("Player with id " + playerId + " from lineup not found in the team");
     }
 
-    public List<FantasyTeam> getFantasyTeamsByLeagueId(Long leagueId) {
-        return fantasyTeamRepository.findFantasyTeamsByFantasyLeagueId(leagueId);
-    }
 
 }
