@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,11 +33,6 @@ public class FantasyWeek {
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_team_a_id", nullable = false)
     private FantasyTeam fantasyTeamA;
-
-    @ToString.Exclude
-    @OneToOne(orphanRemoval = true)
-    @JoinColumn(name = "fantasy_week_id")
-    private FantasyWeek fantasyWeek;
 
     @ToString.Exclude
     @JsonIgnore
