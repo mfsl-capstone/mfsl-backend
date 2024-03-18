@@ -35,4 +35,5 @@ public class FantasyTeamController {
     public ResponseEntity<FantasyTeamLineup> setFantasyTeamLineup(@PathVariable long fantasyTeamId, @RequestParam String lineup) throws Error404, Error400 {
         return ResponseEntity.ok(fantasyTeamService.setFantasyTeamLineup(fantasyTeamId, lineup));
     }
+
 }

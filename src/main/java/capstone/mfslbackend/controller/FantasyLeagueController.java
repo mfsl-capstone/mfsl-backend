@@ -4,6 +4,7 @@ import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.service.FantasyLeagueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Map;
+
 @RestController()
 @RequestMapping("/fantasy-league")
 public class FantasyLeagueController {
@@ -56,4 +58,23 @@ public class FantasyLeagueController {
         List<FantasyLeaguePlayer> players = fantasyLeagueService.getFantasyLeaguePlayers(leagueId, filters, sortDirection, sortField, noTaken, limit, offset);
         return ResponseEntity.ok(players);
     }
+
+    @GetMapping("matchups")
+    public ResponseEntity<List<FantasyWeek>> getFantasyLeagueMatchups(@RequestParam Long leagueId, @RequestParam int weekNumber) throws Error404 {
+        List<FantasyWeek> matchups = fantasyLeagueService.getFantasyLeagueMatchups(leagueId, weekNumber);
+        return ResponseEntity.ok(matchups);
+    }
+
+    @GetMapping("weeks")
+    public ResponseEntity<List<FantasyWeek>> getFantasyLeagueWeeks(@RequestParam Long leagueId) throws Error404 {
+        List<FantasyWeek> weeks = fantasyLeagueService.getFantasyWeeksByLeagueId(leagueId);
+        return ResponseEntity.ok(weeks);
+    }
+
+    @PostMapping("matchups")
+    public ResponseEntity<List<FantasyWeek>> createFantasyLeagueMatchups(@RequestParam Long leagueId) {
+        List<FantasyWeek> fantasyWeeks = fantasyLeagueService.createFantasyLeagueSchedule(leagueId);
+        return ResponseEntity.ok(fantasyWeeks);
+    }
+
 }

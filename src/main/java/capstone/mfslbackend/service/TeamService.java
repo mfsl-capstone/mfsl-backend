@@ -103,4 +103,9 @@ public class TeamService {
             throw new Error400("Game already exists for team: " + team.getTeamId());
         }
     }
+
+    public List<Game> getGamesForTeam(Long teamId) {
+        Team team = getTeamById(teamId);
+        return team.getGames();
+    }
 }

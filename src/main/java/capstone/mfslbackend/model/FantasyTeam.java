@@ -1,6 +1,5 @@
 package capstone.mfslbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -33,15 +32,15 @@ public class FantasyTeam {
     private Long id;
     private String teamName;
     private String playerIdsInOrder;
+    private int orderNumber;
 
-    @OneToMany(mappedBy = "fantasyTeam", orphanRemoval = true)
+    @OneToMany(orphanRemoval = true)
     private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_username", nullable = false)
     private User user;
 
-    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_league_id", nullable = false)
     private FantasyLeague fantasyLeague;
@@ -58,6 +57,7 @@ public class FantasyTeam {
             joinColumns = @JoinColumn(name = "fantasy_team_id"),
             inverseJoinColumns = @JoinColumn(name = "players_player_id"))
     private Set<Player> players = new LinkedHashSet<>();
+
 
     @Override
     public final boolean equals(Object o) {

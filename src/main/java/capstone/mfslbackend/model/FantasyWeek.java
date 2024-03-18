@@ -31,8 +31,14 @@ public class FantasyWeek {
     @ToString.Exclude
     @JsonIgnore
     @ManyToOne(optional = false)
-    @JoinColumn(name = "fantasy_team_id", nullable = false)
-    private FantasyTeam fantasyTeam;
+    @JoinColumn(name = "fantasy_team_a_id", nullable = false)
+    private FantasyTeam fantasyTeamA;
+
+    @ToString.Exclude
+    @JsonIgnore
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "fantasy_team_b_id", nullable = false)
+    private FantasyTeam fantasyTeamB;
 
     @Override
     public final boolean equals(Object o) {

@@ -97,4 +97,6 @@ public class FantasyTeamService {
         }
         throw new Error404("Player with id " + playerId + " from lineup not found in the team");
     }
+
+
 }
