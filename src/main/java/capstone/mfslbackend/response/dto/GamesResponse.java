@@ -15,4 +15,5 @@ public class GamesResponse {
     private TeamsResponse teams;
     private LeagueResponse league;
     private FixtureResponse fixture;
+    private GoalsResponse goals;
 }

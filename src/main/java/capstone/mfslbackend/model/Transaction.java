@@ -16,9 +16,7 @@ import lombok.ToString;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.time.LocalDateTime;
-
-
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -31,7 +29,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
-    private LocalDateTime date;
+    private LocalDate date;
     @Enumerated
     private TransactionStatus status;
 
