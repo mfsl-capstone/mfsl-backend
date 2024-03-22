@@ -54,10 +54,16 @@ public class PlayerGameStats {
     private int result;
     private String round;
 
+
     @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
+
+    @ToString.Exclude
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "game_id", nullable = false)
+    private Game game;
 
     public PlayerGameStats noNulls() throws IllegalAccessException {
         for (Field f : PlayerGameStats.class.getFields()) {

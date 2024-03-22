@@ -92,7 +92,7 @@ public class PlayerGameStatsService {
                 } catch (Error404 e) {
                     playerService.createPlayerById(players.getPlayer().getId(), statsResponse2.getResponse().get(0).getLeague().getSeason());
                 }
-                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner)
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), winner, g)
                             .ifPresent(stats -> {
                                 stats.setPlayer(playerService.getPlayerById(players.getPlayer().getId()));
                                 playerGameStatsRepository.save(stats);
@@ -103,7 +103,7 @@ public class PlayerGameStatsService {
         return ResponseEntity.ok(playerGameStats);
     }
 
-    private Optional<PlayerGameStats> convert(StatisticResponse stat, String round, Boolean winner) {
+    private Optional<PlayerGameStats> convert(StatisticResponse stat, String round, Boolean winner, Game game) {
         PlayerGameStats playerGameStats = new PlayerGameStats();
 
         if (stat == null) {
@@ -163,6 +163,9 @@ public class PlayerGameStatsService {
             } else {
                 playerGameStats.setResult(0);
             }
+        }
+        if (game != null) {
+            playerGameStats.setGame(game);
         }
 
         return Optional.of(playerGameStats);
