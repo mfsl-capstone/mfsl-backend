@@ -52,6 +52,7 @@ public class PlayerGameStats {
     private int shotBlocks;
     private int interceptions;
     private int result;
+    private Boolean cleanSheet;
     private String round;
 
 

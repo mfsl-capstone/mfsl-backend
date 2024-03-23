@@ -168,6 +168,47 @@ public class PlayerGameStatsService {
             playerGameStats.setGame(game);
         }
 
+        playerGameStats.setPoints(calculatePoints(playerGameStats));
+
         return Optional.of(playerGameStats);
+    }
+
+    private int calculatePoints(PlayerGameStats playerGameStats) {
+        int points = 0;
+        points -= playerGameStats.getYellowCards();
+        points -= playerGameStats.getRedCards() * 2;
+        points += playerGameStats.getMinutes() / 60;
+        switch (playerGameStats.getPlayer().getPosition()) {
+            case "Goalkeeper":
+                points += (playerGameStats.getSaves() / 3) * 2;
+                points += (playerGameStats.getGoalsConceded() / 2) * -1;
+                points += playerGameStats.getPenaltiesSaved() * 5;
+                break;
+            case "Defender":
+                points += playerGameStats.getDuelsWon() * 2;
+                points += playerGameStats.getInterceptions() * 2;
+                points += playerGameStats.getTackles() * 2;
+                points += playerGameStats.getShotBlocks() * 2;
+                break;
+            case "Midfielder":
+                points += playerGameStats.getDuelsWon() * 2;
+                points += playerGameStats.getInterceptions() * 2;
+                points += playerGameStats.getTackles() * 2;
+                points += playerGameStats.getShotBlocks() * 2;
+                points += playerGameStats.getGoalsScored() * 5;
+                points += playerGameStats.getAssists() * 3;
+                break;
+            case "Forward":
+                points += playerGameStats.getDuelsWon() * 2;
+                points += playerGameStats.getInterceptions() * 2;
+                points += playerGameStats.getTackles() * 2;
+                points += playerGameStats.getShotBlocks() * 2;
+                points += playerGameStats.getGoalsScored() * 5;
+                points += playerGameStats.getAssists() * 3;
+                break;
+
+            default: return 0;
+        }
+        return points;
     }
 }
