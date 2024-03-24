@@ -29,7 +29,6 @@ public class FantasyLeague {
     private Long id;
     private String leagueName;
 
-    @ToString.Exclude
     @JsonIgnore
     @OneToMany(mappedBy = "fantasyLeague", orphanRemoval = true)
     private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();

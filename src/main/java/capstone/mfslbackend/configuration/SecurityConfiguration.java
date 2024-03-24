@@ -38,7 +38,9 @@ public class SecurityConfiguration {
     private static final int KEYSIZE = 2048;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http
+                .cors().and()
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.GET, "/user/login").permitAll();
                     auth.requestMatchers(HttpMethod.POST, "/user/signup").permitAll();

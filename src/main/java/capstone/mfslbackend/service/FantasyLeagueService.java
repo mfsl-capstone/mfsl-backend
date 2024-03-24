@@ -55,7 +55,7 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
 
-    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName) {
+    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName, String jerseyColour) {
         User user = userService.getUser(username);
         FantasyLeague league = getFantasyLeagueById(leagueId);
         FantasyTeam fantasyTeam = new FantasyTeam();
@@ -70,6 +70,7 @@ public class FantasyLeagueService {
 
         fantasyTeam.setUser(user);
         fantasyTeam.setFantasyLeague(league);
+        fantasyTeam.setColour(jerseyColour);
         fantasyTeamRepository.save(fantasyTeam);
 
 //        we can assume league is present since we already got it with the same id

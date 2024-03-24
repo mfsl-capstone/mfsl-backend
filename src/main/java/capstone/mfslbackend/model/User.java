@@ -33,8 +33,6 @@ public class User {
 
     private Set<Authority> authorities = new HashSet<>();
 
-    @ToString.Exclude
-    @JsonIgnore
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
 

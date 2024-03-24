@@ -1,5 +1,6 @@
 package capstone.mfslbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -33,10 +34,12 @@ public class FantasyTeam {
     private String teamName;
     private String playerIdsInOrder;
     private int orderNumber;
+    private String colour;
 
     @OneToMany(orphanRemoval = true)
     private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_username", nullable = false)
     private User user;
