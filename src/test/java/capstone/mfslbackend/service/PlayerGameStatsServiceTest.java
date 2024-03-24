@@ -12,6 +12,7 @@ import capstone.mfslbackend.response.dto.stats.StatisticResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -36,6 +37,65 @@ public class PlayerGameStatsServiceTest {
     PlayerService playerService;
     @Mock
     GameService gameService;
+    @Value("${YELLOW.CARD.POINTS}")
+    private int yellowCardPoints;
+    @Value("${RED.CARD.POINTS}")
+    private int redCardPoints;
+    @Value("${MINUTES.POINTS}")
+    private int minutesPoints;
+    @Value("${MINUTES.THRESHOLD}")
+    private int minutesThreshold;
+    @Value("${PENALTY.COMMITTED.POINTS}")
+    private int penaltyCommittedPoints;
+    @Value("${FOULS.COMMITTED.THRESHOLD}")
+    private int foulsCommittedThreshold;
+    @Value("${PENALTY.MISSED.POINTS}")
+    private int penaltyMissedPoints;
+    @Value("${SAVES.POINTS}")
+    private int savesPoints;
+    @Value("${SAVES.THRESHOLD}")
+    private int savesThreshold;
+    @Value("${GOALS.CONCEDED.THRESHOLD}")
+    private int goalsConcededThreshold;
+    @Value("${PENALTIES.SAVED.POINTS}")
+    private int penaltiesSavedPoints;
+    @Value("${GK.CLEAN.SHEET.POINTS}")
+    private int gkCleanSheetPoints;
+    @Value("${DEF.CLEAN.SHEET.POINTS}")
+    private int defCleanSheetPoints;
+    @Value("${MID.CLEAN.SHEET.POINTS}")
+    private int midCleanSheetPoints;
+    @Value("${GK.GOALS.SCORED.POINTS}")
+    private int gkGoalsScoredPoints;
+    @Value("${GK.ASSISTS.POINTS}")
+    private int gkAssistsPoints;
+    @Value("${DEF.GOALS.SCORED.POINTS}")
+    private int defGoalsScoredPoints;
+    @Value("${MID.GOALS.SCORED.POINTS}")
+    private int midGoalsScoredPoints;
+    @Value("${ATT.GOALS.SCORED.POINTS}")
+    private int attGoalsScoredPoints;
+    @Value("${DEF.ASSISTS.POINTS}")
+    private int defAssistsPoints;
+    @Value("${MID.ASSISTS.POINTS}")
+    private int midAssistsPoints;
+    @Value("${ATT.ASSISTS.POINTS}")
+    private int attAssistsPoints;
+    @Value("${SHOT.ACCURACY.THRESHOLD}")
+    private int shotAccuracyThreshold;
+    @Value("${RATING.POINTS}")
+    private int ratingPoints;
+    @Value("${FRACTION.TO.PERCENT}")
+    private int fractionToPercent;
+    @Value("${RATING.THRESHOLD.1}")
+    private int ratingThreshold1;
+    @Value("${RATING.THRESHOLD.2}")
+    private double ratingThreshold2;
+    @Value("${RATING.THRESHOLD.3}")
+    private int ratingThreshold3;
+    @Value("${RATING.THRESHOLD.4}")
+    private int ratingThreshold4;
+
     private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url", gameService);    @BeforeEach
     public void setup() throws IOException {
         ReflectionTestUtils.setField(playerGameStatsService, "apiService", apiService);
@@ -43,6 +103,35 @@ public class PlayerGameStatsServiceTest {
         ReflectionTestUtils.setField(playerGameStatsService, "playerGameStatsRepository", playerGameStatsRepository);
         ReflectionTestUtils.setField(playerGameStatsService, "playerService", playerService);
         ReflectionTestUtils.setField(playerGameStatsService, "gameService", gameService);
+        ReflectionTestUtils.setField(playerGameStatsService, "yellowCardPoints", yellowCardPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "redCardPoints", redCardPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "minutesPoints", minutesPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "minutesThreshold", minutesThreshold);
+        ReflectionTestUtils.setField(playerGameStatsService, "penaltyCommittedPoints", penaltyCommittedPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "foulsCommittedThreshold", foulsCommittedThreshold);
+        ReflectionTestUtils.setField(playerGameStatsService, "penaltyMissedPoints", penaltyMissedPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "savesPoints", savesPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "savesThreshold", savesThreshold);
+        ReflectionTestUtils.setField(playerGameStatsService, "goalsConcededThreshold", goalsConcededThreshold);
+        ReflectionTestUtils.setField(playerGameStatsService, "penaltiesSavedPoints", penaltiesSavedPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "gkCleanSheetPoints", gkCleanSheetPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "defCleanSheetPoints", defCleanSheetPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "midCleanSheetPoints", midCleanSheetPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "gkGoalsScoredPoints", gkGoalsScoredPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "gkAssistsPoints", gkAssistsPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "defGoalsScoredPoints", defGoalsScoredPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "midGoalsScoredPoints", midGoalsScoredPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "attGoalsScoredPoints", attGoalsScoredPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "defAssistsPoints", defAssistsPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "midAssistsPoints", midAssistsPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "attAssistsPoints", attAssistsPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "shotAccuracyThreshold", shotAccuracyThreshold);
+        ReflectionTestUtils.setField(playerGameStatsService, "ratingPoints", ratingPoints);
+        ReflectionTestUtils.setField(playerGameStatsService, "fractionToPercent", fractionToPercent);
+        ReflectionTestUtils.setField(playerGameStatsService, "ratingThreshold1", ratingThreshold1);
+        ReflectionTestUtils.setField(playerGameStatsService, "ratingThreshold2", ratingThreshold2);
+        ReflectionTestUtils.setField(playerGameStatsService, "ratingThreshold3", ratingThreshold3);
+        ReflectionTestUtils.setField(playerGameStatsService, "ratingThreshold4", ratingThreshold4);
 
         StatsContainer statsContainer = new StatsContainer();
         PlayersStatsResponse playersStatsResponse = new PlayersStatsResponse();
