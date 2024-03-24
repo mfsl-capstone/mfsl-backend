@@ -122,11 +122,9 @@ public class PlayerService {
                     for (String val : values) {
                         if (field.equals("teamId")) {
                             orPredicates.add(criteriaBuilder.equal(root.get("team").get("teamId"), Long.parseLong(val)));
-                        }
-                        else if (field.equals("teamName")) {
+                        } else if (field.equals("teamName")) {
                             orPredicates.add(criteriaBuilder.equal(root.get("team").get("name"), val));
-                        }
-                        else if (root.get(field).getJavaType() == String.class) {
+                        } else if (root.get(field).getJavaType() == String.class) {
                             orPredicates.add(criteriaBuilder.like(root.get(field), "%" + val + "%"));
                         } else {
                             orPredicates.add(criteriaBuilder.equal(root.get(field), val));

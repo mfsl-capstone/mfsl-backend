@@ -31,6 +31,65 @@ public class PlayerGameStatsService {
     private final PlayerService playerService;
     private final PlayerGameStatsRepository playerGameStatsRepository;
     private final GameService gameService;
+    @Value("${YELLOW.CARD.POINTS}")
+    private int yellowCardPoints;
+    @Value("${RED.CARD.POINTS}")
+    private int redCardPoints;
+    @Value("${MINUTES.POINTS}")
+    private int minutesPoints;
+    @Value("${MINUTES.THRESHOLD}")
+    private int minutesThreshold;
+    @Value("${PENALTY.COMMITTED.POINTS}")
+    private int penaltyCommittedPoints;
+    @Value("${FOULS.COMMITTED.THRESHOLD}")
+    private int foulsCommittedThreshold;
+    @Value("${PENALTY.MISSED.POINTS}")
+    private int penaltyMissedPoints;
+    @Value("${SAVES.POINTS}")
+    private int savesPoints;
+    @Value("${SAVES.THRESHOLD}")
+    private int savesThreshold;
+    @Value("${GOALS.CONCEDED.THRESHOLD}")
+    private int goalsConcededThreshold;
+    @Value("${PENALTIES.SAVED.POINTS}")
+    private int penaltiesSavedPoints;
+    @Value("${GK.CLEAN.SHEET.POINTS}")
+    private int gkCleanSheetPoints;
+    @Value("${DEF.CLEAN.SHEET.POINTS}")
+    private int defCleanSheetPoints;
+    @Value("${MID.CLEAN.SHEET.POINTS}")
+    private int midCleanSheetPoints;
+    @Value("${GK.GOALS.SCORED.POINTS}")
+    private int gkGoalsScoredPoints;
+    @Value("${GK.ASSISTS.POINTS}")
+    private int gkAssistsPoints;
+    @Value("${DEF.GOALS.SCORED.POINTS}")
+    private int defGoalsScoredPoints;
+    @Value("${MID.GOALS.SCORED.POINTS}")
+    private int midGoalsScoredPoints;
+    @Value("${ATT.GOALS.SCORED.POINTS}")
+    private int attGoalsScoredPoints;
+    @Value("${DEF.ASSISTS.POINTS}")
+    private int defAssistsPoints;
+    @Value("${MID.ASSISTS.POINTS}")
+    private int midAssistsPoints;
+    @Value("${ATT.ASSISTS.POINTS}")
+    private int attAssistsPoints;
+    @Value("${SHOT.ACCURACY.THRESHOLD}")
+    private int shotAccuracyThreshold;
+    @Value("${RATING.POINTS}")
+    private int ratingPoints;
+    @Value("${FRACTION.TO.PERCENT}")
+    private int fractionToPercent;
+    @Value("${RATING.THRESHOLD.1}")
+    private int ratingThreshold1;
+    @Value("${RATING.THRESHOLD.2}")
+    private double ratingThreshold2;
+    @Value("${RATING.THRESHOLD.3}")
+    private int ratingThreshold3;
+    @Value("${RATING.THRESHOLD.4}")
+    private int ratingThreshold4;
+
 
     public PlayerGameStatsService(ApiService apiService, PlayerGameStatsRepository playerGameStatsRepository,
                                   PlayerService playerService, @Value("${base.url}") String baseUrl,
@@ -40,6 +99,7 @@ public class PlayerGameStatsService {
         this.playerService = playerService;
         this.playerGameStatsRepository = playerGameStatsRepository;
         this.gameService = gameService;
+
     }
 
     public PlayerGameStats getPlayerGameStatsById(Long id) {
@@ -176,7 +236,7 @@ public class PlayerGameStatsService {
             Pattern pattern = Pattern.compile("\\d+");
             Matcher matcher = pattern.matcher(round);
             if (matcher.find()) {
-                playerGameStats.setRound(Integer.parseInt(matcher.group()));;
+                playerGameStats.setRound(Integer.parseInt(matcher.group()));
             }
         }
         playerGameStats.setScore(score);
@@ -201,91 +261,90 @@ public class PlayerGameStatsService {
     private int calculatePoints(PlayerGameStats playerGameStats, boolean cleanSheet) {
         int points = 0;
         points -= playerGameStats.getYellowCards();
-        playerGameStats.setYellowCardPoints(playerGameStats.getYellowCards() * -1);
-        points -= playerGameStats.getRedCards() * 4;
-        playerGameStats.setRedCardPoints(playerGameStats.getRedCards() * -4);
-        points += playerGameStats.getMinutes() / 60 + 1;
-        playerGameStats.setMinutesPoints((playerGameStats.getMinutes() / 60) + 1);
+        playerGameStats.setYellowCardPoints(playerGameStats.getYellowCards() * yellowCardPoints);
+        points += playerGameStats.getRedCards() * redCardPoints;
+        playerGameStats.setRedCardPoints(playerGameStats.getRedCards() * redCardPoints);
+        points += playerGameStats.getMinutes() / minutesThreshold + minutesPoints;
+        playerGameStats.setMinutesPoints((playerGameStats.getMinutes() / minutesThreshold) + minutesPoints);
         if (playerGameStats.getMinutes() == 0) {
             playerGameStats.setMinutesPoints(0);
             return 0;
         }
-        points -= playerGameStats.getPenaltiesCommitted() * 4;
-        playerGameStats.setPenaltyCommittedPoints(playerGameStats.getPenaltiesCommitted() * -4);
-        points -= playerGameStats.getFoulsCommitted() / 2;
-        playerGameStats.setFoulsCommittedPoints(playerGameStats.getFoulsCommitted() / -2);
-        points -= playerGameStats.getPenaltiesMissed() * 4;
-        playerGameStats.setPenaltiesMissedPoints(playerGameStats.getPenaltiesMissed() * -4);
+        points += playerGameStats.getPenaltiesCommitted() * penaltyCommittedPoints;
+        playerGameStats.setPenaltyCommittedPoints(playerGameStats.getPenaltiesCommitted() * penaltyCommittedPoints);
+        points -= playerGameStats.getFoulsCommitted() / foulsCommittedThreshold;
+        playerGameStats.setFoulsCommittedPoints(-playerGameStats.getFoulsCommitted() / foulsCommittedThreshold);
+        points += playerGameStats.getPenaltiesMissed() * penaltyMissedPoints;
+        playerGameStats.setPenaltiesMissedPoints(playerGameStats.getPenaltiesMissed() * penaltyMissedPoints);
         switch (playerGameStats.getPlayer().getPosition()) {
             case "Goalkeeper" -> {
-                points += (playerGameStats.getSaves() / 3) * 2;
-                playerGameStats.setSavesPoints((playerGameStats.getSaves() / 3) * 2);
-                points -= (playerGameStats.getGoalsConceded() / 2);
-                playerGameStats.setGoalsConcededPoints((playerGameStats.getGoalsConceded() / -2));
-                points += playerGameStats.getPenaltiesSaved() * 5;
-                playerGameStats.setPenaltiesSavedPoints(playerGameStats.getPenaltiesSaved() * 5);
-                if (playerGameStats.getMinutes() > 60) {
-                    points += cleanSheet ? 6 : 0;
-                    playerGameStats.setCleanSheetPoints(cleanSheet ? 6 : 0);
+                points += (playerGameStats.getSaves() / savesThreshold) * savesPoints;
+                playerGameStats.setSavesPoints((playerGameStats.getSaves() / savesThreshold * savesPoints));
+                points -= (playerGameStats.getGoalsConceded() / goalsConcededThreshold);
+                playerGameStats.setGoalsConcededPoints(-playerGameStats.getGoalsConceded() / goalsConcededThreshold);
+                points += playerGameStats.getPenaltiesSaved() * penaltiesSavedPoints;
+                playerGameStats.setPenaltiesSavedPoints(playerGameStats.getPenaltiesSaved() * penaltiesSavedPoints);
+                if (playerGameStats.getMinutes() > minutesThreshold) {
+                    points += cleanSheet ? gkCleanSheetPoints : 0;
+                    playerGameStats.setCleanSheetPoints(cleanSheet ? gkCleanSheetPoints : 0);
                 }
-                points += playerGameStats.getGoalsScored() * 10;
-                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * 10);
-                points += playerGameStats.getAssists() * 7;
-                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * 7);
+                points += playerGameStats.getGoalsScored() * gkGoalsScoredPoints;
+                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * gkGoalsScoredPoints);
+                points += playerGameStats.getAssists() * gkAssistsPoints;
+                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * gkAssistsPoints);
             }
             case "Defender" -> {
                 points += playerGameStats.getSaves();
                 playerGameStats.setSavesPoints(playerGameStats.getSaves());
-                if (playerGameStats.getMinutes() > 60) {
-                    points += cleanSheet ? 4 : 0;
-                    playerGameStats.setCleanSheetPoints(cleanSheet ? 4 : 0);
+                if (playerGameStats.getMinutes() > minutesThreshold) {
+                    points += cleanSheet ? defCleanSheetPoints : 0;
+                    playerGameStats.setCleanSheetPoints(cleanSheet ? defCleanSheetPoints : 0);
                 }
-                points += playerGameStats.getGoalsScored() * 6;
-                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * 6);
-                points += playerGameStats.getAssists() * 4;
-                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * 4);
+                points += playerGameStats.getGoalsScored() * defGoalsScoredPoints;
+                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * defGoalsScoredPoints);
+                points += playerGameStats.getAssists() * defAssistsPoints;
+                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * defAssistsPoints);
             }
             case "Midfielder" -> {
-                points += playerGameStats.getGoalsScored() * 4;
-                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * 4);
-                points += playerGameStats.getAssists() * 3;
-                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * 3);
-                if (playerGameStats.getMinutes() > 60) {
-                    points += cleanSheet ? 2 : 0;
-                    playerGameStats.setCleanSheetPoints(cleanSheet ? 2 : 0);
-                }            }
+                points += playerGameStats.getGoalsScored() * midGoalsScoredPoints;
+                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * midGoalsScoredPoints);
+                points += playerGameStats.getAssists() * midAssistsPoints;
+                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * midAssistsPoints);
+                if (playerGameStats.getMinutes() > minutesThreshold) {
+                    points += cleanSheet ? midCleanSheetPoints : 0;
+                    playerGameStats.setCleanSheetPoints(cleanSheet ? midCleanSheetPoints : 0);
+                }
+            }
             case "Attacker" -> {
-                points += playerGameStats.getGoalsScored() * 4;
-                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * 4);
-                points += playerGameStats.getAssists() * 3;
-                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * 3);
-                playerGameStats.setShotAccuracy(0);
+                points += playerGameStats.getGoalsScored() * attGoalsScoredPoints;
+                playerGameStats.setGoalsScoredPoints(playerGameStats.getGoalsScored() * attGoalsScoredPoints);
+                points += playerGameStats.getAssists() * attAssistsPoints;
+                playerGameStats.setAssistsPoints(playerGameStats.getAssists() * attAssistsPoints);
                 if (playerGameStats.getShotsTaken() > 0) {
-                    points += (playerGameStats.getShotsOnTarget() / playerGameStats.getShotsTaken()) / .7;
-                    playerGameStats.setShotAccuracy((playerGameStats.getShotsOnTarget() / playerGameStats.getShotsTaken()) * 100);
-                    playerGameStats.setShotAccuracyPoints(playerGameStats.getShotAccuracy() / 70);
+                    playerGameStats.setShotAccuracy((playerGameStats.getShotsOnTarget() / playerGameStats.getShotsTaken()) * fractionToPercent);
+                    points += playerGameStats.getShotAccuracy() / shotAccuracyThreshold;
+                    playerGameStats.setShotAccuracyPoints(playerGameStats.getShotAccuracy() / shotAccuracyThreshold);
                 }
             }
             default -> {
                 return 0;
             }
         }
-        playerGameStats.setRatingPoints(0);
-        if (playerGameStats.getRating() >= 8) {
-            points += 1;
-            playerGameStats.setRatingPoints(1);
+        if (playerGameStats.getRating() >= ratingThreshold1) {
+            points += ratingPoints;
+            playerGameStats.setRatingPoints(playerGameStats.getRatingPoints() + ratingPoints);
         }
-        if (playerGameStats.getRating() >= 8.5) {
-            points += 1;
-            playerGameStats.setRatingPoints(2);
+        if (playerGameStats.getRating() >= ratingThreshold2) {
+            points += ratingPoints;
+            playerGameStats.setRatingPoints(playerGameStats.getRatingPoints() + ratingPoints);
         }
-        if (playerGameStats.getRating() >= 9) {
-            points += 1;
-            playerGameStats.setRatingPoints(3);
+        if (playerGameStats.getRating() >= ratingThreshold3) {
+            points += ratingPoints;
+            playerGameStats.setRatingPoints(playerGameStats.getRatingPoints() + ratingPoints);
         }
-        if (playerGameStats.getRating() < 5) {
-            points -= 1;
-            playerGameStats.setRatingPoints(-1);
+        if (playerGameStats.getRating() < ratingThreshold4) {
+            points -= ratingPoints;
+            playerGameStats.setRatingPoints(playerGameStats.getRatingPoints() - ratingPoints);
         }
         return points;
     }
