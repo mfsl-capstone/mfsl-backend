@@ -15,6 +15,7 @@ import lombok.ToString;
 
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDate;
 import java.util.Objects;
 @Getter
 @Setter
@@ -27,6 +28,8 @@ public class FantasyWeek {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private int weekNumber;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @ToString.Exclude
     @JsonIgnore
