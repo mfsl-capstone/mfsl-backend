@@ -56,7 +56,7 @@ public class PlayerController {
     public ResponseEntity<List<Game>> getFutureGamesForPlayer(@PathVariable Long playerId) {
         return ResponseEntity.ok(playerService.getFutureGamesForPlayer(playerId));
     }
-  
+
     @GetMapping("{playerId}/game-stats")
     public ResponseEntity<List<PlayerGameStats>> getPlayerGameStats(@PathVariable Long playerId) {
         List<PlayerGameStats> playerGameStats = playerService.getPlayerGameStats(playerId);

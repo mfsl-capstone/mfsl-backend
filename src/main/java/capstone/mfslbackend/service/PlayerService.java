@@ -174,7 +174,7 @@ public class PlayerService {
                 .filter(game -> game.getHomeTeam().equals(player.getTeam()) || game.getAwayTeam().equals(player.getTeam()))
                 .toList();
     }
-  
+
     public List<PlayerGameStats> getPlayerGameStats(Long playerId) {
         return getPlayerById(playerId).getPlayerGameStats();
     }
