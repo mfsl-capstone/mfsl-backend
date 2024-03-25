@@ -13,6 +13,7 @@ import java.util.Set;
 @Service
 public class FantasyTeamService {
     private static final int STARTING_XI_PLAYERS = 11;
+    private static final int PLAYERS = 15;
     private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
     private static final int MIN_MID = 2;
@@ -37,6 +38,10 @@ public class FantasyTeamService {
         FantasyTeam team = getFantasyTeam(fantasyTeamId);
 
         String[] playerIds = lineup.split(" ");
+
+        if (playerIds.length != PLAYERS) {
+            throw new Error400("Lineup must have 15 players");
+        }
 
         if (getPlayer(playerIds[0], team.getPlayers()) == null
                 || !getPlayer(playerIds[0], team.getPlayers()).getPosition().equals("Goalkeeper")) {
@@ -75,13 +80,13 @@ public class FantasyTeamService {
             }
         }
         if (defCount > MAX_DEF || defCount < MIN_DEF) {
-            throw new Error400("There can only be" + MIN_DEF + "-" + MAX_DEF + " defenders in a lineup");
+            throw new Error400("There can only be " + MIN_DEF + "-" + MAX_DEF + " defenders in a lineup");
         }
         if (midCount > MAX_MID || midCount < MIN_MID) {
-            throw new Error400("There can only be" + MIN_MID + "-" + MAX_MID + " midfielders in a lineup");
+            throw new Error400("There can only be " + MIN_MID + "-" + MAX_MID + " midfielders in a lineup");
         }
         if (attCount > MAX_ATT || attCount < MIN_ATT) {
-            throw new Error400("There can only be" + MIN_ATT + "-" + MAX_ATT + " attackers in a lineup");
+            throw new Error400("There can only be " + MIN_ATT + "-" + MAX_ATT + " attackers in a lineup");
         }
 
         team.setPlayerIdsInOrder(lineup);

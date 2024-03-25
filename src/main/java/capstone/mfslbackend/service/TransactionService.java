@@ -10,8 +10,10 @@ import capstone.mfslbackend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -78,6 +80,11 @@ public class TransactionService {
 
 //        check if fantasy team has enough players in each position
         Set<Player> players = proposingFantasyTeam.getPlayers();
+        players.add(playerIn);
+
+        if (players.size() > MAX_PLAYERS) {
+            throw new Error400("Fantasy team with id " + fantasyTeamId + " already has the maximum number of players");
+        }
 
         int missingGkCount = MIN_GK;
         int missingDefCount = MIN_DEF;
@@ -113,28 +120,54 @@ public class TransactionService {
         if (missingPlayerCount > (MAX_PLAYERS - players.size())) {
             String missingPositions = "";
             if (missingGkCount > 0) {
-                missingPositions += "Goalkeeper ";
+                missingPositions += missingGkCount + " Goalkeepers ";
             }
             if (missingDefCount > 0) {
-                missingPositions += "Defender ";
+                missingPositions += missingDefCount + " Defenders ";
             }
             if (missingMidCount > 0) {
-                missingPositions += "Midfielder ";
+                missingPositions += missingMidCount + " Midfielders ";
             }
             if (missingFwdCount > 0) {
-                missingPositions += "Attacker ";
+                missingPositions += missingFwdCount + " Attackers ";
             }
             throw new Error400("Fantasy team with id " + fantasyTeamId + " does not have enough players in the following positions: " + missingPositions);
         }
 
 //        add player to the team immediately
-        players.add(playerIn);
         proposingFantasyTeam.setPlayers(players);
-        String lineup = proposingFantasyTeam.getPlayerIdsInOrder();
-        if (lineup != null && !lineup.isEmpty()) {
-            lineup += " ";
+        String lineup = proposingFantasyTeam.getPlayerIdsInOrder() + " " + playerIn.getPlayerId();
+        if (players.size() == MAX_PLAYERS) {
+            lineup = "";
+            List<Player> gks = players.stream().filter(player -> player.getPosition().equals("Goalkeeper")).toList();
+            List<Player> defs = players.stream().filter(player -> player.getPosition().equals("Defender")).toList();
+            List<Player> mids = players.stream().filter(player -> player.getPosition().equals("Midfielder")).toList();
+            List<Player> fwds = players.stream().filter(player -> player.getPosition().equals("Attacker")).toList();
+            lineup += gks.get(0).getPlayerId() + " ";
+            lineup += defs.subList(0, MIN_DEF).stream().map(player -> player.getPlayerId().toString())
+                    .collect(Collectors.joining(" ")) + " ";
+            lineup += mids.subList(0, MIN_MID).stream().map(player -> player.getPlayerId().toString())
+                    .collect(Collectors.joining(" ")) + " ";
+            lineup += fwds.subList(0, MIN_FWD).stream().map(player -> player.getPlayerId().toString())
+                    .collect(Collectors.joining(" ")) + " ";
+            if (gks.subList(1, gks.size()).size() > 0) {
+                lineup += gks.subList(1, gks.size()).stream().map(player -> player.getPlayerId().toString())
+                        .collect(Collectors.joining(" ")) + " ";
+            }
+            if (defs.subList(MIN_DEF, defs.size()).size() > 0) {
+                lineup += defs.subList(MIN_DEF, defs.size()).stream().map(player -> player.getPlayerId().toString())
+                        .collect(Collectors.joining(" ")) + " ";
+            }
+            if (mids.subList(MIN_MID, mids.size()).size() > 0) {
+                lineup += mids.subList(MIN_MID, mids.size()).stream().map(player -> player.getPlayerId().toString())
+                        .collect(Collectors.joining(" ")) + " ";
+            }
+            if (fwds.subList(MIN_FWD, fwds.size()).size() > 0) {
+                lineup += fwds.subList(MIN_FWD, fwds.size()).stream().map(player -> player.getPlayerId().toString())
+                        .collect(Collectors.joining(" "));
+            }
+            lineup = lineup.trim();
         }
-        lineup += playerIn.getPlayerId();
         proposingFantasyTeam.setPlayerIdsInOrder(lineup);
         transaction.setStatus(TransactionStatus.ACCEPTED);
         return transactionRepository.save(transaction);

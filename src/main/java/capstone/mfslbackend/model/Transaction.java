@@ -7,7 +7,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,11 +37,11 @@ public class Transaction {
     @JoinColumn(name = "proposing_fantasy_team_id", nullable = false)
     private FantasyTeam proposingFantasyTeam;
 
-    @OneToOne(optional = false, orphanRemoval = true)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "player_in_player_id", nullable = false)
     private Player playerIn;
 
-    @OneToOne(orphanRemoval = true)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "player_out_player_id")
     private Player playerOut;
 
