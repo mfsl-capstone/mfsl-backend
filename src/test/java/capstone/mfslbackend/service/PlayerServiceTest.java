@@ -37,7 +37,9 @@ public class PlayerServiceTest {
     private TeamService teamService;
     @Mock
     private ApiService apiService;
-    private final PlayerService playerService = new PlayerService(playerRepository, teamService, apiService, "http://test.url");
+    @Mock
+    private GameService gameService;
+    private final PlayerService playerService = new PlayerService(playerRepository, teamService, apiService, "http://test.url", gameService);
     @BeforeEach
     public void setup() throws IOException {
         Player player1 = new Player(1L, "player1", "Attacker", "p1.pic", 9, null, null);
@@ -63,6 +65,7 @@ public class PlayerServiceTest {
         ReflectionTestUtils.setField(playerService, "teamService", teamService);
         ReflectionTestUtils.setField(playerService, "playerRepository", playerRepository);
         ReflectionTestUtils.setField(playerService, "baseUrl", "http://test.url");
+        ReflectionTestUtils.setField(playerService, "gameService", gameService);
 
         TeamResponse teamResponse = new TeamResponse(1L, "team1", "team1_url", null, null, null, null, null, null);
         PlayerResponse playerResponse1 = new PlayerResponse(1L, "player1", "p1.pic", 9, "Attacker");

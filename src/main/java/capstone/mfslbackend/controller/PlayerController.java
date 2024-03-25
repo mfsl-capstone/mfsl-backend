@@ -1,5 +1,6 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.service.PlayerService;
@@ -50,6 +51,12 @@ public class PlayerController {
     public ResponseEntity<List<Player>> createAllPlayers() {
         return playerService.createAllPlayersForAllTeams();
     }
+
+    @GetMapping("{playerId}/future-games")
+    public ResponseEntity<List<Game>> getFutureGamesForPlayer(@PathVariable Long playerId) {
+        return ResponseEntity.ok(playerService.getFutureGamesForPlayer(playerId));
+    }
+
     @GetMapping("{playerId}/game-stats")
     public ResponseEntity<List<PlayerGameStats>> getPlayerGameStats(@PathVariable Long playerId) {
         List<PlayerGameStats> playerGameStats = playerService.getPlayerGameStats(playerId);
