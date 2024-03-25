@@ -3,6 +3,7 @@ package capstone.mfslbackend.service;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.error.Error500;
 import capstone.mfslbackend.model.Player;
+import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.PlayerRepository;
 import capstone.mfslbackend.response.container.PlayersContainer;
@@ -160,5 +161,9 @@ public class PlayerService {
             throw new Error404("No players found for player: " + playerId + " in season: " + season);
         }
         return createPlayer(playersContainer.getResponse().get(0).getPlayer(), null);
+    }
+
+    public List<PlayerGameStats> getPlayerGameStats(Long playerId) {
+        return getPlayerById(playerId).getPlayerGameStats();
     }
 }

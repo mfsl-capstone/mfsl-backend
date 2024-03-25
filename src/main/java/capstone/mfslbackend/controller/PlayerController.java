@@ -1,6 +1,7 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.model.Player;
+import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.service.PlayerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -48,5 +49,10 @@ public class PlayerController {
     @PostMapping("create-all")
     public ResponseEntity<List<Player>> createAllPlayers() {
         return playerService.createAllPlayersForAllTeams();
+    }
+    @GetMapping("{playerId}/game-stats")
+    public ResponseEntity<List<PlayerGameStats>> getPlayerGameStats(@PathVariable Long playerId) {
+        List<PlayerGameStats> playerGameStats = playerService.getPlayerGameStats(playerId);
+        return ResponseEntity.ok(playerGameStats);
     }
 }
