@@ -169,7 +169,7 @@ public class PlayerService {
     public List<Game> getFutureGamesForPlayer(Long playerId) {
         Player player = getPlayerById(playerId);
         LocalDate now = LocalDate.now();
-        return gameService.getGamesBetweenDates(now, now.plusDays(365)).stream()
+        return gameService.getGamesBetweenDates(now, now.plusYears(1)).stream()
                 .filter(game -> game.getHomeTeam().equals(player.getTeam()) || game.getAwayTeam().equals(player.getTeam()))
                 .toList();
     }
