@@ -4,6 +4,7 @@ import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.error.Error500;
 import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
+import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.PlayerRepository;
 import capstone.mfslbackend.response.container.PlayersContainer;
@@ -172,5 +173,9 @@ public class PlayerService {
         return gameService.getGamesBetweenDates(now, now.plusYears(1)).stream()
                 .filter(game -> game.getHomeTeam().equals(player.getTeam()) || game.getAwayTeam().equals(player.getTeam()))
                 .toList();
+    }
+  
+    public List<PlayerGameStats> getPlayerGameStats(Long playerId) {
+        return getPlayerById(playerId).getPlayerGameStats();
     }
 }
