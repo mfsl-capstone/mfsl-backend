@@ -2,6 +2,7 @@ package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.error.Error500;
+import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.PlayerRepository;
@@ -19,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,13 +32,15 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final TeamService teamService;
     private final ApiService apiService;
+    private final GameService gameService;
 
     public PlayerService(PlayerRepository playerRepository, TeamService teamService, ApiService apiService,
-                         @Value("${base.url}") String baseUrl) {
+                         @Value("${base.url}") String baseUrl, GameService gameService) {
         this.playerRepository = playerRepository;
         this.teamService = teamService;
         this.apiService = apiService;
         this.baseUrl = baseUrl;
+        this.gameService = gameService;
     }
 
     public ResponseEntity<List<Player>> createAllPlayersForAllTeams() {
@@ -160,5 +164,13 @@ public class PlayerService {
             throw new Error404("No players found for player: " + playerId + " in season: " + season);
         }
         return createPlayer(playersContainer.getResponse().get(0).getPlayer(), null);
+    }
+
+    public List<Game> getFutureGamesForPlayer(Long playerId) {
+        Player player = getPlayerById(playerId);
+        LocalDate now = LocalDate.now();
+        return gameService.getGamesBetweenDates(now, now.plusDays(365)).stream()
+                .filter(game -> game.getHomeTeam().equals(player.getTeam()) || game.getAwayTeam().equals(player.getTeam()))
+                .toList();
     }
 }
