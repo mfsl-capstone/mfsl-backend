@@ -150,7 +150,7 @@ public class FantasyLeagueService {
 
         LocalDate startDate = LocalDate.now();
         DayOfWeek dayOfWeek = startDate.getDayOfWeek();
-        int daysUntilTuesday=0;
+        int daysUntilTuesday = 0;
         if (dayOfWeek != DayOfWeek.TUESDAY) {
             daysUntilTuesday = DayOfWeek.TUESDAY.getValue() - dayOfWeek.getValue();
             if (daysUntilTuesday < 0) {
@@ -193,7 +193,7 @@ public class FantasyLeagueService {
         }
 
 
-        public List<FantasyWeek> getFantasyLeagueMatchups (Long leagueId,int weekNumber){
+        public List<FantasyWeek> getFantasyLeagueMatchups(Long leagueId, int weekNumber) {
 
             List<FantasyWeek> schedule = getFantasyWeeksByLeagueId(leagueId);
             List<FantasyWeek> leagueMatchups = new ArrayList<>();
@@ -218,7 +218,7 @@ public class FantasyLeagueService {
             return leagueMatchups;
         }
 
-        public List<FantasyWeek> getFantasyWeeksByLeagueId (Long leagueId){
+        public List<FantasyWeek> getFantasyWeeksByLeagueId(Long leagueId) {
             FantasyLeague league = getFantasyLeagueById(leagueId);
             Set<FantasyTeam> teams = league.getFantasyTeams();
             Set<FantasyWeek> weeks = new HashSet<>();
