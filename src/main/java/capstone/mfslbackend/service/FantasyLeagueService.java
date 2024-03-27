@@ -30,7 +30,8 @@ public class FantasyLeagueService {
     private final FantasyTeamRepository fantasyTeamRepository;
     private final GameService gameService;
     private final FantasyWeekRepository fantasyWeekRepository;
-
+    private static final int WEEKS_IN_MONTH = 4;
+    private static final int MIN_GAMES = 4;
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
                                 FantasyTeamRepository fantasyTeamRepository, GameService gameService, PlayerService playerService, FantasyWeekRepository fantasyWeekRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
@@ -162,35 +163,35 @@ public class FantasyLeagueService {
         int weekNumber = 1;
         int isOneMonth;
 
-            while (gameService.getGamesBetweenDates(startDate, endDate) != null) {
-                for (List<FantasyTeam> weekMatches : schedule) {
-                    for (int matchIndex = 0; matchIndex < weekMatches.size(); matchIndex += 2) {
-                        FantasyTeam teamA = weekMatches.get(matchIndex);
-                        FantasyTeam teamB = weekMatches.get(matchIndex + 1);
+        while (gameService.getGamesBetweenDates(startDate, endDate) != null) {
+            for (List<FantasyTeam> weekMatches : schedule) {
+                for (int matchIndex = 0; matchIndex < weekMatches.size(); matchIndex += 2) {
+                    FantasyTeam teamA = weekMatches.get(matchIndex);
+                    FantasyTeam teamB = weekMatches.get(matchIndex + 1);
 
-                        FantasyWeek fantasyWeek = new FantasyWeek();
-                        fantasyWeek.setFantasyTeamA(teamA);
-                        fantasyWeek.setFantasyTeamB(teamB);
-                        fantasyWeek.setWeekNumber(weekNumber);
-                        fantasyWeek.setStartDate(startDate);
+                    FantasyWeek fantasyWeek = new FantasyWeek();
+                    fantasyWeek.setFantasyTeamA(teamA);
+                    fantasyWeek.setFantasyTeamB(teamB);
+                    fantasyWeek.setWeekNumber(weekNumber);
+                    fantasyWeek.setStartDate(startDate);
 
-                        isOneMonth = 1;
+                    isOneMonth = 1;
 
-                        while (gameService.getGamesBetweenDates(startDate, endDate).size() < 4 && isOneMonth < 4) {
-                            endDate = endDate.plusWeeks(1);
-                            isOneMonth++;
-                        }
-
-                        fantasyWeek.setEndDate(endDate);
-
-                        fantasyWeekRepository.save(fantasyWeek);
-                        fantasyWeeks.add(fantasyWeek);
+                    while (gameService.getGamesBetweenDates(startDate, endDate).size() < MIN_GAMES && isOneMonth < WEEKS_IN_MONTH) {
+                        endDate = endDate.plusWeeks(1);
+                        isOneMonth++;
                     }
-                    weekNumber += 1;
+
+                    fantasyWeek.setEndDate(endDate);
+
+                    fantasyWeekRepository.save(fantasyWeek);
+                    fantasyWeeks.add(fantasyWeek);
                 }
+                weekNumber += 1;
             }
-            return getFantasyWeeksByLeagueId(leagueId);
         }
+        return getFantasyWeeksByLeagueId(leagueId);
+    }
 
 
         public List<FantasyWeek> getFantasyLeagueMatchups(Long leagueId, int weekNumber) {
