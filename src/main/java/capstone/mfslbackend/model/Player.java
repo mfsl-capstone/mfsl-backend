@@ -30,6 +30,7 @@ public class Player {
     private String position;
     private String url;
     private Integer number;
+    private Integer points;
 
     @ManyToOne()
     @JoinColumn(name = "team_id")
