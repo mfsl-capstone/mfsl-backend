@@ -26,7 +26,7 @@ public class TransactionService {
     private static final int MAX_DEF = 5;
     private static final int DRAFT_MIN_MID = 4;
     private static final int MAX_MID = 5;
-    private static final int MIN_FWD = 2;
+    private static final int DRAFT_MIN_FWD = 2;
     private static final int MAX_ATT = 3;
     private static final int TOTAL_DEF = 9;
     private static final int TOTAL_MID = 9;
@@ -119,7 +119,7 @@ public class TransactionService {
         int missingGkCount = MIN_GK;
         int missingDefCount = DRAFT_MIN_DEF;
         int missingMidCount = DRAFT_MIN_MID;
-        int missingFwdCount = MIN_FWD;
+        int missingFwdCount = DRAFT_MIN_FWD;
         for (Player player : players) {
             switch (player.getPosition()) {
                 case "Goalkeeper" -> {
@@ -178,7 +178,7 @@ public class TransactionService {
                     .collect(Collectors.joining(" ")) + " ";
             lineup += mids.subList(0, DRAFT_MIN_MID).stream().map(player -> player.getPlayerId().toString())
                     .collect(Collectors.joining(" ")) + " ";
-            lineup += fwds.subList(0, MIN_FWD).stream().map(player -> player.getPlayerId().toString())
+            lineup += fwds.subList(0, DRAFT_MIN_FWD).stream().map(player -> player.getPlayerId().toString())
                     .collect(Collectors.joining(" ")) + " ";
             if (gks.subList(1, gks.size()).size() > 0) {
                 lineup += gks.subList(1, gks.size()).stream().map(player -> player.getPlayerId().toString())
@@ -192,8 +192,8 @@ public class TransactionService {
                 lineup += mids.subList(DRAFT_MIN_MID, mids.size()).stream().map(player -> player.getPlayerId().toString())
                         .collect(Collectors.joining(" ")) + " ";
             }
-            if (fwds.subList(MIN_FWD, fwds.size()).size() > 0) {
-                lineup += fwds.subList(MIN_FWD, fwds.size()).stream().map(player -> player.getPlayerId().toString())
+            if (fwds.subList(DRAFT_MIN_FWD, fwds.size()).size() > 0) {
+                lineup += fwds.subList(DRAFT_MIN_FWD, fwds.size()).stream().map(player -> player.getPlayerId().toString())
                         .collect(Collectors.joining(" "));
             }
             lineup = lineup.trim();
@@ -267,7 +267,7 @@ public class TransactionService {
                 default -> throw new Error400("Invalid position for player with id " + player.getPlayerId());
             }
         }
-        return gkCount > MIN_GK && defCount > DRAFT_MIN_DEF && midCount > DRAFT_MIN_MID && fwdCount > MIN_FWD;
+        return gkCount > MIN_GK && defCount > DRAFT_MIN_DEF && midCount > DRAFT_MIN_MID && fwdCount > DRAFT_MIN_FWD;
     }
     public Transaction getTransactionById(Long id) {
         return transactionRepository.findById(id)
@@ -278,7 +278,7 @@ public class TransactionService {
         String position = ingoingPlayer.getPosition();
         Long fantasyTeamId = proposingFantasyTeam.getId();
 
-        String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(",");
+        String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
         List<Long> playerIdsList = Arrays.stream(playerIdsArray)
                 .map(Long::parseLong)
                 .toList();
@@ -348,7 +348,7 @@ public class TransactionService {
             }
 
         }
+
         return true;
     }
-
 }
