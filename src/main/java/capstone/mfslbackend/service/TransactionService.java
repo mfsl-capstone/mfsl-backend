@@ -20,8 +20,15 @@ public class TransactionService {
     private static final int MAX_PLAYERS = 15;
     private static final int MIN_GK = 1;
     private static final int MIN_DEF = 4;
+    private static final int MAX_DEF = 5;
     private static final int MIN_MID = 4;
+    private static final int MAX_MID = 5;
     private static final int MIN_FWD = 2;
+
+    private static final int MIN_ATT = 1;
+    private static final int MAX_ATT = 4;
+
+
     private final TransactionRepository transactionRepository;
     private final FantasyTeamService fantasyTeamService;
     private final FantasyLeagueService fantasyLeagueService;
@@ -55,9 +62,56 @@ public class TransactionService {
         }
 
         Player playerIn = playerService.getPlayerById(incomingPlayerId);
-        transaction.setPlayerIn(playerIn);
+        Player outgoingPlayer = playerService.getPlayerById(outgoingPlayerId);
+        String position = playerIn.getPosition();
 
-        transaction.setStatus(TransactionStatus.PROPOSED);
+        if (playerIn.getTeam() == null) { //it means it is a free agent
+
+            if (outgoingPlayer.getPosition().equals("Goalkeeper") && !(position.equals("Goalkeeper"))) {
+                    transaction.setStatus(TransactionStatus.REJECTED);
+                    throw new Error400("Fantasy team with id " + fantasyTeamId + " needs 1 goalkeeper");
+            } else if (position.equals("Goalkeeper")) {
+                if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Goalkeeper")).count() == MIN_GK) {
+                    transaction.setStatus(TransactionStatus.REJECTED);
+                    throw new Error400("Fantasy team with id " + fantasyTeamId + " already has a goalkeeper");
+                }
+            } else if (position.equals("Defender")) {
+                if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Defender")).count() == MAX_DEF && !outgoingPlayer.getPosition().equals("Defender")) {
+                        transaction.setStatus(TransactionStatus.REJECTED);
+                        throw new Error400("Fantasy team with id " + fantasyTeamId + " already has the maximum number of defenders");
+                }  else if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Defender")).count() <= MIN_DEF && outgoingPlayer.getPosition().equals("Defender")) {
+                transaction.setStatus(TransactionStatus.REJECTED);
+                throw new Error400("Fantasy team with id " + fantasyTeamId + " needs at least 3 defenders");
+            }
+            } else if (position.equals("Midfielder")) {
+                if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Midfielder")).count() == MAX_MID && !outgoingPlayer.getPosition().equals("Midfielder")) {
+                        transaction.setStatus(TransactionStatus.REJECTED);
+                        throw new Error400("Fantasy team with id " + fantasyTeamId + " already has the maximum number of midfielders");
+                } else if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Midfielder")).count() <= MIN_MID && outgoingPlayer.getPosition().equals("Midfielder")) {
+                transaction.setStatus(TransactionStatus.REJECTED);
+                throw new Error400("Fantasy team with id " + fantasyTeamId + " needs at least 3 midfielders");
+            }
+            } else if (position.equals("Attacker")) {
+                if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Attacker")).count() == MAX_ATT && !outgoingPlayer.getPosition().equals("Attacker")) {
+                    transaction.setStatus(TransactionStatus.REJECTED);
+                    throw new Error400("Fantasy team with id " + fantasyTeamId + " already has the maximum number of attackers");
+                } else if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Attacker")).count() <= MIN_ATT && outgoingPlayer.getPosition().equals("Attacker")) {
+                    transaction.setStatus(TransactionStatus.REJECTED);
+                    throw new Error400("Fantasy team with id " + fantasyTeamId + " needs at least 1 attacker");
+                }
+            }
+
+            //if it satisfies minimum and max requirements, the transaction is accepted
+            String replacement = proposingFantasyTeam.getPlayerIdsInOrder().replace(outgoingPlayerId.toString(), incomingPlayerId.toString());
+            proposingFantasyTeam.setPlayerIdsInOrder(replacement);
+
+            transaction.setPlayerIn(playerIn);
+            transaction.setStatus(TransactionStatus.ACCEPTED);
+
+        } else {
+            transaction.setPlayerIn(playerIn);
+            transaction.setStatus(TransactionStatus.PROPOSED);
+        }
 
         return transactionRepository.save(transaction);
     }
