@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class TransactionService {
     private static final int MAX_PLAYERS = 15;
 
-    private static final int PLAYERS_IN_TEAM = 11;
+    private static final int PLAYERS_IN_STARTING_LINEUP= 11;
     private static final int MIN_GK = 1;
     private static final int DRAFT_MIN_DEF = 4;
     private static final int MAX_DEF = 5;
@@ -288,7 +288,7 @@ public class TransactionService {
                 .count();
 
         long startingDefenders = playerIdsList.stream()
-                .limit(PLAYERS_IN_TEAM)
+                .limit(PLAYERS_IN_STARTING_LINEUP)
                 .map(playerService::getPlayerById)
                 .filter(player -> player != null && player.getPosition().equals("Defender"))
                 .count();
@@ -298,7 +298,7 @@ public class TransactionService {
                 .count();
 
         long startingMidfielders = playerIdsList.stream()
-                .limit(PLAYERS_IN_TEAM)
+                .limit(PLAYERS_IN_STARTING_LINEUP)
                 .map(playerService::getPlayerById)
                 .filter(player -> player != null && player.getPosition().equals("Midfielder"))
                 .count();
@@ -308,14 +308,14 @@ public class TransactionService {
                 .count();
 
         long startingAttackers = playerIdsList.stream()
-                .limit(PLAYERS_IN_TEAM)
+                .limit(PLAYERS_IN_STARTING_LINEUP)
                 .map(playerService::getPlayerById)
                 .filter(player -> player != null && player.getPosition().equals("Attacker"))
                 .count();
 
 
         long startingGoalkeepers = playerIdsList.stream()
-                .limit(PLAYERS_IN_TEAM)
+                .limit(PLAYERS_IN_STARTING_LINEUP)
                 .map(playerService::getPlayerById)
                 .filter(player -> player != null && player.getPosition().equals("Goalkeeper"))
                 .count();
