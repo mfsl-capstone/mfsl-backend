@@ -108,7 +108,6 @@ public class PlayerGameStatsServiceTest {
         ReflectionTestUtils.setField(playerGameStatsService, "minutesPoints", minutesPoints);
         ReflectionTestUtils.setField(playerGameStatsService, "minutesThreshold", minutesThreshold);
         ReflectionTestUtils.setField(playerGameStatsService, "penaltyCommittedPoints", penaltyCommittedPoints);
-        ReflectionTestUtils.setField(playerGameStatsService, "foulsCommittedThreshold", foulsCommittedThreshold);
         ReflectionTestUtils.setField(playerGameStatsService, "penaltyMissedPoints", penaltyMissedPoints);
         ReflectionTestUtils.setField(playerGameStatsService, "savesPoints", savesPoints);
         ReflectionTestUtils.setField(playerGameStatsService, "savesThreshold", savesThreshold);
