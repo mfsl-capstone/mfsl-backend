@@ -54,6 +54,8 @@ public class TransactionService {
             transaction.setReceivingFantasyTeam(takenTeam);
         }
 
+//        if there is no taken team: do the swap and set status to accepted
+
         Player playerIn = playerService.getPlayerById(incomingPlayerId);
         transaction.setPlayerIn(playerIn);
 

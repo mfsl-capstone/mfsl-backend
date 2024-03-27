@@ -11,12 +11,12 @@ import capstone.mfslbackend.response.dto.PlayersStatsResponse;
 import capstone.mfslbackend.response.dto.TeamResponse;
 import capstone.mfslbackend.response.dto.stats.StatisticResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +41,6 @@ public class PlayerGameStatsService {
     private int minutesThreshold;
     @Value("${PENALTY.COMMITTED.POINTS}")
     private int penaltyCommittedPoints;
-    @Value("${FOULS.COMMITTED.THRESHOLD}")
-    private int foulsCommittedThreshold;
     @Value("${PENALTY.MISSED.POINTS}")
     private int penaltyMissedPoints;
     @Value("${SAVES.POINTS}")
@@ -111,7 +109,20 @@ public class PlayerGameStatsService {
         Player player = playerService.getPlayerById(playerId);
         return playerGameStatsRepository.findByPlayer(player);
     }
-    public ResponseEntity<List<PlayerGameStats>> createPlayerGameStats(String fixtureId) {
+    public List<PlayerGameStats> createAllPlayerGameStatsBetweenDates(LocalDate startDate, LocalDate endDate) {
+        List<PlayerGameStats> playerGameStats = new ArrayList<>();
+        List<Game> games = gameService.getGamesBetweenDates(startDate, endDate);
+        games.forEach(game -> {
+            try {
+                playerGameStats.addAll(createPlayerGameStats(game.getId().toString()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return playerGameStats;
+    }
+
+    public List<PlayerGameStats> createPlayerGameStats(String fixtureId) {
         List<PlayerGameStats> playerGameStats = new ArrayList<>();
         StatsContainer statsResponse;
         StatsContainer statsResponse2;
@@ -172,16 +183,16 @@ public class PlayerGameStatsService {
                 try {
                     playerService.getPlayerById(players.getPlayer().getId());
                 } catch (Error404 e) {
-                    playerService.createPlayerById(players.getPlayer().getId(), statsResponse2.getResponse().get(0).getLeague().getSeason());
+                    playerService.createPlayerById(players.getPlayer().getId());
                 }
-                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, playerService.getPlayerById(players.getPlayer().getId()))
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, playerService.getPlayerById(players.getPlayer().getId()), response.getTeam())
                             .ifPresent(playerGameStats::add);
             }
         }
-        return ResponseEntity.ok(playerGameStats);
+        return playerGameStats;
     }
 
-    private Optional<PlayerGameStats> convert(StatisticResponse stat, String round, String score, String opp, Game game, Player player) {
+    private Optional<PlayerGameStats> convert(StatisticResponse stat, String round, String score, String opp, Game game, Player player, TeamResponse team) {
         PlayerGameStats playerGameStats = new PlayerGameStats();
 
         if (stat == null) {
@@ -244,10 +255,10 @@ public class PlayerGameStatsService {
         boolean cleanSheet = false;
         if (game != null) {
             playerGameStats.setGame(game);
-            if (game.getAwayTeamScore() == 0  && player.getTeam().equals(game.getHomeTeam())) {
+            if (game.getAwayTeamScore() == 0  && team.getId() == game.getHomeTeam().getTeamId()) {
                 cleanSheet = true;
             }
-            if (game.getHomeTeamScore() == 0 && player.getTeam().equals(game.getAwayTeam())) {
+            if (game.getHomeTeamScore() == 0 && team.getId() == game.getAwayTeam().getTeamId()) {
                 cleanSheet = true;
             }
         }
@@ -260,6 +271,7 @@ public class PlayerGameStatsService {
 
     private int calculatePoints(PlayerGameStats playerGameStats, boolean cleanSheet) {
         int points = 0;
+        playerGameStats.setCleanSheet(cleanSheet);
         points -= playerGameStats.getYellowCards();
         playerGameStats.setYellowCardPoints(playerGameStats.getYellowCards() * yellowCardPoints);
         points += playerGameStats.getRedCards() * redCardPoints;
@@ -272,8 +284,6 @@ public class PlayerGameStatsService {
         }
         points += playerGameStats.getPenaltiesCommitted() * penaltyCommittedPoints;
         playerGameStats.setPenaltyCommittedPoints(playerGameStats.getPenaltiesCommitted() * penaltyCommittedPoints);
-        points -= playerGameStats.getFoulsCommitted() / foulsCommittedThreshold;
-        playerGameStats.setFoulsCommittedPoints(-playerGameStats.getFoulsCommitted() / foulsCommittedThreshold);
         points += playerGameStats.getPenaltiesMissed() * penaltyMissedPoints;
         playerGameStats.setPenaltiesMissedPoints(playerGameStats.getPenaltiesMissed() * penaltyMissedPoints);
         switch (playerGameStats.getPlayer().getPosition()) {
