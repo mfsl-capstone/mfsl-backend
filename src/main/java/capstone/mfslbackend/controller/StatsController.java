@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,11 +21,15 @@ public class StatsController {
     StatsController(PlayerGameStatsService playerGameStatsService) {
         this.playerGameStatsService = playerGameStatsService;
     }
-    @PostMapping("")
-    public ResponseEntity<List<PlayerGameStats>> createGameStats(@RequestParam String fixtureId) throws Error404 {
-        return playerGameStatsService.createPlayerGameStats(fixtureId);
+    @PostMapping("{fixtureId}")
+    public ResponseEntity<List<PlayerGameStats>> createGameStats(@PathVariable String fixtureId) throws Error404 {
+        return ResponseEntity.ok(playerGameStatsService.createPlayerGameStats(fixtureId));
     }
-
+    @PostMapping()
+    public ResponseEntity<List<PlayerGameStats>> createGameStatsBetweenDate(@RequestParam LocalDate start,
+                                                                            @RequestParam LocalDate end) {
+        return ResponseEntity.ok(playerGameStatsService.createAllPlayerGameStatsBetweenDates(start, end));
+    }
     @GetMapping("{id}")
     public ResponseEntity<PlayerGameStats> getGameStats(@PathVariable Long id) {
         PlayerGameStats playerGameStats = playerGameStatsService.getPlayerGameStatsById(id);

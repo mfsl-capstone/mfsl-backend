@@ -32,7 +32,7 @@ public class GameController {
     }
 
     @GetMapping("round")
-    public ResponseEntity<List<Game>> getGamesByRound(@RequestParam String round) throws Error404 {
+    public ResponseEntity<List<Game>> getGamesByRound(@RequestParam int round) throws Error404 {
         List<Game> games = gameService.getGamesByRound(round);
         return ResponseEntity.ok(games);
     }
