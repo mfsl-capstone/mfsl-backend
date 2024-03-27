@@ -32,6 +32,8 @@ public class FantasyLeagueService {
     private final FantasyWeekRepository fantasyWeekRepository;
     private static final int WEEKS_IN_MONTH = 4;
     private static final int MIN_GAMES = 4;
+
+    private static final int DAY_IN_WEEK = 7;
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
                                 FantasyTeamRepository fantasyTeamRepository, GameService gameService, PlayerService playerService, FantasyWeekRepository fantasyWeekRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
@@ -155,7 +157,7 @@ public class FantasyLeagueService {
         if (dayOfWeek != DayOfWeek.TUESDAY) {
             daysUntilTuesday = DayOfWeek.TUESDAY.getValue() - dayOfWeek.getValue();
             if (daysUntilTuesday < 0) {
-                daysUntilTuesday += 7;
+                daysUntilTuesday += DAY_IN_WEEK;
             }
         }
         startDate = startDate.plusDays(daysUntilTuesday);
