@@ -86,6 +86,7 @@ public class PlayerService {
                     playerResponse.getPosition(),
                     playerResponse.getPhoto(),
                     playerResponse.getNumber(),
+                    0,
                     team, null);
             playerRepository.save(player);
             return player;

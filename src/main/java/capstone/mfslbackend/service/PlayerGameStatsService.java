@@ -180,13 +180,15 @@ public class PlayerGameStatsService {
             }
 
             for (PlayerStatsResponse players : response.getPlayers()) {
+                Player p;
                 try {
-                    playerService.getPlayerById(players.getPlayer().getId());
+                    p = playerService.getPlayerById(players.getPlayer().getId());
                 } catch (Error404 e) {
-                    playerService.createPlayerById(players.getPlayer().getId());
+                    p = playerService.createPlayerById(players.getPlayer().getId());
                 }
-                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, playerService.getPlayerById(players.getPlayer().getId()), response.getTeam())
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam())
                             .ifPresent(playerGameStats::add);
+                p.setPoints(p.getPlayerGameStats().stream().map(PlayerGameStats::getPoints).reduce(0, Integer::sum));
             }
         }
         return playerGameStats;
