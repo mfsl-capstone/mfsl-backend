@@ -23,15 +23,14 @@ public class TransactionService {
     private static final int PLAYERS_IN_TEAM = 11;
     private static final int MIN_GK = 1;
     private static final int DRAFT_MIN_DEF = 4;
-    private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
     private static final int DRAFT_MIN_MID = 4;
-    private static final int MIN_MID = 3;
     private static final int MAX_MID = 5;
     private static final int MIN_FWD = 2;
-    private static final int MIN_ATT = 1;
     private static final int MAX_ATT = 3;
     private static final int TOTAL_DEF = 9;
+    private static final int TOTAL_MID = 9;
+    private static final int TOTAL_ATT = 7;
 
 
     private final TransactionRepository transactionRepository;
@@ -294,6 +293,27 @@ public class TransactionService {
                 .filter(player -> player != null && player.getPosition().equals("Defender"))
                 .count();
 
+        long totalMidfielders = proposingFantasyTeam.getPlayers().stream()
+                .filter(player -> player.getPosition().equals("Midfielder"))
+                .count();
+
+        long startingMidfielders = playerIdsList.stream()
+                .limit(PLAYERS_IN_TEAM)
+                .map(playerService::getPlayerById)
+                .filter(player -> player != null && player.getPosition().equals("Midfielder"))
+                .count();
+
+        long totalAttackers = proposingFantasyTeam.getPlayers().stream()
+                .filter(player -> player.getPosition().equals("Attacker"))
+                .count();
+
+        long startingAttackers = playerIdsList.stream()
+                .limit(PLAYERS_IN_TEAM)
+                .map(playerService::getPlayerById)
+                .filter(player -> player != null && player.getPosition().equals("Attacker"))
+                .count();
+
+
         long startingGoalkeepers = playerIdsList.stream()
                 .limit(PLAYERS_IN_TEAM)
                 .map(playerService::getPlayerById)
@@ -314,17 +334,17 @@ public class TransactionService {
             }
 
         } else if (position.equals("Midfielder")) {
-            if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Midfielder")).count() == MAX_MID && !outgoingPlayer.getPosition().equals("Midfielder")) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " already has the maximum number of midfielders");
-            } else if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Midfielder")).count() <= MIN_MID && outgoingPlayer.getPosition().equals("Midfielder")) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " needs at least 3 midfielders");
+            if (totalMidfielders > TOTAL_MID) {
+                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 9 midfielders in total");
+            } else if (startingMidfielders > MAX_MID) {
+                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 5 midfielders in the starting lineup");
             }
 
         } else if (position.equals("Attacker")) {
-            if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Attacker")).count() == MAX_ATT && !outgoingPlayer.getPosition().equals("Attacker")) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " already has the maximum number of attackers");
-            } else if (proposingFantasyTeam.getPlayers().stream().filter(player -> player.getPosition().equals("Attacker")).count() <= MIN_ATT && outgoingPlayer.getPosition().equals("Attacker")) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " needs at least 1 attacker");
+            if (totalAttackers > TOTAL_ATT) {
+                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 7 attackers in total");
+            } else if (startingAttackers > MAX_ATT) {
+                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 3 attackers in the starting lineup");
             }
 
         }
