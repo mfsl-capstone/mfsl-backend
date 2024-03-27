@@ -108,7 +108,6 @@ public class PlayerGameStatsServiceTest {
         ReflectionTestUtils.setField(playerGameStatsService, "minutesPoints", minutesPoints);
         ReflectionTestUtils.setField(playerGameStatsService, "minutesThreshold", minutesThreshold);
         ReflectionTestUtils.setField(playerGameStatsService, "penaltyCommittedPoints", penaltyCommittedPoints);
-        ReflectionTestUtils.setField(playerGameStatsService, "foulsCommittedThreshold", foulsCommittedThreshold);
         ReflectionTestUtils.setField(playerGameStatsService, "penaltyMissedPoints", penaltyMissedPoints);
         ReflectionTestUtils.setField(playerGameStatsService, "savesPoints", savesPoints);
         ReflectionTestUtils.setField(playerGameStatsService, "savesThreshold", savesThreshold);
@@ -207,10 +206,9 @@ public class PlayerGameStatsServiceTest {
 
     @Test
     public void testCreatePlayerGameStats() throws Error404 {
-        ResponseEntity<List<PlayerGameStats>> response = playerGameStatsService.createPlayerGameStats("1");
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
+        List<PlayerGameStats> response = playerGameStatsService.createPlayerGameStats("1");
+        assertNotNull(response);
+        assertEquals(2, response.size());
     }
 
     @Test
