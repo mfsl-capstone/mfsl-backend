@@ -29,7 +29,7 @@ public class PlayerController {
         Player player = playerService.getPlayerById(playerId);
         return ResponseEntity.ok(player);
     }
-    @GetMapping()
+    @PostMapping()
     public ResponseEntity<List<Player>> getPlayers(@RequestParam(required = false, defaultValue = "desc") String sortDirection,
                                                    @RequestParam(required = false, defaultValue = "playerId") String sortField,
                                                    @RequestParam(required = false, defaultValue = "100") int limit,

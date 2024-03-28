@@ -2,17 +2,14 @@ package capstone.mfslbackend.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -28,9 +25,14 @@ public class FantasyLeague {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String leagueName;
+    private LocalDateTime draftDate;
 
     @JsonIgnore
     @OneToMany(mappedBy = "fantasyLeague", orphanRemoval = true)
     private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
+
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "draft_id")
+    private Draft draft;
 
 }

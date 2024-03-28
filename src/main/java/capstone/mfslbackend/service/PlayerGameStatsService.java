@@ -12,7 +12,7 @@ import capstone.mfslbackend.response.dto.TeamResponse;
 import capstone.mfslbackend.response.dto.stats.StatisticResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
@@ -188,7 +188,7 @@ public class PlayerGameStatsService {
                 }
                 convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam())
                             .ifPresent(playerGameStats::add);
-                p.setPoints(p.getPlayerGameStats().stream().map(PlayerGameStats::getPoints).reduce(0, Integer::sum));
+                p.setPoints(CollectionUtils.emptyIfNull(p.getPlayerGameStats()).stream().map(PlayerGameStats::getPoints).reduce(0, Integer::sum));
             }
         }
         return playerGameStats;

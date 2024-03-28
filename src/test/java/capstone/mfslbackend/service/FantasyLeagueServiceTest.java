@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 
@@ -22,14 +24,14 @@ public class FantasyLeagueServiceTest {
     @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(fantasyLeagueService, "fantasyLeagueRepository", fantasyLeagueRepository);
-        FantasyLeague fantasyLeague = new FantasyLeague(1L, "Test League", null);
+        FantasyLeague fantasyLeague = new FantasyLeague(1L, "Test League", LocalDateTime.now(), null);
         lenient().when(fantasyLeagueRepository.save(any())).thenReturn(fantasyLeague);
     }
 
     @Test
     public void testCreateFantasyLeague() {
         String name = "Test League";
-        FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(name);
+        FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(name, LocalDateTime.now());
         System.out.println(fantasyLeague);
         assert(fantasyLeague.getLeagueName().equals(name));
         assert(fantasyLeague.getId() == 1L);

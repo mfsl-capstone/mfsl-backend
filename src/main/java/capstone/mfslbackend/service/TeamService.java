@@ -93,6 +93,10 @@ public class TeamService {
         List<Team> teams = teamRepository.findAll();
         return teams;
     }
+    public List<String> getAllTeamNames() {
+        List<Team> teams = teamRepository.findAll();
+        return teams.stream().map(Team::getName).toList();
+    }
 
     public void addGameToTeam(Team team, Game game) {
         if (!team.getGames().contains(game)) {

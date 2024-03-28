@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,8 +45,9 @@ public class FantasyLeagueService {
         this.gameService = gameService;
     }
 
-    public FantasyLeague createFantasyLeague(String leagueName) {
+    public FantasyLeague createFantasyLeague(String leagueName, LocalDateTime draftDate) {
         FantasyLeague fantasyLeague = new FantasyLeague();
+        fantasyLeague.setDraftDate(draftDate);
         fantasyLeague.setLeagueName(leagueName);
         return fantasyLeagueRepository.save(fantasyLeague);
     }
@@ -114,14 +116,10 @@ public class FantasyLeagueService {
         List<FantasyTeam> teams = new ArrayList<>(league.getFantasyTeams());
 
         int numTeams = teams.size();
-        boolean hasGhostTeam = false;
 
         //schedule builder
-
         if (numTeams % 2 != 0) {
-
             numTeams++;
-
         }
 
         List<List<FantasyTeam>> schedule = new ArrayList<>();
@@ -152,7 +150,7 @@ public class FantasyLeagueService {
 
         }
 
-        LocalDate startDate = LocalDate.now();
+        LocalDate startDate = league.getDraftDate().toLocalDate();
         DayOfWeek dayOfWeek = startDate.getDayOfWeek();
         int daysUntilTuesday = 0;
         if (dayOfWeek != DayOfWeek.TUESDAY) {
