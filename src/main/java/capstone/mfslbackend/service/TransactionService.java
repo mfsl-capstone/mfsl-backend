@@ -296,8 +296,12 @@ public class TransactionService {
         } else if (Arrays.asList(playerIdsArray).contains(outgoingPlayer.getPlayerId().toString()) && outgoingPlayer.getPosition().equals(ingoingPlayer.getPosition())) {
             return true; //CASE 2: Outgoing Player is on starting XI and has same position as incoming player
         } else { //CASE 3: Outgoing Player is on starting XI and has different position as incoming player
-            //Check if substitution with bench player is possible, if true then return true
-            return substitutePlayer(proposingFantasyTeam, ingoingPlayer, benchPlayerIds);
+            if (checkExcedentPositions(proposingFantasyTeam, position)) { //check if we exceed max number of players in each position
+                return true;
+            } else { //Check if substitution with bench player is possible, if true then return true
+                return substitutePlayer(proposingFantasyTeam, outgoingPlayer, benchPlayerIds);
+            }
+
         }
     }
 
@@ -381,10 +385,10 @@ public class TransactionService {
     /*
     * This method substitutes the incoming player on the first eligible bench player in the fantasy team
      */
-    private boolean substitutePlayer(FantasyTeam proposingFantasyTeam, Player ingoingPlayer, String[] benchPlayerIds) {
+    private boolean substitutePlayer(FantasyTeam proposingFantasyTeam, Player outgoingPlayer, String[] benchPlayerIds) {
         for (String benchPlayerId : benchPlayerIds) {
-            if (checkExcedentPositions(proposingFantasyTeam, ingoingPlayer.getPosition())) {
-                proposingFantasyTeam.setPlayerIdsInOrder(changeLineupString(proposingFantasyTeam.getPlayerIdsInOrder(), benchPlayerId, ingoingPlayer.getPlayerId().toString()));
+            if (checkExcedentPositions(proposingFantasyTeam, playerService.getPlayerById(Long.valueOf(benchPlayerId)).getPosition())){
+                proposingFantasyTeam.setPlayerIdsInOrder(changeLineupString(proposingFantasyTeam.getPlayerIdsInOrder(), benchPlayerId, outgoingPlayer.getPlayerId().toString()));
                 return true;
             }
         }
