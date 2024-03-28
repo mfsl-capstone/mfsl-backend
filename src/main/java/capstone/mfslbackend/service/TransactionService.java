@@ -71,7 +71,7 @@ public class TransactionService {
         Player outgoingPlayer = playerOut.get();
 
         if (transaction.getReceivingFantasyTeam() == null) { //it means it is a free agent
-            if (validTransaction(transaction,proposingFantasyTeam, playerIn, outgoingPlayer)) { //if valid, transaction is accepted
+            if (validTransaction(transaction, proposingFantasyTeam, playerIn, outgoingPlayer)) { //if valid, transaction is accepted
                 String replacement = proposingFantasyTeam.getPlayerIdsInOrder().replace(outgoingPlayerId.toString(), incomingPlayerId.toString());
                 proposingFantasyTeam.setPlayerIdsInOrder(replacement);
 
@@ -297,7 +297,7 @@ public class TransactionService {
             if (checkExcedentPositions(proposingFantasyTeam, position)) { //check if we exceed max number of players in each position
                 return true;
             } else { //Check if substitution with bench player is possible, if true then return true
-                return substitutePlayer(outgoingPlayer, proposingFantasyTeam , benchPlayerIds);
+                return substitutePlayer(outgoingPlayer, proposingFantasyTeam, benchPlayerIds);
             }
 
         }
