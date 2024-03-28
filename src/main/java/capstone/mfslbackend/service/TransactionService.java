@@ -289,7 +289,6 @@ public class TransactionService {
 
         String[] benchPlayerIds = Arrays.copyOfRange(playerIdsArray, playerIdsArray.length - PLAYERS_IN_BENCH, playerIdsArray.length);
 
-
         //CASE 1: Outgoing Player is on Bench
         if (Arrays.asList(benchPlayerIds).contains(outgoingPlayer.getPlayerId().toString())) {
             return true;
@@ -387,7 +386,8 @@ public class TransactionService {
      */
     private boolean substitutePlayer(FantasyTeam proposingFantasyTeam, Player outgoingPlayer, String[] benchPlayerIds) {
         for (String benchPlayerId : benchPlayerIds) {
-            if (checkExcedentPositions(proposingFantasyTeam, playerService.getPlayerById(Long.valueOf(benchPlayerId)).getPosition())){
+            //check if we exceed max number of players per position if we were to pick that bench player
+            if (checkExcedentPositions(proposingFantasyTeam, playerService.getPlayerById(Long.valueOf(benchPlayerId)).getPosition())) {
                 proposingFantasyTeam.setPlayerIdsInOrder(changeLineupString(proposingFantasyTeam.getPlayerIdsInOrder(), benchPlayerId, outgoingPlayer.getPlayerId().toString()));
                 return true;
             }
