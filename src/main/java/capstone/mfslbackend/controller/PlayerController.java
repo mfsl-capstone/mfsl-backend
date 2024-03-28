@@ -5,7 +5,6 @@ import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.service.PlayerService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +36,6 @@ public class PlayerController {
                                                    @RequestParam(required = false, defaultValue = "0") int offset,
                                                    @RequestBody(required = false) List<Map<String, String>> filters) {
         List<Player> players = playerService.getPlayers(null, filters, sortDirection, sortField, false, limit, offset);
-        if (CollectionUtils.isEmpty(players)) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(players);
     }
     @PostMapping("create-team")
