@@ -68,10 +68,10 @@ public class TransactionService {
         }
 
         Player playerIn = playerService.getPlayerById(incomingPlayerId);
-        Player outgoingPlayer = playerOut.get();
+        Player outgoingPlayer = playerService.getPlayerById(outgoingPlayerId);
 
         if (transaction.getReceivingFantasyTeam() == null) { //it means it is a free agent
-            if (validTransaction(transaction, proposingFantasyTeam, playerIn, outgoingPlayer)) { //if valid, transaction is accepted
+            if (validTransaction(proposingFantasyTeam, playerIn, outgoingPlayer)) { //if valid, transaction is accepted
                 String replacement = proposingFantasyTeam.getPlayerIdsInOrder().replace(outgoingPlayerId.toString(), incomingPlayerId.toString());
                 proposingFantasyTeam.setPlayerIdsInOrder(replacement);
 
@@ -275,7 +275,7 @@ public class TransactionService {
                 .orElseThrow(() -> new Error404("Transaction with id " + id + " not found"));
     }
 
-    public boolean validTransaction(Transaction transaction, FantasyTeam proposingFantasyTeam, Player ingoingPlayer, Player outgoingPlayer) throws Error404 {
+    public boolean validTransaction(FantasyTeam proposingFantasyTeam, Player ingoingPlayer, Player outgoingPlayer) throws Error404 {
 
         String position = ingoingPlayer.getPosition();
         Long fantasyTeamId = proposingFantasyTeam.getId();
