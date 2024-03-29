@@ -105,6 +105,8 @@ public class TransactionService {
             transaction.setStatus(TransactionStatus.PROPOSED);
         }
         transaction.setPlayerIn(playerIn);
+        transaction.setHasBeenNotified(false);
+
         return transactionRepository.save(transaction);
     }
 

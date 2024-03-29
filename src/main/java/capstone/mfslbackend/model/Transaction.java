@@ -31,6 +31,7 @@ public class Transaction {
     private LocalDate date;
     @Enumerated
     private TransactionStatus status;
+    private boolean hasBeenNotified;
 
     @JsonIgnore
     @ManyToOne(optional = false)
