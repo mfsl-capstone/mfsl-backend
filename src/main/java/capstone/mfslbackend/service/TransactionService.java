@@ -8,7 +8,6 @@ import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.model.TransactionStatus;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.TransactionRepository;
-import org.apache.catalina.Store;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -475,7 +474,7 @@ public class TransactionService {
     /*
     * This method substitutes the incoming player on the first eligible bench player in the fantasy team
      */
-    private boolean substitutePlayer(Transaction transaction, Player ingoingPlayer,Player outgoingPlayer, FantasyTeam proposingFantasyTeam, String[] benchPlayerIds, boolean isSubstituted) {
+    private boolean substitutePlayer(Transaction transaction, Player ingoingPlayer, Player outgoingPlayer, FantasyTeam proposingFantasyTeam, String[] benchPlayerIds, boolean isSubstituted) {
         String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
         List<Long> playerIdsList = new java.util.ArrayList<>(Arrays.stream(playerIdsArray)
                 .map(Long::parseLong)
