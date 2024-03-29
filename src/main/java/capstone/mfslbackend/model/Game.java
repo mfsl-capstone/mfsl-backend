@@ -26,7 +26,7 @@ public class Game {
     private Long id;
 //    2020-02-06T14:00:00+00:00 is the date format
     private LocalDateTime date;
-    private String round;
+    private int round;
 
     @ToString.Exclude
     @ManyToOne(optional = false)

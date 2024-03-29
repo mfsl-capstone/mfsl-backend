@@ -86,17 +86,18 @@ public class PlayerService {
                     playerResponse.getPosition(),
                     playerResponse.getPhoto(),
                     playerResponse.getNumber(),
+                    0,
                     team, null);
             playerRepository.save(player);
             return player;
         }
-        if (!player.getPosition().equals(playerResponse.getPosition())) {
+        if (player.getPosition() == null || !player.getPosition().equals(playerResponse.getPosition())) {
             player.setPosition(playerResponse.getPosition());
         }
         if (playerResponse.getNumber() != null && !playerResponse.getNumber().equals(player.getNumber())) {
             player.setNumber(playerResponse.getNumber());
         }
-        if (!player.getTeam().equals(team)) {
+        if (player.getTeam() == null || !player.getTeam().equals(team)) {
             player.setTeam(team);
         }
 
@@ -149,22 +150,21 @@ public class PlayerService {
         return playerPage.toList();
     }
 
-    public Player createPlayerById(Long playerId, Integer season) {
+    public Player createPlayerById(Long playerId) {
         PlayersContainer playersContainer;
         try {
             URL url = UriComponentsBuilder.fromUriString(baseUrl)
-                    .path("/players")
-                    .queryParam("id", playerId)
-                    .queryParam("season", season)
+                    .path("/players/squads")
+                    .queryParam("player", playerId)
                     .build().toUri().toURL();
             playersContainer = apiService.getRequest(url, PlayersContainer.class);
         } catch (Exception e) {
-            throw new Error500("Error creating player:" + playerId + " for season: " + season);
+            throw new Error500("Error creating player:" + playerId);
         }
         if (playersContainer == null || CollectionUtils.isEmpty(playersContainer.getResponse())) {
-            throw new Error404("No players found for player: " + playerId + " in season: " + season);
+            throw new Error404("No players found for player: " + playerId);
         }
-        return createPlayer(playersContainer.getResponse().get(0).getPlayer(), null);
+        return createPlayer(playersContainer.getResponse().get(0).getPlayers().get(0), null);
     }
 
     public List<Game> getFutureGamesForPlayer(Long playerId) {

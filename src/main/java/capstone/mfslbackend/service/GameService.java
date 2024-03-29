@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class GameService {
@@ -72,7 +74,11 @@ public class GameService {
         game.setId(gamesResponse.getFixture().getId());
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
         game.setDate(LocalDateTime.parse(gamesResponse.getFixture().getDate(), formatter));
-        game.setRound(gamesResponse.getLeague().getRound());
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(gamesResponse.getLeague().getRound());
+        if (matcher.find()) {
+            game.setRound(Integer.parseInt(matcher.group()));
+        }
         game.setHomeTeam(home);
         game.setAwayTeam(away);
         game.setHomeTeamScore(gamesResponse.getGoals().getHome());
@@ -95,9 +101,9 @@ public class GameService {
                 .orElseThrow(() -> new Error404("Could not find game with id " + gameId));
     }
 
-    public List<Game> getGamesByRound(String round) throws Error404 {
+    public List<Game> getGamesByRound(int round) throws Error404 {
         List<Game> allGames = gameRepository.findAll();
-        List<Game> filteredGames = allGames.stream().filter(game -> game.getRound().equalsIgnoreCase(round)).toList();
+        List<Game> filteredGames = allGames.stream().filter(game -> game.getRound() == round).toList();
         if (CollectionUtils.isEmpty(filteredGames)) {
             throw new Error404("Could not find any games for round " + round);
         }
