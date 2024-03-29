@@ -3,11 +3,9 @@ package capstone.mfslbackend.service;
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
-import capstone.mfslbackend.model.FantasyLeague;
-import capstone.mfslbackend.model.FantasyTeam;
-import capstone.mfslbackend.model.FantasyWeek;
-import capstone.mfslbackend.model.Player;
-import capstone.mfslbackend.model.User;
+import capstone.mfslbackend.model.*;
+import capstone.mfslbackend.model.enums.DraftStatus;
+import capstone.mfslbackend.repository.DraftRepository;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
@@ -31,24 +29,32 @@ public class FantasyLeagueService {
     private final FantasyTeamRepository fantasyTeamRepository;
     private final GameService gameService;
     private final FantasyWeekRepository fantasyWeekRepository;
+    private final DraftRepository draftRepository;
     private static final int WEEKS_IN_MONTH = 4;
     private static final int MIN_GAMES = 4;
 
     private static final int DAY_IN_WEEK = 7;
     public FantasyLeagueService(FantasyLeagueRepository fantasyLeagueRepository, UserService userService,
-                                FantasyTeamRepository fantasyTeamRepository, GameService gameService, PlayerService playerService, FantasyWeekRepository fantasyWeekRepository) {
+                                FantasyTeamRepository fantasyTeamRepository, GameService gameService,
+                                PlayerService playerService, FantasyWeekRepository fantasyWeekRepository,
+                                DraftRepository draftRepository) {
         this.fantasyLeagueRepository = fantasyLeagueRepository;
         this.userService = userService;
         this.playerService = playerService;
         this.fantasyTeamRepository = fantasyTeamRepository;
         this.fantasyWeekRepository = fantasyWeekRepository;
         this.gameService = gameService;
+        this.draftRepository = draftRepository;
     }
 
     public FantasyLeague createFantasyLeague(String leagueName, LocalDateTime draftDate) {
         FantasyLeague fantasyLeague = new FantasyLeague();
-        fantasyLeague.setDraftDate(draftDate);
+        Draft draft = new Draft();
+        draft.setStatus(DraftStatus.NOT_STARTED);
+        draft.setDraftDate(draftDate);
+        draftRepository.save(draft);
         fantasyLeague.setLeagueName(leagueName);
+        fantasyLeague.setDraft(draft);
         return fantasyLeagueRepository.save(fantasyLeague);
     }
 
@@ -150,7 +156,7 @@ public class FantasyLeagueService {
 
         }
 
-        LocalDate startDate = league.getDraftDate().toLocalDate();
+        LocalDate startDate = league.getDraft().getDraftDate().toLocalDate();
         DayOfWeek dayOfWeek = startDate.getDayOfWeek();
         int daysUntilTuesday = 0;
         if (dayOfWeek != DayOfWeek.TUESDAY) {

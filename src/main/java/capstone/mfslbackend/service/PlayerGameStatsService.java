@@ -184,7 +184,11 @@ public class PlayerGameStatsService {
                 try {
                     p = playerService.getPlayerById(players.getPlayer().getId());
                 } catch (Error404 e) {
-                    p = playerService.createPlayerById(players.getPlayer().getId());
+                    try {
+                        p = playerService.createPlayerById(players.getPlayer().getId());
+                    } catch (Error404 error404) {
+                        continue;
+                    }
                 }
                 convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam())
                             .ifPresent(playerGameStats::add);
@@ -196,6 +200,9 @@ public class PlayerGameStatsService {
 
     private Optional<PlayerGameStats> convert(StatisticResponse stat, String round, String score, String opp, Game game, Player player, TeamResponse team) {
         PlayerGameStats playerGameStats = new PlayerGameStats();
+        if (player.getPlayerGameStats() != null && player.getPlayerGameStats().stream().anyMatch(pgs -> pgs.getGame().getId().equals(game.getId()))) {
+            return Optional.empty();
+        }
 
         if (stat == null) {
             return Optional.empty();

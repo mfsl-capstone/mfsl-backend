@@ -178,4 +178,9 @@ public class PlayerService {
     public List<PlayerGameStats> getPlayerGameStats(Long playerId) {
         return getPlayerById(playerId).getPlayerGameStats();
     }
+
+    public Player getRandomPlayer() {
+        int randomIndex = (int) (Math.random() * playerRepository.count());
+        return playerRepository.findAll(PageRequest.of(randomIndex, 1)).toList().get(0);
+    }
 }

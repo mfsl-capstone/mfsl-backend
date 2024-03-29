@@ -25,12 +25,11 @@ public class FantasyLeague {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String leagueName;
-    private LocalDateTime draftDate;
-
     @JsonIgnore
     @OneToMany(mappedBy = "fantasyLeague", orphanRemoval = true)
     private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
 
+    @JsonIgnore
     @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "draft_id")
     private Draft draft;
