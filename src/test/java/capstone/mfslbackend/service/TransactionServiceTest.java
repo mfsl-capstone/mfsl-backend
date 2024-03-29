@@ -1,22 +1,11 @@
 package capstone.mfslbackend.service;
 
-import capstone.mfslbackend.model.FantasyLeague;
-import capstone.mfslbackend.model.FantasyTeam;
-import capstone.mfslbackend.model.Player;
-import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Set;
-
-import static org.mockito.Mockito.lenient;
 
 @SpringBootTest
 public class TransactionServiceTest {
@@ -28,7 +17,11 @@ public class TransactionServiceTest {
     private PlayerService playerService;
     @Mock
     private FantasyLeagueService fantasyLeagueService;
-    private final TransactionService transactionService = new TransactionService(transactionRepository, fantasyTeamService, playerService, fantasyLeagueService);
+
+    @Mock
+    private FantasyTeamRepository fantasyTeamRepository;
+    private final TransactionService transactionService = new TransactionService(transactionRepository, fantasyTeamService, fantasyTeamRepository, playerService, fantasyLeagueService);
+
 
     @BeforeEach
     public void setup() {
