@@ -4,6 +4,7 @@ import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Transaction;
+import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
