@@ -1,7 +1,13 @@
 package capstone.mfslbackend.model;
 
 import capstone.mfslbackend.model.enums.DraftStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -31,7 +37,7 @@ public class Draft {
     @JoinColumn(name = "draft_id")
     private Set<Transaction> transactions = new LinkedHashSet<>();
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne()
     @JoinColumn(name = "fantasy_team_id")
     private FantasyTeam fantasyTeam;
 }

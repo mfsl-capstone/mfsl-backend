@@ -1,15 +1,14 @@
 package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error400;
-import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.Draft;
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.model.enums.DraftStatus;
 import capstone.mfslbackend.repository.DraftRepository;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -18,6 +17,8 @@ public class DraftService {
     private final TransactionService transactionService;
     private final PlayerService playerService;
     private final FantasyLeagueService fantasyLeagueService;
+    private static final int DRAFT_TURN_TIME = 30;
+    private static final int MAX_ROUNDS = 15;
     public DraftService(DraftRepository draftRepository, TransactionService transactionService, PlayerService playerService, FantasyLeagueService fantasyLeagueService) {
         this.draftRepository = draftRepository;
         this.transactionService = transactionService;
@@ -33,13 +34,11 @@ public class DraftService {
             d.setFantasyTeam(d.getFantasyLeague().getFantasyTeams().stream()
                     .filter(fantasyTeam -> fantasyTeam.getOrderNumber() == 1)
                     .findFirst().orElseThrow(() -> new Error400("No fantasy team with order 1 set")));
-            System.out.println(d.getFantasyTeam().getTeamName());
             d.setTimePlayerStarted(LocalDateTime.now());
             d.setDirection("asc");
             d.setRound(1);
         }
-
-        if (d.getTimePlayerStarted().plusSeconds(30).isBefore(LocalDateTime.now())) {
+        if (d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())) {
             Transaction t = null;
             while (t == null) {
                 try {
@@ -49,20 +48,24 @@ public class DraftService {
                 }
             }
         }
-
-        return d;
+        return draftRepository.save(d);
     }
 
     public Transaction draftPlayer(long fantasyLeagueId, long fantasyTeamId, long playerId) {
-        Draft d = getDraft(fantasyLeagueId);
-        Set<Transaction> transactions = d.getTransactions();
-
-        if (d.getFantasyTeam().getId() != fantasyTeamId) {
-            throw new Error400("It is not your turn to draft");
+        Draft d = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId).getDraft();
+        Set<Transaction> transactions;
+        if (d.getTransactions() != null) {
+            transactions = d.getTransactions();
+        } else {
+            transactions = new HashSet<>();
         }
-        System.out.println(d.getStatus());
+
+
         if (!d.getStatus().equals(DraftStatus.IN_PROGRESS)) {
             throw new Error400("Draft is not in progress");
+        }
+        if (d.getFantasyTeam().getId() != fantasyTeamId) {
+            throw new Error400("It is not your turn to draft");
         }
         Transaction t = transactionService.draftTransaction(fantasyTeamId, playerId);
         transactions.add(t);
@@ -90,10 +93,11 @@ public class DraftService {
             );
         }
 
-        if (d.getRound() == 16) {
+        if (d.getRound() > MAX_ROUNDS) {
             d.setStatus(DraftStatus.COMPLETED);
         }
         d.setTimePlayerStarted(LocalDateTime.now());
+        draftRepository.save(d);
         return t;
     }
 
