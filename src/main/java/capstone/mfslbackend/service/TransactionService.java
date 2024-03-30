@@ -6,38 +6,32 @@ import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.model.TransactionStatus;
-import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.List;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
     private static final int MAX_PLAYERS = 15;
-
     private static final int PLAYERS_IN_STARTING_LINEUP = 11;
-
-    private static final int PLAYERS_IN_BENCH = 4;
     private static final int MIN_GK = 1;
     private static final int DRAFT_MIN_DEF = 4;
+    private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
     private static final int DRAFT_MIN_MID = 4;
+    private static final int MIN_MID = 3;
     private static final int MAX_MID = 5;
     private static final int DRAFT_MIN_FWD = 2;
-    private static final int MAX_ATT = 3;
-    private static final int TOTAL_DEF = 9;
-    private static final int TOTAL_MID = 9;
-    private static final int TOTAL_ATT = 7;
-
+    private static final int MIN_FWD = 1;
+    private static final int MAX_FWD = 3;
     private static final int GK_ORDER = 1;
     private static final int DEF_ORDER = 2;
     private static final int MID_ORDER = 3;
