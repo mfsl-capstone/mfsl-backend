@@ -227,9 +227,11 @@ public class TransactionService {
         Transaction transaction = getTransactionById(transactionId);
 
         transaction.setStatus(TransactionStatus.ACCEPTED);
+        transaction.setHasBeenNotified(false);
         Set<Player> proposingPlayers = transaction.getProposingFantasyTeam().getPlayers();
         proposingPlayers.remove(transaction.getPlayerOut());
         proposingPlayers.add(transaction.getPlayerIn());
+
 
 //        decline trade if not enough players in each position
         if (!approveTeam(proposingPlayers)) {
@@ -258,6 +260,7 @@ public class TransactionService {
     public Transaction rejectTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
         transaction.setStatus(TransactionStatus.REJECTED);
+        transaction.setHasBeenNotified(false);
         return transaction;
     }
     public String changeLineupString(String lineup, String idIn, String idOut) {
