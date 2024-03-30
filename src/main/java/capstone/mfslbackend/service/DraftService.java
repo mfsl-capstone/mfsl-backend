@@ -2,12 +2,17 @@ package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.model.Draft;
+import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.model.enums.DraftStatus;
 import capstone.mfslbackend.repository.DraftRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Random;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,11 +31,20 @@ public class DraftService {
         this.fantasyLeagueService = fantasyLeagueService;
     }
     public Draft getDraft(long fantasyLeagueId) {
-
-        Draft d = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId).getDraft();
+        FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
+        Draft d = fantasyLeague.getDraft();
 
         if (d.getStatus().equals(DraftStatus.NOT_STARTED) && LocalDateTime.now().isAfter(d.getDraftDate())) {
             d.setStatus(DraftStatus.IN_PROGRESS);
+            List<FantasyTeam> fantasyTeams = new ArrayList(fantasyLeague.getFantasyTeams());
+            int i = 1;
+            Random r = new Random();
+            while (fantasyTeams.size() > 0) {
+                int index = r.nextInt(1, fantasyTeams.size());
+                FantasyTeam ft = fantasyTeams.remove(index);
+                ft.setOrderNumber(i);
+                i++;
+            }
             d.setFantasyTeam(d.getFantasyLeague().getFantasyTeams().stream()
                     .filter(fantasyTeam -> fantasyTeam.getOrderNumber() == 1)
                     .findFirst().orElseThrow(() -> new Error400("No fantasy team with order 1 set")));
