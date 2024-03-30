@@ -14,11 +14,13 @@ import capstone.mfslbackend.repository.DraftRepository;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -134,11 +136,12 @@ public class FantasyLeagueService {
         }
 
         List<List<FantasyTeam>> schedule = new ArrayList<>();
-        List<FantasyTeam> matches = new ArrayList<>();
+
         List<FantasyWeek> fantasyWeeks = new ArrayList<>();
 
         // Each week
         for (int week = 0; week < numTeams - 1; week++) {
+            List<FantasyTeam> matches = new ArrayList<>();
             // Each match in a week
             for (int match = 0; match < numTeams / 2; match++) {
                 int homeTeamIndex = (week + match) % (numTeams - 1);
@@ -158,7 +161,6 @@ public class FantasyLeagueService {
 
             }
             schedule.add(new ArrayList<>(matches));
-
         }
 
         LocalDate startDate = league.getDraft().getDraftDate().toLocalDate();
@@ -173,10 +175,23 @@ public class FantasyLeagueService {
         startDate = startDate.plusDays(daysUntilTuesday);
         LocalDate endDate = startDate.plusWeeks(1);
         int weekNumber = 1;
-        int isOneMonth;
 
-        while (gameService.getGamesBetweenDates(startDate, endDate) != null) {
+        while (!CollectionUtils.isEmpty(gameService.getGamesBetweenDates(startDate, endDate))) {
             for (List<FantasyTeam> weekMatches : schedule) {
+                int emptyWeeks = 0;
+                while (gameService.getGamesBetweenDates(startDate, endDate).size() < MIN_GAMES && ChronoUnit.WEEKS.between(startDate, endDate) < WEEKS_IN_MONTH) {
+                    if (gameService.getGamesBetweenDates(endDate.minusWeeks(1), endDate).size() == 0) {
+                        emptyWeeks++;
+                    } else {
+                        emptyWeeks = 0;
+                    }
+                    endDate = endDate.plusWeeks(1);
+                }
+                LocalDate fakeEndDate = endDate.minusWeeks(emptyWeeks);
+                if (CollectionUtils.isEmpty(gameService.getGamesBetweenDates(startDate, fakeEndDate))) {
+                    startDate = fakeEndDate;
+                    break;
+                }
                 for (int matchIndex = 0; matchIndex < weekMatches.size(); matchIndex += 2) {
                     FantasyTeam teamA = weekMatches.get(matchIndex);
                     FantasyTeam teamB = weekMatches.get(matchIndex + 1);
@@ -186,20 +201,18 @@ public class FantasyLeagueService {
                     fantasyWeek.setFantasyTeamB(teamB);
                     fantasyWeek.setWeekNumber(weekNumber);
                     fantasyWeek.setStartDate(startDate);
-
-                    isOneMonth = 1;
-
-                    while (gameService.getGamesBetweenDates(startDate, endDate).size() < MIN_GAMES && isOneMonth < WEEKS_IN_MONTH) {
-                        endDate = endDate.plusWeeks(1);
-                        isOneMonth++;
-                    }
-
-                    fantasyWeek.setEndDate(endDate);
+                    fantasyWeek.setEndDate(fakeEndDate);
 
                     fantasyWeekRepository.save(fantasyWeek);
                     fantasyWeeks.add(fantasyWeek);
                 }
                 weekNumber += 1;
+                startDate = endDate;
+                endDate = endDate.plusWeeks(1);
+
+                if (ChronoUnit.WEEKS.between(startDate, endDate) >= WEEKS_IN_MONTH) {
+                    break;
+                }
             }
         }
         return getFantasyWeeksByLeagueId(leagueId);
