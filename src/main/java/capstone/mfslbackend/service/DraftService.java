@@ -107,11 +107,14 @@ public class DraftService {
             );
         }
 
-        if (d.getRound() > MAX_ROUNDS) {
-            d.setStatus(DraftStatus.COMPLETED);
-        }
         d.setTimePlayerStarted(LocalDateTime.now());
         draftRepository.save(d);
+
+        if (d.getRound() > MAX_ROUNDS) {
+            d.setStatus(DraftStatus.COMPLETED);
+            fantasyLeagueService.createFantasyLeagueSchedule(fantasyLeagueId);
+        }
+
         return t;
     }
 
