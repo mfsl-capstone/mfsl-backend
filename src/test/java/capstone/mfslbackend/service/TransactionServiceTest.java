@@ -17,10 +17,7 @@ public class TransactionServiceTest {
     private PlayerService playerService;
     @Mock
     private FantasyLeagueService fantasyLeagueService;
-
-    @Mock
-    private FantasyTeamRepository fantasyTeamRepository;
-    private final TransactionService transactionService = new TransactionService(transactionRepository, fantasyTeamService, fantasyTeamRepository, playerService, fantasyLeagueService);
+    private final TransactionService transactionService = new TransactionService(transactionRepository, fantasyTeamService, playerService, fantasyLeagueService);
 
 
     @BeforeEach
