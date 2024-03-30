@@ -35,6 +35,11 @@ public class TeamController {
         }
         return ResponseEntity.ok(teams);
     }
+    @GetMapping("team-names")
+    public ResponseEntity<List<String>> getTeamNames() {
+        List<String> teamNames = teamService.getAllTeamNames();
+        return ResponseEntity.ok(teamNames);
+    }
     @PostMapping("{teamId}")
     public ResponseEntity<Team> createTeam(@PathVariable Long teamId) {
         Team team = teamService.createTeamById(teamId);

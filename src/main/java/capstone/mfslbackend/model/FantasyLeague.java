@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,9 +30,13 @@ public class FantasyLeague {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String leagueName;
-
     @JsonIgnore
     @OneToMany(mappedBy = "fantasyLeague", orphanRemoval = true)
     private Set<FantasyTeam> fantasyTeams = new LinkedHashSet<>();
+
+    @JsonIgnore
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "draft_id")
+    private Draft draft;
 
 }

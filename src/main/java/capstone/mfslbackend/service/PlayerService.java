@@ -129,7 +129,7 @@ public class PlayerService {
                         if (field.equals("teamId")) {
                             orPredicates.add(criteriaBuilder.equal(root.get("team").get("teamId"), Long.parseLong(val)));
                         } else if (field.equals("teamName")) {
-                            orPredicates.add(criteriaBuilder.equal(root.get("team").get("name"), val));
+                            orPredicates.add(criteriaBuilder.like(root.get("team").get("name"), "%" + val + "%"));
                         } else if (root.get(field).getJavaType() == String.class) {
                             orPredicates.add(criteriaBuilder.like(root.get(field), "%" + val + "%"));
                         } else {
@@ -177,5 +177,10 @@ public class PlayerService {
 
     public List<PlayerGameStats> getPlayerGameStats(Long playerId) {
         return getPlayerById(playerId).getPlayerGameStats();
+    }
+
+    public Player getRandomPlayer() {
+        int randomIndex = (int) (Math.random() * playerRepository.count());
+        return playerRepository.findAll(PageRequest.of(randomIndex, 1)).toList().get(0);
     }
 }
