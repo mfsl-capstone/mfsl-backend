@@ -6,38 +6,32 @@ import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.model.TransactionStatus;
-import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.List;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
     private static final int MAX_PLAYERS = 15;
-
     private static final int PLAYERS_IN_STARTING_LINEUP = 11;
-
-    private static final int PLAYERS_IN_BENCH = 4;
     private static final int MIN_GK = 1;
     private static final int DRAFT_MIN_DEF = 4;
+    private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
     private static final int DRAFT_MIN_MID = 4;
+    private static final int MIN_MID = 3;
     private static final int MAX_MID = 5;
     private static final int DRAFT_MIN_FWD = 2;
-    private static final int MAX_ATT = 3;
-    private static final int TOTAL_DEF = 9;
-    private static final int TOTAL_MID = 9;
-    private static final int TOTAL_ATT = 7;
-
+    private static final int MIN_FWD = 1;
+    private static final int MAX_FWD = 3;
     private static final int GK_ORDER = 1;
     private static final int DEF_ORDER = 2;
     private static final int MID_ORDER = 3;
@@ -47,18 +41,15 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final FantasyTeamService fantasyTeamService;
 
-    private final FantasyTeamRepository fantasyTeamRepository;
     private final FantasyLeagueService fantasyLeagueService;
     private final PlayerService playerService;
 
-    public TransactionService(TransactionRepository transactionRepository, FantasyTeamService fantasyTeamService, FantasyTeamRepository fantasyTeamRepository,
+    public TransactionService(TransactionRepository transactionRepository, FantasyTeamService fantasyTeamService,
                               PlayerService playerService, FantasyLeagueService fantasyLeagueService) {
         this.transactionRepository = transactionRepository;
         this.fantasyTeamService = fantasyTeamService;
         this.playerService = playerService;
         this.fantasyLeagueService = fantasyLeagueService;
-        this.fantasyTeamRepository = fantasyTeamRepository;
-
     }
     public Transaction createTransaction(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) {
         Transaction transaction = new Transaction();
@@ -83,31 +74,22 @@ public class TransactionService {
 
         Player playerIn = playerService.getPlayerById(incomingPlayerId);
         Player outgoingPlayer = playerService.getPlayerById(outgoingPlayerId);
-        boolean isSubstituted = false;
-
-        if (transaction.getReceivingFantasyTeam() == null) { //it means it is a free agent
-            if (validTransaction(transaction, proposingFantasyTeam, playerIn, outgoingPlayer, isSubstituted)) { //if valid, transaction is accepted
-                if (!isSubstituted) {
-                    String replacement = proposingFantasyTeam.getPlayerIdsInOrder().replace(outgoingPlayerId.toString(), incomingPlayerId.toString());
-                    proposingFantasyTeam.setPlayerIdsInOrder(replacement);
-                    transaction.setPlayerIn(playerIn);
-                    Set<Player> currentPlayers = proposingFantasyTeam.getPlayers();
-                    currentPlayers.remove(outgoingPlayer);
-                    currentPlayers.add(playerIn);
-                    proposingFantasyTeam.setPlayers(currentPlayers);
-                }
-                transaction.setStatus(TransactionStatus.ACCEPTED);
-            } else {
-                transaction.setStatus(TransactionStatus.REJECTED);
-            }
-
-        } else {
-            transaction.setStatus(TransactionStatus.PROPOSED);
-        }
         transaction.setPlayerIn(playerIn);
-        transaction.setHasBeenNotified(false);
 
-        return transactionRepository.save(transaction);
+        if (transaction.getReceivingFantasyTeam() != null) {
+            transaction.setStatus(TransactionStatus.PROPOSED);
+            return transactionRepository.save(transaction);
+        }
+
+        //it means it is a free agent
+        if (substitutePlayer(playerIn, outgoingPlayer, proposingFantasyTeam)) {
+            transaction.setStatus(TransactionStatus.ACCEPTED);
+            return transactionRepository.save(transaction);
+        } else {
+            transaction.setStatus(TransactionStatus.REJECTED);
+            transactionRepository.save(transaction);
+            throw new Error400("Fantasy team with id " + fantasyTeamId + " was unable to swap player: " + outgoingPlayerId + " with player: " + incomingPlayerId + " due to lineup restrictions");
+        }
     }
 
     public Transaction draftTransaction(Long fantasyTeamId, Long incomingPlayerId) {
@@ -221,8 +203,6 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-
-
     public Transaction acceptTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
 
@@ -296,244 +276,76 @@ public class TransactionService {
                 .orElseThrow(() -> new Error404("Transaction with id " + id + " not found"));
     }
 
-    public boolean validTransaction(Transaction transaction, FantasyTeam proposingFantasyTeam, Player ingoingPlayer, Player outgoingPlayer, boolean isSubstituted) throws Error404 {
-
-        String position = ingoingPlayer.getPosition();
-        Long fantasyTeamId = proposingFantasyTeam.getId();
-
-        if (proposingFantasyTeam.getPlayerIdsInOrder() == null) {
-            throw new Error400("Fantasy team with id " + fantasyTeamId + " does not have any players");
-        }
-
-        String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
-
-        String[] benchPlayerIds = Arrays.copyOfRange(playerIdsArray, playerIdsArray.length - PLAYERS_IN_BENCH, playerIdsArray.length);
-
-        //CASE 1: Outgoing Player is on Bench
-        if (Arrays.asList(benchPlayerIds).contains(outgoingPlayer.getPlayerId().toString())) {
-            return true;
-        } else if (Arrays.asList(playerIdsArray).contains(outgoingPlayer.getPlayerId().toString()) && outgoingPlayer.getPosition().equals(ingoingPlayer.getPosition())) {
-            return true; //CASE 2: Outgoing Player is on starting XI and has same position as incoming player
-        } else { //CASE 3: Outgoing Player is on starting XI and has different position as incoming player
-            if (checkExcedentPositions(proposingFantasyTeam, position)) { //check if we exceed max number of players in each position
-                return true;
-            } else { //Check if substitution with bench player is possible, if true then return true
-                return substitutePlayer(transaction, ingoingPlayer, outgoingPlayer, proposingFantasyTeam, benchPlayerIds, isSubstituted);
-            }
-
-        }
-    }
-
-    private boolean checkExcedentPositions(FantasyTeam proposingFantasyTeam, String position) {
-
-        Long fantasyTeamId = proposingFantasyTeam.getId();
-
-        String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
-
-        List<Long> playerIdsList = Arrays.stream(playerIdsArray)
-                .map(Long::parseLong)
-                .toList();
-
-        long totalDefenders = proposingFantasyTeam.getPlayers().stream()
-                .filter(player -> player.getPosition().equals("Defender"))
-                .count();
-
-        long startingDefenders = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Defender"))
-                .count();
-
-        long totalMidfielders = proposingFantasyTeam.getPlayers().stream()
-                .filter(player -> player.getPosition().equals("Midfielder"))
-                .count();
-
-        long startingMidfielders = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Midfielder"))
-                .count();
-
-        long totalAttackers = proposingFantasyTeam.getPlayers().stream()
-                .filter(player -> player.getPosition().equals("Attacker"))
-                .count();
-
-        long startingAttackers = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Attacker"))
-                .count();
-
-
-        long startingGoalkeepers = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Goalkeeper"))
-                .count();
-
-        if (position.equals("Goalkeeper") && startingGoalkeepers == MIN_GK) {
-            throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 1 goalkeeper in the starting lineup");
-
-        } else if (!position.equals("Goalkeeper") && startingGoalkeepers < MIN_GK) {
-            throw new Error400("Fantasy team with id " + fantasyTeamId + " needs at least 1 goalkeeper in the starting lineup");
-
-        } else if (position.equals("Defender")) {
-            if (totalDefenders >= TOTAL_DEF) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 9 defenders in total");
-            } else if (startingDefenders >= MAX_DEF) {
-                return false;
-            }
-
-        } else if (position.equals("Midfielder")) {
-            if (totalMidfielders >= TOTAL_MID) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 9 midfielders in total");
-            } else if (startingMidfielders >= MAX_MID) {
-                return false;
-            }
-
-        } else if (position.equals("Attacker")) {
-            if (totalAttackers >= TOTAL_ATT) {
-                throw new Error400("Fantasy team with id " + fantasyTeamId + " cannot have more than 7 attackers in total");
-            } else if (startingAttackers >= MAX_ATT) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean checkBenchExcedentPositions(FantasyTeam proposingFantasyTeam, String position) {
-
-        Long fantasyTeamId = proposingFantasyTeam.getId();
-
-        String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
-
-        List<Long> playerIdsList = Arrays.stream(playerIdsArray)
-                .map(Long::parseLong)
-                .toList();
-
-        long totalDefenders = proposingFantasyTeam.getPlayers().stream()
-                .filter(player -> player.getPosition().equals("Defender"))
-                .count();
-
-        long startingDefenders = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Defender"))
-                .count();
-
-        long totalMidfielders = proposingFantasyTeam.getPlayers().stream()
-                .filter(player -> player.getPosition().equals("Midfielder"))
-                .count();
-
-        long startingMidfielders = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Midfielder"))
-                .count();
-
-        long totalAttackers = proposingFantasyTeam.getPlayers().stream()
-                .filter(player -> player.getPosition().equals("Attacker"))
-                .count();
-
-        long startingAttackers = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Attacker"))
-                .count();
-
-
-        long startingGoalkeepers = playerIdsList.stream()
-                .limit(PLAYERS_IN_STARTING_LINEUP)
-                .map(playerService::getPlayerById)
-                .filter(player -> player != null && player.getPosition().equals("Goalkeeper"))
-                .count();
-
-        if (position.equals("Goalkeeper") && startingGoalkeepers == MIN_GK) {
-            return false;
-
-        } else if (!position.equals("Goalkeeper") && startingGoalkeepers < MIN_GK) {
-            return false;
-
-        } else if (position.equals("Defender")) {
-            if (totalDefenders >= TOTAL_DEF) {
-                return false;
-            } else if (startingDefenders >= MAX_DEF) {
-                return false;
-            }
-
-        } else if (position.equals("Midfielder")) {
-            if (totalMidfielders >= TOTAL_MID) {
-                return false;
-            } else if (startingMidfielders >= MAX_MID) {
-                return false;
-            }
-
-        } else if (position.equals("Attacker")) {
-            if (totalAttackers >= TOTAL_ATT) {
-                return false;
-            } else if (startingAttackers >= MAX_ATT) {
-                return false;
-            }
-        }
-        return true;
-    }
     /*
-    * This method substitutes the incoming player on the first eligible bench player in the fantasy team
+     * This method substitutes the incoming player on the first eligible bench player in the fantasy team
      */
-    private boolean substitutePlayer(Transaction transaction, Player ingoingPlayer, Player outgoingPlayer, FantasyTeam proposingFantasyTeam, String[] benchPlayerIds, boolean isSubstituted) {
-        String[] playerIdsArray = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
-        List<Long> playerIdsList = new java.util.ArrayList<>(Arrays.stream(playerIdsArray)
-                .map(Long::parseLong)
-                .toList());
+    private Boolean substitutePlayer(Player playerIn, Player playerOut, FantasyTeam proposingFantasyTeam) {
+//        we can assume playerIn and playerOut have different positions
+//        check if lineup is valid if we were to substitute playerOut with playerIn
+        String[] newLineup = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
+        List<Player> players = new ArrayList<>();
+        for (String playerId : newLineup) {
+            players.add(playerService.getPlayerById(Long.parseLong(playerId)));
+        }
 
-        int indexOutgoing = playerIdsList.indexOf(outgoingPlayer.getPlayerId());
-        int indexBench;
+        int index = players.indexOf(playerOut);
+        players.add(index, playerIn);
+        players.remove(playerOut);
 
-        List<Long> benchIdsList = Arrays.stream(benchPlayerIds)
-                .map(Long::parseLong)
-                .toList();
+        if (index >= PLAYERS_IN_STARTING_LINEUP || playerIn.getPosition().equals(playerOut.getPosition())) {
+            proposingFantasyTeam.setPlayers(new HashSet<>(players));
+            proposingFantasyTeam.setPlayerIdsInOrder(players.stream().map(player -> player.getPlayerId().toString()).collect(Collectors.joining(" ")));
+            return true;
+        }
 
+        List<Player> sortedStartingLineup = players.subList(0, PLAYERS_IN_STARTING_LINEUP);
+        sortedStartingLineup.sort(Comparator.comparingInt(p -> getPositionOrder(p.getPosition())));
+        sortedStartingLineup.addAll(players.subList(PLAYERS_IN_STARTING_LINEUP, MAX_PLAYERS));
+        if (validStartingXI(sortedStartingLineup)) {
+            proposingFantasyTeam.setPlayers(new HashSet<>(sortedStartingLineup));
+            proposingFantasyTeam.setPlayerIdsInOrder(sortedStartingLineup.stream().map(player -> player.getPlayerId().toString()).collect(Collectors.joining(" ")));
+            return true;
+        }
 
-        for (Long benchPlayerId : benchIdsList) {
-            //check if we exceed max number of players per position if we were to pick that bench player
-            if (checkBenchExcedentPositions(proposingFantasyTeam, playerService.getPlayerById(benchPlayerId).getPosition())) {
-                indexBench = playerIdsList.indexOf(benchPlayerId);
+        List<Player> playersCopy = new ArrayList<>(players);
+        for (Player benchPlayer: playersCopy.subList(PLAYERS_IN_STARTING_LINEUP, MAX_PLAYERS)) {
+            sortedStartingLineup = new ArrayList<>(playersCopy.subList(0, PLAYERS_IN_STARTING_LINEUP));
+            index = sortedStartingLineup.indexOf(playerIn);
+            sortedStartingLineup.add(index, benchPlayer);
+            sortedStartingLineup.remove(playerIn);
+            sortedStartingLineup.sort(Comparator.comparingInt(p -> getPositionOrder(p.getPosition())));
 
-                playerIdsList.set(indexBench, ingoingPlayer.getPlayerId());
-                playerIdsList.set(indexOutgoing, benchPlayerId);
+            List<Player> bench = new ArrayList<>(playersCopy.subList(PLAYERS_IN_STARTING_LINEUP, MAX_PLAYERS));
+            index = bench.indexOf(benchPlayer);
+            bench.add(index, playerIn);
+            bench.remove(benchPlayer);
 
-                String newPlayersInOrder = playerIdsList.stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining(" "));
+            sortedStartingLineup.addAll(bench);
 
-                proposingFantasyTeam.setPlayerIdsInOrder(newPlayersInOrder);
-                reOrderPlayerIDs(proposingFantasyTeam);
-                isSubstituted = true;
-
-                return isSubstituted;
+            if (validStartingXI(sortedStartingLineup)) {
+                proposingFantasyTeam.setPlayers(new HashSet<>(sortedStartingLineup));
+                proposingFantasyTeam.setPlayerIdsInOrder(sortedStartingLineup.stream().map(player -> player.getPlayerId().toString()).collect(Collectors.joining(" ")));
+                return true;
             }
         }
         return false;
     }
 
-    public void reOrderPlayerIDs(FantasyTeam fantasyTeam) {
-        String[] playerIds = fantasyTeam.getPlayerIdsInOrder().split(" ");
-        Map<String, String> playerPositions = new HashMap<>();
-        for (String playerId : playerIds) {
-            Player player = playerService.getPlayerById(Long.parseLong(playerId));
-            playerPositions.put(playerId, player.getPosition());
+    private Boolean validStartingXI(List<Player> players) {
+        int gkCount = 0;
+        int defCount = 0;
+        int midCount = 0;
+        int fwdCount = 0;
+        for (Player player : players.subList(0, PLAYERS_IN_STARTING_LINEUP)) {
+            switch (player.getPosition()) {
+                case "Goalkeeper" -> gkCount++;
+                case "Defender" -> defCount++;
+                case "Midfielder" -> midCount++;
+                case "Attacker" -> fwdCount++;
+                default -> throw new Error400("Invalid position for player with id " + player.getPlayerId());
+            }
         }
-
-        // Sort the first 11 players
-        Arrays.sort(playerIds, 0, PLAYERS_IN_STARTING_LINEUP, Comparator.comparingInt(id -> getPositionOrder(playerPositions.get(id))));
-        System.out.println("playerIds: " + Arrays.toString(playerIds));
-
-//        // Sort the last 4 players
-//        Arrays.sort(playerIds, PLAYERS_IN_STARTING_LINEUP, MAX_PLAYERS, Comparator.comparingInt(id -> getPositionOrder(playerPositions.get(id))));
-
-        String sortedPlayerIdsInOrder = String.join(" ", playerIds);
-        fantasyTeam.setPlayerIdsInOrder(sortedPlayerIdsInOrder);
-        fantasyTeamRepository.save(fantasyTeam);
+        return gkCount == MIN_GK && defCount >= MIN_DEF && defCount <= MAX_DEF && midCount >= MIN_MID && midCount <= MAX_MID && fwdCount >= MIN_FWD && fwdCount <= MAX_FWD;
     }
 
     private static int getPositionOrder(String position) {
