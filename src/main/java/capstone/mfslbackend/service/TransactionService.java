@@ -232,10 +232,10 @@ public class TransactionService {
         proposingPlayers.remove(transaction.getPlayerOut());
         proposingPlayers.add(transaction.getPlayerIn());
 
-
 //        decline trade if not enough players in each position
         if (!approveTeam(proposingPlayers)) {
             transaction.setStatus(TransactionStatus.REJECTED);
+            transaction.setHasBeenNotified(false);
             return transaction;
         }
 
@@ -246,6 +246,7 @@ public class TransactionService {
 
             if (!approveTeam(receivingPlayers)) {
                 transaction.setStatus(TransactionStatus.REJECTED);
+                transaction.setHasBeenNotified(false);
                 return transaction;
             }
             transaction.getReceivingFantasyTeam().setPlayers(receivingPlayers);
