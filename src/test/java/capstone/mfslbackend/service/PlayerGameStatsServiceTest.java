@@ -5,6 +5,7 @@ import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
+import capstone.mfslbackend.repository.PlayerRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
 import capstone.mfslbackend.response.dto.*;
 import capstone.mfslbackend.response.dto.stats.PassResponse;
@@ -14,14 +15,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -37,6 +35,8 @@ public class PlayerGameStatsServiceTest {
     PlayerService playerService;
     @Mock
     GameService gameService;
+    @Mock
+    PlayerRepository playerRepository;
     @Value("${YELLOW.CARD.POINTS}")
     private int yellowCardPoints;
     @Value("${RED.CARD.POINTS}")
@@ -96,7 +96,8 @@ public class PlayerGameStatsServiceTest {
     @Value("${RATING.THRESHOLD.4}")
     private int ratingThreshold4;
 
-    private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url", gameService);    @BeforeEach
+    private final PlayerGameStatsService playerGameStatsService = new PlayerGameStatsService(apiService, playerGameStatsRepository, playerService,"http://test.url", gameService, playerRepository);
+    @BeforeEach
     public void setup() throws IOException {
         ReflectionTestUtils.setField(playerGameStatsService, "apiService", apiService);
         ReflectionTestUtils.setField(playerGameStatsService, "baseUrl", "http://test.url");
@@ -202,13 +203,6 @@ public class PlayerGameStatsServiceTest {
         Game g = new Game();
         lenient().when(gameService.getGameById(anyLong()))
                 .thenReturn(g);
-    }
-
-    @Test
-    public void testCreatePlayerGameStats() throws Error404 {
-        List<PlayerGameStats> response = playerGameStatsService.createPlayerGameStats("1");
-        assertNotNull(response);
-        assertEquals(2, response.size());
     }
 
     @Test

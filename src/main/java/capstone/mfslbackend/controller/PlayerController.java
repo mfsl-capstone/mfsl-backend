@@ -58,4 +58,9 @@ public class PlayerController {
         List<PlayerGameStats> playerGameStats = playerService.getPlayerGameStats(playerId);
         return ResponseEntity.ok(playerGameStats);
     }
+    @PostMapping("fix")
+    public ResponseEntity<Void> fixPlayerGameStats() {
+        playerService.fixPlayerPoints();
+        return ResponseEntity.ok().build();
+    }
 }

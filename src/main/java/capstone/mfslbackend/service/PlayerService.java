@@ -183,4 +183,12 @@ public class PlayerService {
         int randomIndex = (int) (Math.random() * playerRepository.count());
         return playerRepository.findAll(PageRequest.of(randomIndex, 1)).toList().get(0);
     }
+    public void fixPlayerPoints() {
+        List<Player> players = playerRepository.findAll();
+        players.forEach(player -> {
+            int points = player.getPlayerGameStats().stream().map(PlayerGameStats::getPoints).reduce(0, Integer::sum);
+            player.setPoints(points);
+            playerRepository.save(player);
+        });
+    }
 }
