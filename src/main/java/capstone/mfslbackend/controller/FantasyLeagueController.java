@@ -41,8 +41,8 @@ public class FantasyLeagueController {
     }
 
     @PostMapping("join-league")
-    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId, @RequestParam String teamName, @RequestParam String jerseyColour) throws Error400 {
-        FantasyLeague fantasyLeague = fantasyLeagueService.joinFantasyLeague(username, leagueId, teamName, jerseyColour);
+    public ResponseEntity<FantasyLeague> joinFantasyLeague(@RequestParam String username, @RequestParam Long leagueId, @RequestParam String leagueName, @RequestParam String teamName, @RequestParam String jerseyColour) throws Error400 {
+        FantasyLeague fantasyLeague = fantasyLeagueService.joinFantasyLeague(username, leagueId, leagueName, teamName, jerseyColour);
         return ResponseEntity.ok(fantasyLeague);
     }
 
