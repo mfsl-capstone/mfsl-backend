@@ -10,6 +10,7 @@ import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.User;
 import capstone.mfslbackend.model.enums.DraftStatus;
+import capstone.mfslbackend.model.enums.FantasyWeekStatus;
 import capstone.mfslbackend.repository.DraftRepository;
 import capstone.mfslbackend.repository.FantasyLeagueRepository;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
@@ -208,6 +209,7 @@ public class FantasyLeagueService {
                     fantasyWeek.setWeekNumber(weekNumber);
                     fantasyWeek.setStartDate(startDate);
                     fantasyWeek.setEndDate(fakeEndDate);
+                    fantasyWeek.setStatus(FantasyWeekStatus.NOT_STARTED);
 
                     fantasyWeekRepository.save(fantasyWeek);
                     fantasyWeeks.add(fantasyWeek);

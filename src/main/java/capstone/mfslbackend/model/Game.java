@@ -1,10 +1,6 @@
 package capstone.mfslbackend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +9,10 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -39,6 +38,9 @@ public class Game {
     @JoinColumn(name = "away_team_team_id", nullable = false)
     private Team awayTeam;
     private int awayTeamScore;
+
+    @OneToMany(mappedBy = "game", orphanRemoval = true)
+    private Set<PlayerGameStats> playerGameStats = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {

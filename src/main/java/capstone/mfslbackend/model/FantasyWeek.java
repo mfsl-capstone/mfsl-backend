@@ -1,5 +1,6 @@
 package capstone.mfslbackend.model;
 
+import capstone.mfslbackend.model.enums.FantasyWeekStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,7 +36,7 @@ public class FantasyWeek {
     private int weekNumber;
     private LocalDate startDate;
     private LocalDate endDate;
-
+    private FantasyWeekStatus status;
     @ToString.Exclude
     @JsonIgnore
     @ManyToOne(optional = false)
@@ -48,13 +49,25 @@ public class FantasyWeek {
     @JoinColumn(name = "fantasy_team_b_id", nullable = false)
     private FantasyTeam fantasyTeamB;
 
+    private String teamAInOrder;
+    private String teamBInOrder;
+
     @ToString.Exclude
     @ManyToMany
-    @JoinTable(name = "fantasy_week_player_game_stats",
+    @JoinTable(name = "fantasy_week_a_player_game_stats",
             joinColumns = @JoinColumn(name = "fantasy_week_id"),
             inverseJoinColumns = @JoinColumn(name = "player_game_stats_id"))
     private Set<PlayerGameStats> statsTeamA = new LinkedHashSet<>();
 
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "fantasy_week_b_player_game_stats",
+            joinColumns = @JoinColumn(name = "fantasy_week_id"),
+            inverseJoinColumns = @JoinColumn(name = "player_game_stats_id"))
+    private Set<PlayerGameStats> statsTeamB = new LinkedHashSet<>();
+
+    private int teamAScore;
+    private int teamBScore;
     @Override
     public final boolean equals(Object o) {
         if (this == o) {
