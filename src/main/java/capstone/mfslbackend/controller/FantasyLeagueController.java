@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 @RestController()
@@ -35,8 +36,8 @@ public class FantasyLeagueController {
         return ResponseEntity.ok(fantasyLeagues);
     }
     @PostMapping("")
-    public ResponseEntity<FantasyLeague> createFantasyLeague(@RequestParam String leagueName) {
-        FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(leagueName);
+    public ResponseEntity<FantasyLeague> createFantasyLeague(@RequestParam String leagueName, @RequestParam LocalDateTime draftDate) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.createFantasyLeague(leagueName, draftDate);
         return ResponseEntity.ok(fantasyLeague);
     }
 
@@ -46,7 +47,7 @@ public class FantasyLeagueController {
         return ResponseEntity.ok(fantasyLeague);
     }
 
-    @GetMapping("players")
+    @PostMapping("players")
     public ResponseEntity<List<FantasyLeaguePlayer>> getFantasyLeaguePlayers(@RequestParam Long leagueId,
                                                                              @RequestParam(required = false, defaultValue = "false") Boolean noTaken,
                                                                              @RequestParam(required = false, defaultValue = "desc") String sortDirection,

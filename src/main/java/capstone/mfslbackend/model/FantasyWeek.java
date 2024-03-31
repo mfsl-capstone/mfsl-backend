@@ -6,7 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinTable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,10 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -42,6 +47,13 @@ public class FantasyWeek {
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_team_b_id", nullable = false)
     private FantasyTeam fantasyTeamB;
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "fantasy_week_player_game_stats",
+            joinColumns = @JoinColumn(name = "fantasy_week_id"),
+            inverseJoinColumns = @JoinColumn(name = "player_game_stats_id"))
+    private Set<PlayerGameStats> statsTeamA = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {
