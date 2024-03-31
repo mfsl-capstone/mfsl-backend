@@ -2,10 +2,14 @@ package capstone.mfslbackend.service;
 
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
-import capstone.mfslbackend.model.*;
+import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.FantasyTeam;
+import capstone.mfslbackend.model.FantasyWeek;
+import capstone.mfslbackend.model.Game;
+import capstone.mfslbackend.model.Player;
+import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.model.enums.FantasyWeekStatus;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
-import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,9 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 
 @Service
@@ -25,7 +31,7 @@ public class FantasyWeekService {
     private final FantasyLeagueService fantasyLeagueService;
     private final PlayerGameStatsService playerGameStatsService;
     private final PlayerService playerService;
-    private final static int GAME_DURATION = 4;
+    private static final int GAME_DURATION = 4;
     private static final int MIN_GK = 1;
     private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
@@ -33,6 +39,10 @@ public class FantasyWeekService {
     private static final int MAX_MID = 5;
     private static final int MIN_FWD = 1;
     private static final int MAX_FWD = 3;
+    private static final int DEFAULT_LIMIT = 100;
+    private static final int STARTING_XI = 11;
+    private static final int MAX_HOUR = 23;
+    private static final int MAX_MINUTE_SECOND = 59;
 
     public FantasyWeekService(FantasyWeekRepository fantasyWeekRepository, FantasyLeagueService fantasyLeagueService,
                               PlayerGameStatsService playerGameStatsService, PlayerService playerService) {
@@ -97,8 +107,8 @@ public class FantasyWeekService {
         List<FantasyWeek> fantasyWeeks = fantasyWeekRepository.findAll(spec);
 
         fantasyWeeks.forEach(fantasyWeek -> {
-            String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ",",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
-            List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, 100, 0);
+            String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ", ",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
+            List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, DEFAULT_LIMIT, 0);
 
             updateGamesInFantasyWeek(players);
             setFantasyWeekStats(fantasyWeek, players);
@@ -140,8 +150,8 @@ public class FantasyWeekService {
 
     private Map<Integer, String> calculateFantasyWeekScore(List<Player> players, Set<PlayerGameStats> stats) {
         int sum = 0;
-        List<Player> startingXI = players.subList(0, 11);
-        List<Player> bench = players.subList(11, players.size());
+        List<Player> startingXI = players.subList(0, STARTING_XI);
+        List<Player> bench = players.subList(STARTING_XI, players.size());
         for (Player player : startingXI) {
             List<PlayerGameStats> playerStats = stats.stream()
                     .filter(playerGameStats -> playerGameStats.getPlayer().getPlayerId().equals(player.getPlayerId()))
@@ -162,7 +172,7 @@ public class FantasyWeekService {
                 if (benchPlayerStats.stream()
                         .map(PlayerGameStats::getMinutes)
                         .reduce(0, Integer::sum) > 0
-                        && isValidSwap(players.subList(0, 11), player, benchPlayer)) {
+                        && isValidSwap(players.subList(0, STARTING_XI), player, benchPlayer)) {
 
                     sum += benchPlayerStats.stream()
                             .map(PlayerGameStats::getMinutes)
@@ -200,7 +210,7 @@ public class FantasyWeekService {
         List<Long> idsTeamB = Stream.of(fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().split(" ")).map(Long::parseLong).toList();
         List<PlayerGameStats> stats = players.stream().map(player -> player.getPlayerGameStats().stream()
                         .filter(stat -> stat.getGame().getDate().isAfter(fantasyWeek.getStartDate().atStartOfDay())
-                                && stat.getGame().getDate().isBefore(fantasyWeek.getEndDate().atTime(23, 59, 59)))
+                                && stat.getGame().getDate().isBefore(fantasyWeek.getEndDate().atTime(MAX_HOUR, MAX_MINUTE_SECOND, MAX_MINUTE_SECOND)))
                         .toList())
                 .flatMap(List::stream)
                 .distinct()
