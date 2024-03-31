@@ -19,14 +19,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
+import java.util.List;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Map;
 
 @Service
 public class FantasyLeagueService {
@@ -75,9 +78,12 @@ public class FantasyLeagueService {
         return fantasyLeagueRepository.findFantasyLeagueByLeagueNameLikeIgnoreCase(name);
     }
 
-    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String teamName, String jerseyColour) {
+    public FantasyLeague joinFantasyLeague(String username, Long leagueId, String leagueName, String teamName, String jerseyColour) {
         User user = userService.getUser(username);
         FantasyLeague league = getFantasyLeagueById(leagueId);
+        if (!Objects.equals(league.getLeagueName(), leagueName)) {
+            throw new Error400("Invalid Join Code");
+        }
         FantasyTeam fantasyTeam = new FantasyTeam();
         fantasyTeam.setTeamName(teamName);
 
