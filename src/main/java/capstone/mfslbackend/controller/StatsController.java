@@ -1,6 +1,5 @@
 package capstone.mfslbackend.controller;
 
-import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.service.PlayerGameStatsService;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +21,15 @@ public class StatsController {
         this.playerGameStatsService = playerGameStatsService;
     }
     @PostMapping("{fixtureId}")
-    public ResponseEntity<List<PlayerGameStats>> createGameStats(@PathVariable String fixtureId) throws Error404 {
-        return ResponseEntity.ok(playerGameStatsService.createPlayerGameStats(fixtureId));
+    public ResponseEntity<List<PlayerGameStats>> createGameStats(@PathVariable String fixtureId)  {
+        playerGameStatsService.createPlayerGameStats(fixtureId);
+        return ResponseEntity.ok(null);
     }
     @PostMapping()
-    public ResponseEntity<List<PlayerGameStats>> createGameStatsBetweenDate(@RequestParam LocalDate start,
-                                                                            @RequestParam LocalDate end) {
-        return ResponseEntity.ok(playerGameStatsService.createAllPlayerGameStatsBetweenDates(start, end));
+    public ResponseEntity<Void> createGameStatsBetweenDate(@RequestParam LocalDate start,
+                                                           @RequestParam LocalDate end) {
+        playerGameStatsService.createAllPlayerGameStatsBetweenDates(start, end);
+        return ResponseEntity.ok(null);
     }
     @GetMapping("{id}")
     public ResponseEntity<PlayerGameStats> getGameStats(@PathVariable Long id) {

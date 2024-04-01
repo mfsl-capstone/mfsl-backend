@@ -5,6 +5,7 @@ import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.repository.PlayerGameStatsRepository;
+import capstone.mfslbackend.repository.PlayerRepository;
 import capstone.mfslbackend.response.container.StatsContainer;
 import capstone.mfslbackend.response.dto.PlayerStatsResponse;
 import capstone.mfslbackend.response.dto.PlayersStatsResponse;
@@ -17,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -31,6 +31,7 @@ public class PlayerGameStatsService {
     private final PlayerService playerService;
     private final PlayerGameStatsRepository playerGameStatsRepository;
     private final GameService gameService;
+    private final PlayerRepository playerRepository;
     @Value("${YELLOW.CARD.POINTS}")
     private int yellowCardPoints;
     @Value("${RED.CARD.POINTS}")
@@ -91,13 +92,13 @@ public class PlayerGameStatsService {
 
     public PlayerGameStatsService(ApiService apiService, PlayerGameStatsRepository playerGameStatsRepository,
                                   PlayerService playerService, @Value("${base.url}") String baseUrl,
-                                  GameService gameService) {
+                                  GameService gameService, PlayerRepository playerRepository) {
         this.apiService = apiService;
         this.baseUrl = baseUrl;
         this.playerService = playerService;
         this.playerGameStatsRepository = playerGameStatsRepository;
         this.gameService = gameService;
-
+        this.playerRepository = playerRepository;
     }
 
     public PlayerGameStats getPlayerGameStatsById(Long id) {
@@ -109,21 +110,18 @@ public class PlayerGameStatsService {
         Player player = playerService.getPlayerById(playerId);
         return playerGameStatsRepository.findByPlayer(player);
     }
-    public List<PlayerGameStats> createAllPlayerGameStatsBetweenDates(LocalDate startDate, LocalDate endDate) {
-        List<PlayerGameStats> playerGameStats = new ArrayList<>();
+    public void createAllPlayerGameStatsBetweenDates(LocalDate startDate, LocalDate endDate) {
         List<Game> games = gameService.getGamesBetweenDates(startDate, endDate);
         games.forEach(game -> {
             try {
-                playerGameStats.addAll(createPlayerGameStats(game.getId().toString()));
+                createPlayerGameStats(game.getId().toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
-        return playerGameStats;
     }
 
-    public List<PlayerGameStats> createPlayerGameStats(String fixtureId) {
-        List<PlayerGameStats> playerGameStats = new ArrayList<>();
+    public void createPlayerGameStats(String fixtureId) {
         StatsContainer statsResponse;
         StatsContainer statsResponse2;
         try {
@@ -190,12 +188,11 @@ public class PlayerGameStatsService {
                         continue;
                     }
                 }
-                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam())
-                            .ifPresent(playerGameStats::add);
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam());
                 p.setPoints(CollectionUtils.emptyIfNull(p.getPlayerGameStats()).stream().map(PlayerGameStats::getPoints).reduce(0, Integer::sum));
+                playerRepository.save(p);
             }
         }
-        return playerGameStats;
     }
 
     private Optional<PlayerGameStats> convert(StatisticResponse stat, String round, String score, String opp, Game game, Player player, TeamResponse team) {

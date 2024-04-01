@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 @RestController()
-@RequestMapping("/draft")
+@RequestMapping("draft")
 public class DraftController {
     private final DraftService draftService;
     public DraftController(DraftService draftService) {
@@ -20,8 +20,8 @@ public class DraftController {
 
     @GetMapping("{fantasyLeagueId}")
     public ResponseEntity<Draft> getDraft(@PathVariable long fantasyLeagueId) {
-        Draft league = draftService.getDraft(fantasyLeagueId);
-        return ResponseEntity.ok(league);
+        Draft draft = draftService.getDraft(fantasyLeagueId);
+        return ResponseEntity.ok(draft);
     }
 
     @PostMapping("{fantasyLeagueId}")

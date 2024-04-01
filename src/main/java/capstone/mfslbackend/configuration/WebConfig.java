@@ -16,7 +16,7 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 WebMvcConfigurer.super.addCorsMappings(registry);
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000", "https://mfsl-game.ca");
+                        .allowedOrigins("http://localhost:3000", "https://www.mfsl-game.ca");
             }
         };
     }

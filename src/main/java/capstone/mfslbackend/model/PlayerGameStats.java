@@ -77,8 +77,8 @@ public class PlayerGameStats {
     private Player player;
 
     @ToString.Exclude
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "game_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "game_id")
     private Game game;
 
     public PlayerGameStats noNulls() throws IllegalAccessException {
