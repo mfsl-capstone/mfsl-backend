@@ -272,7 +272,21 @@ public class FantasyLeagueService {
         return new ArrayList<>(weeks);
     }
 
+    public List<FantasyWeek> getCompletedFantasyWeeks(Long leagueId) {
+        List<FantasyWeek> weeks = getFantasyWeeksByLeagueId(leagueId);
+        return weeks.stream()
+                .filter(week -> week.getStatus() == FantasyWeekStatus.COMPLETED)
+                .toList();
     }
+
+    public List<FantasyWeek> getIncompleteFantasyWeeks(Long leagueId) {
+        List<FantasyWeek> weeks = getFantasyWeeksByLeagueId(leagueId);
+        return weeks.stream()
+                .filter(week -> week.getStatus() != FantasyWeekStatus.COMPLETED)
+                .toList();
+    }
+
+}
 
 
 
