@@ -288,9 +288,9 @@ public class FantasyLeagueService {
     }
 
 
-    public List<FantasyTeam> sortField(Long leagueId, String sortAttribute, String sortDirection) {
+    public List<FantasyTeam> getFantasyLeagueResults(Long leagueId, String sortField, String sortDirection) {
         List<FantasyTeam> teams = new ArrayList<>(getFantasyLeagueById(leagueId).getFantasyTeams());
-        switch (sortAttribute) {
+        switch (sortField) {
             case "wins":
                 teams.sort(Comparator.comparingInt(FantasyTeam::getWins));
                 break;
