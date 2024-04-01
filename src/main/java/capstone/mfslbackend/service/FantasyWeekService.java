@@ -9,6 +9,7 @@ import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.model.enums.FantasyWeekStatus;
+import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,8 +21,9 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.ArrayList;
 
 
 @Service
@@ -31,6 +33,7 @@ public class FantasyWeekService {
     private final FantasyLeagueService fantasyLeagueService;
     private final PlayerGameStatsService playerGameStatsService;
     private final PlayerService playerService;
+    private final FantasyTeamRepository fantasyTeamRepository;
     private static final int GAME_DURATION = 4;
     private static final int MIN_GK = 1;
     private static final int MIN_DEF = 3;
@@ -43,13 +46,17 @@ public class FantasyWeekService {
     private static final int STARTING_XI = 11;
     private static final int MAX_HOUR = 23;
     private static final int MAX_MINUTE_SECOND = 59;
+    private static final int POINTS_PER_WIN = 3;
+    private static final int POINTS_PER_TIE = 1;
 
     public FantasyWeekService(FantasyWeekRepository fantasyWeekRepository, FantasyLeagueService fantasyLeagueService,
-                              PlayerGameStatsService playerGameStatsService, PlayerService playerService) {
+                              PlayerGameStatsService playerGameStatsService, PlayerService playerService,
+                              FantasyTeamRepository fantasyTeamRepository) {
         this.fantasyWeekRepository = fantasyWeekRepository;
         this.fantasyLeagueService = fantasyLeagueService;
         this.playerGameStatsService = playerGameStatsService;
         this.playerService = playerService;
+        this.fantasyTeamRepository = fantasyTeamRepository;
     }
 
     public FantasyWeek getFantasyWeekById(Long weekId) throws Error404 {
@@ -110,13 +117,9 @@ public class FantasyWeekService {
         fantasyWeeks.forEach(fantasyWeek -> {
             String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ", ",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
             List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, DEFAULT_LIMIT, 0);
-            System.out.println("1");
-            updateGamesInFantasyWeek(players);
-            System.out.println("2");
+//            updateGamesInFantasyWeek(players);
             setFantasyWeekStats(fantasyWeek, players);
-            System.out.println("3");
             finishFantasyWeek(fantasyWeek, players);
-            System.out.println("4");
         });
     }
 
@@ -150,12 +153,31 @@ public class FantasyWeekService {
         Map<Integer, String> teamB = calculateFantasyWeekScore(playersTeamB, fantasyWeek.getStatsTeamB());
         fantasyWeek.setTeamBScore(teamB.keySet().stream().findFirst().orElse(0));
         fantasyWeek.setTeamBInOrder(teamB.values().stream().findFirst().orElse(""));
+        fantasyWeek.getFantasyTeamA().setFantasyPoints(fantasyWeek.getFantasyTeamA().getFantasyPoints() + fantasyWeek.getTeamAScore());
+        fantasyWeek.getFantasyTeamB().setFantasyPoints(fantasyWeek.getFantasyTeamB().getFantasyPoints() + fantasyWeek.getTeamBScore());
+        if (fantasyWeek.getTeamAScore() > fantasyWeek.getTeamBScore()) {
+            fantasyWeek.getFantasyTeamA().setWins(fantasyWeek.getFantasyTeamA().getWins() + 1);
+            fantasyWeek.getFantasyTeamA().setPoints(fantasyWeek.getFantasyTeamA().getPoints() + POINTS_PER_WIN);
+            fantasyWeek.getFantasyTeamB().setLosses(fantasyWeek.getFantasyTeamB().getLosses() + 1);
+        } else if (fantasyWeek.getTeamAScore() < fantasyWeek.getTeamBScore()) {
+            fantasyWeek.getFantasyTeamA().setLosses(fantasyWeek.getFantasyTeamA().getLosses() + 1);
+            fantasyWeek.getFantasyTeamB().setWins(fantasyWeek.getFantasyTeamB().getWins() + 1);
+            fantasyWeek.getFantasyTeamB().setPoints(fantasyWeek.getFantasyTeamB().getPoints() + POINTS_PER_WIN);
+        } else {
+            fantasyWeek.getFantasyTeamA().setTies(fantasyWeek.getFantasyTeamA().getTies() + 1);
+            fantasyWeek.getFantasyTeamB().setTies(fantasyWeek.getFantasyTeamB().getTies() + 1);
+            fantasyWeek.getFantasyTeamA().setPoints(fantasyWeek.getFantasyTeamA().getPoints() + POINTS_PER_TIE);
+            fantasyWeek.getFantasyTeamB().setPoints(fantasyWeek.getFantasyTeamB().getPoints() + POINTS_PER_TIE);
+        }
+        fantasyTeamRepository.save(fantasyWeek.getFantasyTeamA());
+        fantasyTeamRepository.save(fantasyWeek.getFantasyTeamB());
+        fantasyWeekRepository.save(fantasyWeek);
     }
 
     private Map<Integer, String> calculateFantasyWeekScore(List<Player> players, Set<PlayerGameStats> stats) {
         int sum = 0;
-        List<Player> startingXI = players.subList(0, STARTING_XI);
-        List<Player> bench = players.subList(STARTING_XI, players.size());
+        List<Player> startingXI = new ArrayList<>(players.subList(0, STARTING_XI));
+        List<Player> bench = new ArrayList<>(players.subList(STARTING_XI, players.size()));
         for (Player player : startingXI) {
             List<PlayerGameStats> playerStats = stats.stream()
                     .filter(playerGameStats -> playerGameStats.getPlayer().getPlayerId().equals(player.getPlayerId()))
@@ -163,6 +185,7 @@ public class FantasyWeekService {
             if (playerStats.stream()
                     .map(PlayerGameStats::getMinutes)
                     .reduce(0, Integer::sum) > 0) {
+
                 sum += playerStats.stream()
                         .map(PlayerGameStats::getPoints)
                         .reduce(0, Integer::sum);
@@ -193,7 +216,9 @@ public class FantasyWeekService {
         return Map.of(sum, teamInOrder);
     }
     private boolean isValidSwap(List<Player> players, Player playerOut, Player playerIn) {
-        players.set(players.indexOf(playerOut), playerIn);
+        List<Player> playersCopy = new ArrayList<>(players);
+        playersCopy.set(players.indexOf(playerOut), playerIn);
+
         int gkCount = 0;
         int defCount = 0;
         int midCount = 0;
@@ -221,6 +246,7 @@ public class FantasyWeekService {
                 .toList();
         fantasyWeek.setStatsTeamA(new HashSet<>(stats.stream().filter(playerGameStats -> idsTeamA.contains(playerGameStats.getPlayer().getPlayerId())).toList()));
         fantasyWeek.setStatsTeamB(new HashSet<>(stats.stream().filter(playerGameStats -> idsTeamB.contains(playerGameStats.getPlayer().getPlayerId())).toList()));
+        fantasyWeekRepository.save(fantasyWeek);
     }
 
 }

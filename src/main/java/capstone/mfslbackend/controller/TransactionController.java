@@ -2,7 +2,6 @@ package capstone.mfslbackend.controller;
 
 
 import capstone.mfslbackend.model.Transaction;
-import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.service.TransactionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;

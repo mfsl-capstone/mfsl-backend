@@ -35,7 +35,11 @@ public class FantasyTeam {
     private String playerIdsInOrder;
     private int orderNumber;
     private String colour;
-
+    private int wins;
+    private int losses;
+    private int ties;
+    private int points;
+    private int fantasyPoints;
     @OneToMany(orphanRemoval = true)
     private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
 
