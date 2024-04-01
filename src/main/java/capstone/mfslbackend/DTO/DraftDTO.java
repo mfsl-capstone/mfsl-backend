@@ -26,7 +26,10 @@ public class DraftDTO {
         this.status = draft.getStatus();
         this.fantasyLeague = new FantasyLeagueDTO().from(draft.getFantasyLeague());
         this.fantasyTeam = new FantasyTeamWithNoTransactionsNoLeagueDTO().from(draft.getFantasyTeam());
-        this.transactions = draft.getTransactions().stream().map(t -> new TransactionDTO().from(t)).sorted(Comparator.comparing(TransactionDTO::getDate)).toList();
+        this.transactions = draft.getTransactions().stream()
+                .map(t -> new TransactionDTO().from(t))
+                .sorted(Comparator.comparing(TransactionDTO::getDate))
+                .toList();
         return this;
     }
 }

@@ -65,6 +65,25 @@ public class FantasyTeam {
             inverseJoinColumns = @JoinColumn(name = "players_player_id"))
     private Set<Player> players = new LinkedHashSet<>();
 
+    public FantasyTeam(FantasyTeam fantasyTeam) {
+        this.id = fantasyTeam.id;
+        this.teamName = fantasyTeam.teamName;
+        this.playerIdsInOrder = fantasyTeam.playerIdsInOrder;
+        this.orderNumber = fantasyTeam.orderNumber;
+        this.colour = fantasyTeam.colour;
+        this.wins = fantasyTeam.wins;
+        this.losses = fantasyTeam.losses;
+        this.ties = fantasyTeam.ties;
+        this.points = fantasyTeam.points;
+        this.fantasyPoints = fantasyTeam.fantasyPoints;
+        this.fantasyWeeks = fantasyTeam.fantasyWeeks;
+        this.user = fantasyTeam.user;
+        this.fantasyLeague = fantasyTeam.fantasyLeague;
+        this.transactions = fantasyTeam.transactions;
+        this.incomingTrades = fantasyTeam.incomingTrades;
+        this.players = fantasyTeam.players;
+    }
+
 
     @Override
     public final boolean equals(Object o) {

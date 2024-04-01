@@ -206,36 +206,24 @@ public class TransactionService {
     public Transaction acceptTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
 
-        transaction.setStatus(TransactionStatus.ACCEPTED);
-        transaction.setNotified(false);
-        Set<Player> proposingPlayers = transaction.getProposingFantasyTeam().getPlayers();
-        proposingPlayers.remove(transaction.getPlayerOut());
-        proposingPlayers.add(transaction.getPlayerIn());
+        if (transaction.getStatus() != TransactionStatus.PROPOSED) {
+            throw new Error400("Transaction with id " + transactionId + " is not in proposed state");
+        }
+        FantasyTeam proposingFantasyTeam = transaction.getProposingFantasyTeam();
+        FantasyTeam receivingFantasyTeam = transaction.getReceivingFantasyTeam();
+        FantasyTeam proposingFantasyTeamCopy = new FantasyTeam(proposingFantasyTeam);
+        FantasyTeam receivingFantasyTeamCopy = new FantasyTeam(receivingFantasyTeam);
 
-//        decline trade if not enough players in each position
-        if (!approveTeam(proposingPlayers)) {
+        if (substitutePlayer(transaction.getPlayerIn(), transaction.getPlayerOut(), proposingFantasyTeamCopy)
+                && substitutePlayer(transaction.getPlayerOut(), transaction.getPlayerIn(), receivingFantasyTeamCopy)) {
+            proposingFantasyTeam.setPlayers(proposingFantasyTeamCopy.getPlayers());
+            proposingFantasyTeam.setPlayerIdsInOrder(proposingFantasyTeamCopy.getPlayerIdsInOrder());
+            receivingFantasyTeam.setPlayers(receivingFantasyTeamCopy.getPlayers());
+            receivingFantasyTeam.setPlayerIdsInOrder(receivingFantasyTeamCopy.getPlayerIdsInOrder());
+            transaction.setStatus(TransactionStatus.ACCEPTED);
+        } else {
             transaction.setStatus(TransactionStatus.REJECTED);
-            transaction.setNotified(false);
-            return transactionRepository.save(transaction);
         }
-
-        if (transaction.getReceivingFantasyTeam() != null) {
-            Set<Player> receivingPlayers = transaction.getReceivingFantasyTeam().getPlayers();
-            receivingPlayers.add(transaction.getPlayerOut());
-            receivingPlayers.remove(transaction.getPlayerIn());
-
-            if (!approveTeam(receivingPlayers)) {
-                transaction.setStatus(TransactionStatus.REJECTED);
-                transaction.setNotified(false);
-                return transactionRepository.save(transaction);
-            }
-            transaction.getReceivingFantasyTeam().setPlayers(receivingPlayers);
-            transaction.getReceivingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getReceivingFantasyTeam().getPlayerIdsInOrder(),
-                    transaction.getPlayerOut().getPlayerId().toString(), transaction.getPlayerIn().getPlayerId().toString()));
-        }
-        transaction.getProposingFantasyTeam().setPlayers(proposingPlayers);
-        transaction.getProposingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getProposingFantasyTeam().getPlayerIdsInOrder(),
-                transaction.getPlayerIn().getPlayerId().toString(), transaction.getPlayerOut().getPlayerId().toString()));
         return transactionRepository.save(transaction);
     }
     public Transaction rejectTransaction(Long transactionId) {
