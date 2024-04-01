@@ -212,6 +212,16 @@ public class FantasyLeagueService {
                     fantasyWeek.setStatus(FantasyWeekStatus.NOT_STARTED);
 
                     fantasyWeekRepository.save(fantasyWeek);
+                    List<FantasyWeek> teamAFantasyWeeks = new ArrayList<>(teamA.getFantasyWeeks());
+                    teamAFantasyWeeks.add(fantasyWeek);
+                    teamA.setFantasyWeeks(teamAFantasyWeeks);
+                    fantasyTeamRepository.save(teamA);
+
+                    List<FantasyWeek> teamBFantasyWeeks = new ArrayList<>(teamB.getFantasyWeeks());
+                    teamBFantasyWeeks.add(fantasyWeek);
+                    teamB.setFantasyWeeks(teamBFantasyWeeks);
+                    fantasyTeamRepository.save(teamB);
+
                     fantasyWeeks.add(fantasyWeek);
                 }
                 weekNumber += 1;

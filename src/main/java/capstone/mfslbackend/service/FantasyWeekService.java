@@ -70,6 +70,7 @@ public class FantasyWeekService {
                 .filter(fantasyTeam -> fantasyTeam.getId().equals(fantasyTeamId))
                 .findFirst()
                 .orElseThrow(() -> new Error404("Could not find team with id " + fantasyTeamId + " in league with id " + fantasyLeagueId));
+        System.out.println(team.getFantasyWeeks());
         return team.getFantasyWeeks().stream()
                 .filter(fantasyWeek -> fantasyWeek.getWeekNumber() == weekNumber)
                 .findFirst()

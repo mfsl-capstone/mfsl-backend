@@ -18,9 +18,10 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
-
+import java.util.Objects;
+import java.util.List;
+import java.util.ArrayList;
 @Getter
 @Setter
 @AllArgsConstructor
@@ -40,8 +41,7 @@ public class FantasyTeam {
     private int ties;
     private int points;
     private int fantasyPoints;
-    @OneToMany(orphanRemoval = true)
-    private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
+
 
     @JsonIgnore
     @ManyToOne(optional = false)
@@ -51,10 +51,8 @@ public class FantasyTeam {
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_league_id", nullable = false)
     private FantasyLeague fantasyLeague;
-
     @OneToMany(mappedBy = "proposingFantasyTeam", orphanRemoval = true)
     private Set<Transaction> transactions = new LinkedHashSet<>();
-
     @OneToMany(mappedBy = "receivingFantasyTeam", orphanRemoval = true)
     private Set<Transaction> incomingTrades = new LinkedHashSet<>();
 
@@ -64,6 +62,32 @@ public class FantasyTeam {
             joinColumns = @JoinColumn(name = "fantasy_team_id"),
             inverseJoinColumns = @JoinColumn(name = "players_player_id"))
     private Set<Player> players = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "fantasy_team_fantasy_weeks",
+            joinColumns = @JoinColumn(name = "fantasyTeam_id"),
+            inverseJoinColumns = @JoinColumn(name = "fantasyWeeks_id"))
+    private List<FantasyWeek> fantasyWeeks = new ArrayList<>();
+
+    public FantasyTeam(FantasyTeam fantasyTeam) {
+        this.id = fantasyTeam.id;
+        this.teamName = fantasyTeam.teamName;
+        this.playerIdsInOrder = fantasyTeam.playerIdsInOrder;
+        this.orderNumber = fantasyTeam.orderNumber;
+        this.colour = fantasyTeam.colour;
+        this.wins = fantasyTeam.wins;
+        this.losses = fantasyTeam.losses;
+        this.ties = fantasyTeam.ties;
+        this.points = fantasyTeam.points;
+        this.fantasyPoints = fantasyTeam.fantasyPoints;
+        this.fantasyWeeks = fantasyTeam.fantasyWeeks;
+        this.user = fantasyTeam.user;
+        this.fantasyLeague = fantasyTeam.fantasyLeague;
+        this.transactions = fantasyTeam.transactions;
+        this.incomingTrades = fantasyTeam.incomingTrades;
+        this.players = fantasyTeam.players;
+    }
 
 
     @Override

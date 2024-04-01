@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.time.LocalDate;
 import java.util.List;
 @RestController()
-@RequestMapping("/fantasy-week")
+@RequestMapping("fantasy-week")
 public class FantasyWeekController {
     private final FantasyWeekService fantasyWeekService;
     public FantasyWeekController(FantasyWeekService fantasyWeekService) {
