@@ -358,14 +358,10 @@ public class TransactionService {
         FantasyTeam fantasyTeamCopy;
         List<Player> validPlayers = new ArrayList<>();
         for (Player player: fantasyTeam.getPlayers()) {
-            long startTime = System.nanoTime();
-            System.out.println("1 " + (startTime - System.nanoTime()));
             fantasyTeamCopy = new FantasyTeam(fantasyTeam);
-            System.out.println("2 " + (startTime - System.nanoTime()));
             if (substitutePlayer(playerService.getPlayerById(incomingPlayerId), player, fantasyTeamCopy)) {
                 validPlayers.add(player);
             }
-            System.out.println("3 " + (startTime - System.nanoTime()) + "\n\n");
         }
 
         return validPlayers;

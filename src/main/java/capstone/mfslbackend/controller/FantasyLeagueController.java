@@ -1,6 +1,7 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
+import capstone.mfslbackend.DTO.FantasyWeekForTableDTO;
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
@@ -79,15 +80,19 @@ public class FantasyLeagueController {
     }
 
     @GetMapping("completed-weeks")
-    public ResponseEntity<List<FantasyWeek>> getCompletedFantasyWeeks(@RequestParam Long leagueId) {
+    public ResponseEntity<List<FantasyWeekForTableDTO>> getCompletedFantasyWeeks(@RequestParam Long leagueId) {
         List<FantasyWeek> weeks = fantasyLeagueService.getCompletedFantasyWeeks(leagueId);
-        return ResponseEntity.ok(weeks);
+        return ResponseEntity.ok(weeks.stream()
+                .map(week -> new FantasyWeekForTableDTO().from(week))
+                .toList());
     }
 
     @GetMapping("incomplete-weeks")
-    public ResponseEntity<List<FantasyWeek>> getIncompleteFantasyWeeks(@RequestParam Long leagueId) {
+    public ResponseEntity<List<FantasyWeekForTableDTO>> getIncompleteFantasyWeeks(@RequestParam Long leagueId) {
         List<FantasyWeek> weeks = fantasyLeagueService.getIncompleteFantasyWeeks(leagueId);
-        return ResponseEntity.ok(weeks);
+        return ResponseEntity.ok(weeks.stream()
+                .map(week -> new FantasyWeekForTableDTO().from(week))
+                .toList());
     }
 
     @GetMapping("results")
