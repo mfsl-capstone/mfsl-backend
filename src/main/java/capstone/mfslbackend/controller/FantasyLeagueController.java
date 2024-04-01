@@ -77,4 +77,16 @@ public class FantasyLeagueController {
         return ResponseEntity.ok(fantasyWeeks);
     }
 
+    @GetMapping("completed-weeks")
+    public ResponseEntity<List<FantasyWeek>> getCompletedFantasyWeeks(@RequestParam Long leagueId) {
+        List<FantasyWeek> weeks = fantasyLeagueService.getCompletedFantasyWeeks(leagueId);
+        return ResponseEntity.ok(weeks);
+    }
+
+    @GetMapping("incomplete-weeks")
+    public ResponseEntity<List<FantasyWeek>> getIncompleteFantasyWeeks(@RequestParam Long leagueId) {
+        List<FantasyWeek> weeks = fantasyLeagueService.getIncompleteFantasyWeeks(leagueId);
+        return ResponseEntity.ok(weeks);
+    }
+
 }
