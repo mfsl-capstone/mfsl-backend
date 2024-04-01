@@ -91,8 +91,8 @@ public class FantasyLeagueController {
     }
 
     @GetMapping("results")
-    public ResponseEntity<List<FantasyTeam>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortingAttribute, @RequestParam String sortingDirection) {
-        List<FantasyTeam> teams = fantasyLeagueService.getFantasyLeagueResults(leagueId, sortingAttribute, sortingDirection);
+    public ResponseEntity<List<FantasyTeam>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortField, @RequestParam String sortDirection) {
+        List<FantasyTeam> teams = fantasyLeagueService.getFantasyLeagueResults(leagueId, sortField, sortDirection);
         return ResponseEntity.ok(teams);
     }
 

@@ -307,7 +307,7 @@ public class FantasyLeagueService {
                 teams.sort(Comparator.comparingInt(FantasyTeam::getFantasyPoints));
                 break;
             default:
-                throw new Error400("Invalid sorting attribute");
+                throw new Error400("Invalid sort field");
         }
         if (sortDirection.equals("desc")) {
             Collections.reverse(teams);
