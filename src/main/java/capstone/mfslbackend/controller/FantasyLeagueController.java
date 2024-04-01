@@ -4,6 +4,7 @@ import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
+import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.service.FantasyLeagueService;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +88,12 @@ public class FantasyLeagueController {
     public ResponseEntity<List<FantasyWeek>> getIncompleteFantasyWeeks(@RequestParam Long leagueId) {
         List<FantasyWeek> weeks = fantasyLeagueService.getIncompleteFantasyWeeks(leagueId);
         return ResponseEntity.ok(weeks);
+    }
+
+    @GetMapping("results")
+    public ResponseEntity<List<FantasyTeam>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortingAttribute, @RequestParam String sortingDirection) {
+        List<FantasyTeam> teams = fantasyLeagueService.getFantasyLeagueResults(leagueId, sortingAttribute, sortingDirection);
+        return ResponseEntity.ok(teams);
     }
 
 }
