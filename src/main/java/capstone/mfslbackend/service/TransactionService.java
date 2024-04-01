@@ -216,7 +216,7 @@ public class TransactionService {
         if (!approveTeam(proposingPlayers)) {
             transaction.setStatus(TransactionStatus.REJECTED);
             transaction.setHasBeenNotified(false);
-            return transaction;
+            return transactionRepository.save(transaction);
         }
 
         if (transaction.getReceivingFantasyTeam() != null) {
@@ -227,7 +227,7 @@ public class TransactionService {
             if (!approveTeam(receivingPlayers)) {
                 transaction.setStatus(TransactionStatus.REJECTED);
                 transaction.setHasBeenNotified(false);
-                return transaction;
+                return transactionRepository.save(transaction);
             }
             transaction.getReceivingFantasyTeam().setPlayers(receivingPlayers);
             transaction.getReceivingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getReceivingFantasyTeam().getPlayerIdsInOrder(),
@@ -236,13 +236,13 @@ public class TransactionService {
         transaction.getProposingFantasyTeam().setPlayers(proposingPlayers);
         transaction.getProposingFantasyTeam().setPlayerIdsInOrder(changeLineupString(transaction.getProposingFantasyTeam().getPlayerIdsInOrder(),
                 transaction.getPlayerIn().getPlayerId().toString(), transaction.getPlayerOut().getPlayerId().toString()));
-        return transaction;
+        return transactionRepository.save(transaction);
     }
     public Transaction rejectTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
         transaction.setStatus(TransactionStatus.REJECTED);
         transaction.setHasBeenNotified(false);
-        return transaction;
+        return transactionRepository.save(transaction);
     }
     public String changeLineupString(String lineup, String idIn, String idOut) {
         String[] ids = lineup.split(" ");
