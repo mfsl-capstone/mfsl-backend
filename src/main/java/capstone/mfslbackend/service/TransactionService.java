@@ -350,10 +350,18 @@ public class TransactionService {
     }
 
 
-    public Boolean isValid(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) {
-        Set<Player> playersSet = fantasyTeamService.getFantasyTeam(fantasyTeamId).getPlayers();
-        List<Player> playersList = new ArrayList<>(playersSet);
-        return validStartingXI(playersList);
+    public List<Player> isValid(Long fantasyTeamId, Long incomingPlayerId) {
+        FantasyTeam fantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
+        FantasyTeam fantasyTeamCopy;
+        List<Player> validPlayers = new ArrayList<>();
+        for (Player player: fantasyTeam.getPlayers()) {
+            fantasyTeamCopy = new FantasyTeam(fantasyTeam);
+            if (substitutePlayer(playerService.getPlayerById(incomingPlayerId), player, fantasyTeamCopy)) {
+                validPlayers.add(player);
+            }
+        }
+
+        return validPlayers;
     }
 
 }
