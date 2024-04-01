@@ -31,7 +31,7 @@ public class Transaction {
     private LocalDateTime date;
     @Enumerated
     private TransactionStatus status;
-    private boolean notified;
+    private boolean hasBeenNotified;
     @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "proposing_fantasy_team_id", nullable = false)

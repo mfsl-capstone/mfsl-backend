@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class TransactionDTO {
     private LocalDateTime date;
     private TransactionStatus status;
-    private boolean notified;
+    private boolean hasBeenNotified;
     private FantasyTeamWithNoTransactionsNoLeagueDTO proposingFantasyTeam;
     private PlayerWithNoStatsDTO playerIn;
     private PlayerWithNoStatsDTO playerOut;
@@ -18,7 +18,7 @@ public class TransactionDTO {
     public TransactionDTO from(Transaction transaction) {
         this.date = transaction.getDate();
         this.status = transaction.getStatus();
-        this.notified = transaction.isNotified();
+        this.hasBeenNotified = transaction.isHasBeenNotified();
         this.proposingFantasyTeam = new FantasyTeamWithNoTransactionsNoLeagueDTO().from(transaction.getProposingFantasyTeam());
         this.playerIn = new PlayerWithNoStatsDTO().from(transaction.getPlayerIn());
         this.playerOut = new PlayerWithNoStatsDTO().from(transaction.getPlayerOut());

@@ -229,7 +229,7 @@ public class TransactionService {
     public Transaction rejectTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
         transaction.setStatus(TransactionStatus.REJECTED);
-        transaction.setNotified(false);
+        transaction.setHasBeenNotified(false);
         return transactionRepository.save(transaction);
     }
     public String changeLineupString(String lineup, String idIn, String idOut) {
