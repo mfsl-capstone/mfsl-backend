@@ -1,6 +1,6 @@
 package capstone.mfslbackend.controller;
 
-import capstone.mfslbackend.model.Player;
+
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.service.TransactionService;
@@ -11,10 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @RestController()
 @RequestMapping("/transaction")
@@ -57,9 +53,7 @@ public class TransactionController {
 
     @GetMapping("isValid")
     public ResponseEntity<Boolean> isValidTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId, @RequestParam Long outgoingPlayerId) {
-        Set<Player> playersSet = fantasyTeamRepository.findById(fantasyTeamId).get().getPlayers();
-        List<Player> playersList = new ArrayList<>(playersSet);
-        Boolean isValid = transactionService.validStartingXI(playersList);
+        Boolean isValid = transactionService.isValid(fantasyTeamId, incomingPlayerId, outgoingPlayerId);
         return ResponseEntity.ok(isValid);
     }
 

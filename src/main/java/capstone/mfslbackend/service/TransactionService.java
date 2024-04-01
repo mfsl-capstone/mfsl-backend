@@ -362,4 +362,10 @@ public class TransactionService {
     }
 
 
+    public Boolean isValid(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) {
+        Set<Player> playersSet = fantasyTeamService.getFantasyTeam(fantasyTeamId).getPlayers();
+        List<Player> playersList = new ArrayList<>(playersSet);
+        return validStartingXI(playersList);
+    }
+
 }
