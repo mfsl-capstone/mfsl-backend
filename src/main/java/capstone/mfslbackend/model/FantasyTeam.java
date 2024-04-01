@@ -17,9 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -40,8 +38,7 @@ public class FantasyTeam {
     private int ties;
     private int points;
     private int fantasyPoints;
-    @OneToMany(orphanRemoval = true)
-    private Set<FantasyWeek> fantasyWeeks = new LinkedHashSet<>();
+
 
     @JsonIgnore
     @ManyToOne(optional = false)
@@ -62,6 +59,13 @@ public class FantasyTeam {
             joinColumns = @JoinColumn(name = "fantasy_team_id"),
             inverseJoinColumns = @JoinColumn(name = "players_player_id"))
     private Set<Player> players = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "fantasy_team_fantasy_weeks",
+            joinColumns = @JoinColumn(name = "fantasyTeam_id"),
+            inverseJoinColumns = @JoinColumn(name = "fantasyWeeks_id"))
+    private List<FantasyWeek> fantasyWeeks = new ArrayList<>();
 
     public FantasyTeam(FantasyTeam fantasyTeam) {
         this.id = fantasyTeam.id;
