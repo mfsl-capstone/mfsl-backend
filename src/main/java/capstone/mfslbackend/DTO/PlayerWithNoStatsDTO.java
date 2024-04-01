@@ -13,6 +13,9 @@ public class PlayerWithNoStatsDTO {
     private Integer points;
     private Team team;
     public PlayerWithNoStatsDTO from(Player player) {
+        if (player == null) {
+            return null;
+        }
         this.name = player.getName();
         this.position = player.getPosition();
         this.url = player.getUrl();

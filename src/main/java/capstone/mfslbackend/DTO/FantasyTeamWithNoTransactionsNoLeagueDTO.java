@@ -15,6 +15,9 @@ public class FantasyTeamWithNoTransactionsNoLeagueDTO {
     private int points;
     private int fantasyPoints;
     public FantasyTeamWithNoTransactionsNoLeagueDTO from(FantasyTeam fantasyTeam) {
+        if (fantasyTeam == null) {
+            return null;
+        }
         this.id = fantasyTeam.getId();
         this.teamName = fantasyTeam.getTeamName();
         this.orderNumber = fantasyTeam.getOrderNumber();

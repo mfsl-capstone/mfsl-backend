@@ -5,6 +5,7 @@ import capstone.mfslbackend.model.enums.DraftStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -25,7 +26,7 @@ public class DraftDTO {
         this.status = draft.getStatus();
         this.fantasyLeague = new FantasyLeagueDTO().from(draft.getFantasyLeague());
         this.fantasyTeam = new FantasyTeamWithNoTransactionsNoLeagueDTO().from(draft.getFantasyTeam());
-        this.transactions = draft.getTransactions().stream().map(t -> new TransactionDTO().from(t)).toList();
+        this.transactions = draft.getTransactions().stream().map(t -> new TransactionDTO().from(t)).sorted(Comparator.comparing(TransactionDTO::getDate)).toList();
         return this;
     }
 }
