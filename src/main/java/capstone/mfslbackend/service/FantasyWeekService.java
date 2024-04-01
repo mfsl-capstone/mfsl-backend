@@ -99,6 +99,7 @@ public class FantasyWeekService {
             fantasyWeek.setStatus(FantasyWeekStatus.IN_PROGRESS);
             fantasyWeek.setTeamAInOrder(fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder());
             fantasyWeek.setTeamBInOrder(fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder());
+            fantasyWeekRepository.save(fantasyWeek);
         });
     }
     public void updateActiveFantasyWeeks() {
