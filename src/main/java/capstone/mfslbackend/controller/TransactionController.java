@@ -16,12 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/transaction")
 public class TransactionController {
     private final TransactionService transactionService;
-    private final FantasyTeamRepository fantasyTeamRepository;
 
-    public TransactionController(TransactionService transactionService,
-                                 FantasyTeamRepository fantasyTeamRepository) {
+    public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
-        this.fantasyTeamRepository = fantasyTeamRepository;
     }
     @PostMapping()
     public ResponseEntity<Transaction> createTransaction(@RequestParam Long fantasyTeamId, @RequestParam Long incomingPlayerId, @RequestParam Long outgoingPlayerId) {

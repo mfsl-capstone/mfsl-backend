@@ -112,7 +112,6 @@ public class PlayerGameStatsService {
         return playerGameStatsRepository.findByPlayer(player);
     }
     public void createAllPlayerGameStatsBetweenDates(LocalDate startDate, LocalDate endDate) {
-        List<PlayerGameStats> playerGameStats = new ArrayList<>();
         List<Game> games = gameService.getGamesBetweenDates(startDate, endDate);
         games.forEach(game -> {
             try {
@@ -124,7 +123,6 @@ public class PlayerGameStatsService {
     }
 
     public void createPlayerGameStats(String fixtureId) {
-        List<PlayerGameStats> playerGameStats = new ArrayList<>();
         StatsContainer statsResponse;
         StatsContainer statsResponse2;
         try {
@@ -191,8 +189,7 @@ public class PlayerGameStatsService {
                         continue;
                     }
                 }
-                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam())
-                            .ifPresent(playerGameStats::add);
+                convert(players.getStatistics().get(0), statsResponse2.getResponse().get(0).getLeague().getRound(), score, opp, g, p, response.getTeam());
                 p.setPoints(CollectionUtils.emptyIfNull(p.getPlayerGameStats()).stream().map(PlayerGameStats::getPoints).reduce(0, Integer::sum));
                 playerRepository.save(p);
             }

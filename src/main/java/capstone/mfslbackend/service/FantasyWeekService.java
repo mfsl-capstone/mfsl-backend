@@ -78,7 +78,7 @@ public class FantasyWeekService {
                 .findFirst()
                 .orElseThrow(() -> new Error404("Could not find team with id " + fantasyTeamId + " in league with id " + fantasyLeagueId));
         return team.getFantasyWeeks().stream()
-                .filter(fantasyWeek -> fantasyWeek.getStartDate().isBefore(LocalDate.now()) && fantasyWeek.getEndDate().isAfter(LocalDate.now()))
+                .filter(fantasyWeek -> fantasyWeek.getStartDate().isAfter(date) && fantasyWeek.getEndDate().isBefore(date))
                 .findFirst()
                 .orElseThrow(() -> new Error404("Team with id " + fantasyTeamId + " does not have a week for the date: " + date));
     }
@@ -110,10 +110,13 @@ public class FantasyWeekService {
         fantasyWeeks.forEach(fantasyWeek -> {
             String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ", ",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
             List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, DEFAULT_LIMIT, 0);
-
+            System.out.println("1");
             updateGamesInFantasyWeek(players);
+            System.out.println("2");
             setFantasyWeekStats(fantasyWeek, players);
+            System.out.println("3");
             finishFantasyWeek(fantasyWeek, players);
+            System.out.println("4");
         });
     }
 
@@ -161,7 +164,7 @@ public class FantasyWeekService {
                     .map(PlayerGameStats::getMinutes)
                     .reduce(0, Integer::sum) > 0) {
                 sum += playerStats.stream()
-                        .map(PlayerGameStats::getMinutes)
+                        .map(PlayerGameStats::getPoints)
                         .reduce(0, Integer::sum);
                 continue;
             }
@@ -176,7 +179,7 @@ public class FantasyWeekService {
                         && isValidSwap(players.subList(0, STARTING_XI), player, benchPlayer)) {
 
                     sum += benchPlayerStats.stream()
-                            .map(PlayerGameStats::getMinutes)
+                            .map(PlayerGameStats::getPoints)
                             .reduce(0, Integer::sum);
                     startingXI.set(startingXI.indexOf(player), benchPlayer);
                     bench.set(bench.indexOf(benchPlayer), player);

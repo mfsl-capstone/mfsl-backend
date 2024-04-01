@@ -1,5 +1,6 @@
 package capstone.mfslbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -44,6 +45,7 @@ public class Game {
     private Team awayTeam;
     private int awayTeamScore;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "game", orphanRemoval = true)
     private Set<PlayerGameStats> playerGameStats = new LinkedHashSet<>();
 
