@@ -288,7 +288,7 @@ public class FantasyLeagueService {
     }
 
 
-    public List<FantasyTeam> getFantasyLeagueResults(Long leagueId, String sortAttribute, String sortDirection) {
+    public List<FantasyTeam> sortField(Long leagueId, String sortAttribute, String sortDirection) {
         List<FantasyTeam> teams = new ArrayList<>(getFantasyLeagueById(leagueId).getFantasyTeams());
         switch (sortAttribute) {
             case "wins":
@@ -300,6 +300,12 @@ public class FantasyLeagueService {
             case "ties":
                 teams.sort(Comparator.comparingInt(FantasyTeam::getTies));
                 break;
+            case "points":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getPoints));
+                break;
+            case "fantasyPoints":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getFantasyPoints));
+                break;
             default:
                 throw new Error400("Invalid sorting attribute");
         }
@@ -309,7 +315,7 @@ public class FantasyLeagueService {
         return teams;
     }
 
-    }
+}
 
 
 
