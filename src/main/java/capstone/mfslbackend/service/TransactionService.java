@@ -9,7 +9,7 @@ import capstone.mfslbackend.model.TransactionStatus;
 import capstone.mfslbackend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.List;
@@ -54,7 +54,7 @@ public class TransactionService {
     public Transaction createTransaction(Long fantasyTeamId, Long incomingPlayerId, Long outgoingPlayerId) {
         Transaction transaction = new Transaction();
 
-        transaction.setDate(LocalDate.now());
+        transaction.setDate(LocalDateTime.now());
 
         FantasyTeam proposingFantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
         transaction.setProposingFantasyTeam(proposingFantasyTeam);
@@ -95,7 +95,7 @@ public class TransactionService {
     public Transaction draftTransaction(Long fantasyTeamId, Long incomingPlayerId) {
         Transaction transaction = new Transaction();
 
-        transaction.setDate(LocalDate.now());
+        transaction.setDate(LocalDateTime.now());
 
         FantasyTeam proposingFantasyTeam = fantasyTeamService.getFantasyTeam(fantasyTeamId);
         transaction.setProposingFantasyTeam(proposingFantasyTeam);
@@ -207,7 +207,7 @@ public class TransactionService {
         Transaction transaction = getTransactionById(transactionId);
 
         transaction.setStatus(TransactionStatus.ACCEPTED);
-        transaction.setHasBeenNotified(false);
+        transaction.setNotified(false);
         Set<Player> proposingPlayers = transaction.getProposingFantasyTeam().getPlayers();
         proposingPlayers.remove(transaction.getPlayerOut());
         proposingPlayers.add(transaction.getPlayerIn());
@@ -215,7 +215,7 @@ public class TransactionService {
 //        decline trade if not enough players in each position
         if (!approveTeam(proposingPlayers)) {
             transaction.setStatus(TransactionStatus.REJECTED);
-            transaction.setHasBeenNotified(false);
+            transaction.setNotified(false);
             return transactionRepository.save(transaction);
         }
 
@@ -226,7 +226,7 @@ public class TransactionService {
 
             if (!approveTeam(receivingPlayers)) {
                 transaction.setStatus(TransactionStatus.REJECTED);
-                transaction.setHasBeenNotified(false);
+                transaction.setNotified(false);
                 return transactionRepository.save(transaction);
             }
             transaction.getReceivingFantasyTeam().setPlayers(receivingPlayers);
@@ -241,7 +241,7 @@ public class TransactionService {
     public Transaction rejectTransaction(Long transactionId) {
         Transaction transaction = getTransactionById(transactionId);
         transaction.setStatus(TransactionStatus.REJECTED);
-        transaction.setHasBeenNotified(false);
+        transaction.setNotified(false);
         return transactionRepository.save(transaction);
     }
     public String changeLineupString(String lineup, String idIn, String idOut) {

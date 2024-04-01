@@ -1,5 +1,7 @@
 package capstone.mfslbackend.controller;
 
+import capstone.mfslbackend.DTO.DraftDTO;
+import capstone.mfslbackend.DTO.TransactionDTO;
 import capstone.mfslbackend.model.Draft;
 import capstone.mfslbackend.model.Transaction;
 import capstone.mfslbackend.service.DraftService;
@@ -19,15 +21,15 @@ public class DraftController {
     }
 
     @GetMapping("{fantasyLeagueId}")
-    public ResponseEntity<Draft> getDraft(@PathVariable long fantasyLeagueId) {
+    public ResponseEntity<DraftDTO> getDraft(@PathVariable long fantasyLeagueId) {
         Draft draft = draftService.getDraft(fantasyLeagueId);
-        return ResponseEntity.ok(draft);
+        return ResponseEntity.ok(new DraftDTO().from(draft));
     }
 
     @PostMapping("{fantasyLeagueId}")
-    public ResponseEntity<Transaction> draftPlayer(@PathVariable long fantasyLeagueId, @RequestParam long fantasyTeamId,
-                                                   @RequestParam long playerId) {
+    public ResponseEntity<TransactionDTO> draftPlayer(@PathVariable long fantasyLeagueId, @RequestParam long fantasyTeamId,
+                                                      @RequestParam long playerId) {
         Transaction transaction = draftService.draftPlayer(fantasyLeagueId, fantasyTeamId, playerId);
-        return ResponseEntity.ok(transaction);
+        return ResponseEntity.ok(new TransactionDTO().from(transaction));
     }
 }

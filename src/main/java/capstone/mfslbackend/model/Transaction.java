@@ -13,9 +13,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -28,12 +27,11 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
-    private LocalDate date;
+    private LocalDateTime date;
     @Enumerated
     private TransactionStatus status;
-    private boolean hasBeenNotified;
+    private boolean notified;
 
-    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "proposing_fantasy_team_id", nullable = false)
     private FantasyTeam proposingFantasyTeam;
@@ -46,8 +44,6 @@ public class Transaction {
     @JoinColumn(name = "player_out_player_id")
     private Player playerOut;
 
-    @JsonIgnore
-    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "receiving_fantasy_team_id")
     private FantasyTeam receivingFantasyTeam;
