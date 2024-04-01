@@ -20,17 +20,18 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Map;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Map;
 
 @Service
 public class FantasyLeagueService {
@@ -286,7 +287,38 @@ public class FantasyLeagueService {
                 .toList();
     }
 
+
+    public List<FantasyTeam> getFantasyLeagueResults(Long leagueId, String sortField, String sortDirection) {
+        List<FantasyTeam> teams = new ArrayList<>(getFantasyLeagueById(leagueId).getFantasyTeams());
+        switch (sortField) {
+            case "wins":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getWins));
+                break;
+            case "losses":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getLosses));
+                break;
+            case "ties":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getTies));
+                break;
+            case "points":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getPoints));
+                break;
+            case "fantasyPoints":
+                teams.sort(Comparator.comparingInt(FantasyTeam::getFantasyPoints));
+                break;
+            default:
+                throw new Error400("Invalid sort field");
+        }
+        if (sortDirection.equals("desc")) {
+            Collections.reverse(teams);
+        }
+        return teams;
+    }
+
 }
+
+
+
 
 
 
