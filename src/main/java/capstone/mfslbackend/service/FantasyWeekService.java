@@ -117,7 +117,7 @@ public class FantasyWeekService {
         fantasyWeeks.forEach(fantasyWeek -> {
             String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ", ",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
             List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, DEFAULT_LIMIT, 0);
-//            updateGamesInFantasyWeek(players);
+            updateGamesInFantasyWeek(players);
             setFantasyWeekStats(fantasyWeek, players);
             finishFantasyWeek(fantasyWeek, players);
         });
@@ -131,7 +131,12 @@ public class FantasyWeekService {
                 .flatMap(List::stream)
                 .map(Game::getId)
                 .distinct()
-                .forEach(gameId -> playerGameStatsService.createPlayerGameStats(String.valueOf(gameId)));
+                .forEach(gameId -> {
+                    try {
+                        playerGameStatsService.createPlayerGameStats(String.valueOf(gameId));
+                    } catch (Error404 ignored) {
+                    }
+                });
     }
 
     public void finishFantasyWeek(FantasyWeek fantasyWeek, List<Player> players) {
