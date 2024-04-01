@@ -52,7 +52,8 @@ public class DraftService {
             d.setDirection("asc");
             d.setRound(1);
         }
-        if (d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())) {
+        if (d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())
+                && d.getStatus().equals(DraftStatus.IN_PROGRESS)) {
             Transaction t = null;
             while (t == null) {
                 try {
