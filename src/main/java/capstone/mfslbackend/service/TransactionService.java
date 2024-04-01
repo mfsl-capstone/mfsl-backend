@@ -331,7 +331,7 @@ public class TransactionService {
         return false;
     }
 
-    private Boolean validStartingXI(List<Player> players) {
+    public Boolean validStartingXI(List<Player> players) {
         int gkCount = 0;
         int defCount = 0;
         int midCount = 0;
@@ -360,4 +360,6 @@ public class TransactionService {
             default -> DEFAULT_ORDER; // Unknown position
         };
     }
+
+
 }
