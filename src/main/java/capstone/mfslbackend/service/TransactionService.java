@@ -273,7 +273,10 @@ public class TransactionService {
         String[] newLineup = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
         List<Player> players = new ArrayList<>();
         for (String playerId : newLineup) {
-            players.add(playerService.getPlayerById(Long.parseLong(playerId)));
+            players.add(proposingFantasyTeam.getPlayers().stream()
+                    .filter(player -> player.getPlayerId().equals(Long.parseLong(playerId)))
+                    .findFirst()
+                    .orElseThrow(() -> new Error404("Player with id " + playerId + " not found in fantasy team with id " + proposingFantasyTeam.getId())));
         }
 
         int index = players.indexOf(playerOut);
@@ -355,10 +358,14 @@ public class TransactionService {
         FantasyTeam fantasyTeamCopy;
         List<Player> validPlayers = new ArrayList<>();
         for (Player player: fantasyTeam.getPlayers()) {
+            long startTime = System.nanoTime();
+            System.out.println("1 " + (startTime - System.nanoTime()));
             fantasyTeamCopy = new FantasyTeam(fantasyTeam);
+            System.out.println("2 " + (startTime - System.nanoTime()));
             if (substitutePlayer(playerService.getPlayerById(incomingPlayerId), player, fantasyTeamCopy)) {
                 validPlayers.add(player);
             }
+            System.out.println("3 " + (startTime - System.nanoTime()) + "\n\n");
         }
 
         return validPlayers;
