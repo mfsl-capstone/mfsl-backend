@@ -1,5 +1,6 @@
 package capstone.mfslbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,7 +32,7 @@ public class Transaction {
     @Enumerated
     private TransactionStatus status;
     private boolean notified;
-
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "proposing_fantasy_team_id", nullable = false)
     private FantasyTeam proposingFantasyTeam;
@@ -43,7 +44,7 @@ public class Transaction {
     @ManyToOne(optional = true)
     @JoinColumn(name = "player_out_player_id")
     private Player playerOut;
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "receiving_fantasy_team_id")
     private FantasyTeam receivingFantasyTeam;

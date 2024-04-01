@@ -51,10 +51,8 @@ public class FantasyTeam {
     @ManyToOne(optional = false)
     @JoinColumn(name = "fantasy_league_id", nullable = false)
     private FantasyLeague fantasyLeague;
-    @JsonIgnore
     @OneToMany(mappedBy = "proposingFantasyTeam", orphanRemoval = true)
     private Set<Transaction> transactions = new LinkedHashSet<>();
-    @JsonIgnore
     @OneToMany(mappedBy = "receivingFantasyTeam", orphanRemoval = true)
     private Set<Transaction> incomingTrades = new LinkedHashSet<>();
 
