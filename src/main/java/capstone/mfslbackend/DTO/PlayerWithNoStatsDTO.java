@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class PlayerWithNoStatsDTO {
+    private long id;
     private String name;
     private String position;
     private String url;
@@ -16,6 +17,7 @@ public class PlayerWithNoStatsDTO {
         if (player == null) {
             return null;
         }
+        this.id = player.getPlayerId();
         this.name = player.getName();
         this.position = player.getPosition();
         this.url = player.getUrl();

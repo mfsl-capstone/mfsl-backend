@@ -186,6 +186,7 @@ public class FantasyLeagueService {
 
         while (!CollectionUtils.isEmpty(gameService.getGamesBetweenDates(startDate, endDate))) {
             for (List<FantasyTeam> weekMatches : schedule) {
+                System.out.println(startDate + " " + endDate);
                 int emptyWeeks = 0;
                 while (gameService.getGamesBetweenDates(startDate, endDate).size() < MIN_GAMES && ChronoUnit.WEEKS.between(startDate, endDate) < WEEKS_IN_MONTH) {
                     if (gameService.getGamesBetweenDates(endDate.minusWeeks(1), endDate).size() == 0) {
@@ -218,10 +219,12 @@ public class FantasyLeagueService {
                     teamA.setFantasyWeeks(teamAFantasyWeeks);
                     fantasyTeamRepository.save(teamA);
 
-                    List<FantasyWeek> teamBFantasyWeeks = new ArrayList<>(teamB.getFantasyWeeks());
-                    teamBFantasyWeeks.add(fantasyWeek);
-                    teamB.setFantasyWeeks(teamBFantasyWeeks);
-                    fantasyTeamRepository.save(teamB);
+                    if (teamB != null) {
+                        List<FantasyWeek> teamBFantasyWeeks = new ArrayList<>(teamB.getFantasyWeeks());
+                        teamBFantasyWeeks.add(fantasyWeek);
+                        teamB.setFantasyWeeks(teamBFantasyWeeks);
+                        fantasyTeamRepository.save(teamB);
+                    }
 
                     fantasyWeeks.add(fantasyWeek);
                 }

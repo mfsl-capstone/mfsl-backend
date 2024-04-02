@@ -45,7 +45,7 @@ public class FantasyWeek {
 
     @ToString.Exclude
     @JsonIgnore
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @JoinColumn(name = "fantasy_team_b_id", nullable = false)
     private FantasyTeam fantasyTeamB;
 
