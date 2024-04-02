@@ -40,7 +40,10 @@ public class DraftService {
             int i = 1;
             Random r = new Random();
             while (fantasyTeams.size() > 0) {
-                int index = r.nextInt(1, fantasyTeams.size());
+                int index = 1;
+                if (fantasyTeams.size() > 1) {
+                    index = r.nextInt(1, fantasyTeams.size());
+                }
                 FantasyTeam ft = fantasyTeams.remove(index);
                 ft.setOrderNumber(i);
                 i++;

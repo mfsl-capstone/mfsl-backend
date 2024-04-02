@@ -6,6 +6,7 @@ import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -31,6 +32,9 @@ public class FantasyTeamService {
 
     public FantasyTeamLineup getFantasyTeamLineup(Long fantasyTeamId) throws Error404 {
         FantasyTeam fantasyTeam = getFantasyTeam(fantasyTeamId);
+        if (CollectionUtils.isEmpty(fantasyTeam.getPlayers())) {
+            return null;
+        }
         return new FantasyTeamLineup(fantasyTeam.getPlayers(), fantasyTeam.getPlayerIdsInOrder());
     }
 
