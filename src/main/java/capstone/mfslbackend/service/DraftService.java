@@ -36,7 +36,7 @@ public class DraftService {
 
         if (d.getStatus().equals(DraftStatus.NOT_STARTED) && LocalDateTime.now().isAfter(d.getDraftDate())) {
             d.setStatus(DraftStatus.IN_PROGRESS);
-            List<FantasyTeam> fantasyTeams = new ArrayList(fantasyLeague.getFantasyTeams());
+            List<FantasyTeam> fantasyTeams = new ArrayList<>(fantasyLeague.getFantasyTeams());
             int i = 1;
             Random r = new Random();
             while (fantasyTeams.size() > 0) {
@@ -55,8 +55,9 @@ public class DraftService {
             d.setDirection("asc");
             d.setRound(1);
         }
-        if (d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())
-                && d.getStatus().equals(DraftStatus.IN_PROGRESS)) {
+        if (d.getStatus().equals(DraftStatus.IN_PROGRESS)
+                && d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())
+                ) {
             Transaction t = null;
             while (t == null) {
                 try {
