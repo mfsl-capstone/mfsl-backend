@@ -69,8 +69,6 @@ public class PlayerGameStats {
     private int shotAccuracyPoints;
     private int ratingPoints;
     private String opp;
-
-
     @ToString.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "player_id", nullable = false)

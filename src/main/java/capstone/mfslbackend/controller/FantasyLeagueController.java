@@ -1,6 +1,7 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
+import capstone.mfslbackend.DTO.FantasyTeamWithNoTransactionsNoLeagueDTO;
 import capstone.mfslbackend.DTO.FantasyWeekForTableDTO;
 import capstone.mfslbackend.DTO.FantasyWeeksDTO;
 import capstone.mfslbackend.error.Error400;
@@ -93,9 +94,9 @@ public class FantasyLeagueController {
     }
 
     @GetMapping("results")
-    public ResponseEntity<List<FantasyTeam>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortField, @RequestParam String sortDirection) {
+    public ResponseEntity<List<FantasyTeamWithNoTransactionsNoLeagueDTO>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortField, @RequestParam String sortDirection) {
         List<FantasyTeam> teams = fantasyLeagueService.getFantasyLeagueResults(leagueId, sortField, sortDirection);
-        return ResponseEntity.ok(teams);
+        return ResponseEntity.ok(teams.stream().map(team -> new FantasyTeamWithNoTransactionsNoLeagueDTO().from(team)).toList());
     }
 
 }
