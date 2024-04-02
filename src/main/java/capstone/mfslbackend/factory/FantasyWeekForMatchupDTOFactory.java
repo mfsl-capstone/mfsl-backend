@@ -29,7 +29,6 @@ public class FantasyWeekForMatchupDTOFactory {
         fantasyWeekForMatchupDTO.setFantasyTeamB(new FantasyTeamWithNoTransactionsNoLeagueDTO().from(fantasyWeek.getFantasyTeamB()));
         fantasyWeekForMatchupDTO.setTeamAPlayers(Stream.of(fantasyWeek.getTeamAInOrder().split(" "))
                 .map(playerId -> {
-                    System.out.println(playerId);
                     Player p = fantasyWeek.getFantasyTeamA().getPlayers().stream()
                             .filter(player -> player.getPlayerId().equals(Long.parseLong(playerId)))
                             .findFirst().orElse(playerService.getPlayerById(Long.parseLong(playerId)));

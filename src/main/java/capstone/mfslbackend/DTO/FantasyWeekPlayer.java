@@ -19,9 +19,13 @@ public class FantasyWeekPlayer {
         for (PlayerGameStats stat : stats) {
             score += stat.getPoints();
         }
-        display.append(score);
+        if (stats.size() > 0) {
+            display.append(score);
+        }
+        if (games.size() > 0) {
+            display.append(", ");
+        }
         for (Game game : games) {
-            display.append(",");
             if (game.getHomeTeam().getTeamId().equals(player.getTeam().getTeamId())) {
                 display.append(game.getAwayTeam().getName()).append(" ");
             } else if (game.getAwayTeam().getTeamId().equals(player.getTeam().getTeamId())) {
