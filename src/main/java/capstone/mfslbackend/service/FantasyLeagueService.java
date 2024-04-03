@@ -186,7 +186,6 @@ public class FantasyLeagueService {
 
         while (!CollectionUtils.isEmpty(gameService.getGamesBetweenDates(startDate, endDate))) {
             for (List<FantasyTeam> weekMatches : schedule) {
-                System.out.println(startDate + " " + endDate);
                 int emptyWeeks = 0;
                 while (gameService.getGamesBetweenDates(startDate, endDate).size() < MIN_GAMES && ChronoUnit.WEEKS.between(startDate, endDate) < WEEKS_IN_MONTH) {
                     if (gameService.getGamesBetweenDates(endDate.minusWeeks(1), endDate).size() == 0) {

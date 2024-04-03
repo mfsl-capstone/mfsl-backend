@@ -26,10 +26,10 @@ public class DraftController {
         return ResponseEntity.ok(new DraftDTO().from(draft));
     }
 
-    @PostMapping("{fantasyLeagueId}")
-    public ResponseEntity<TransactionDTO> draftPlayer(@PathVariable long fantasyLeagueId, @RequestParam long fantasyTeamId,
+    @PostMapping("")
+    public ResponseEntity<TransactionDTO> draftPlayer(@RequestParam long fantasyTeamId,
                                                       @RequestParam long playerId) {
-        Transaction transaction = draftService.draftPlayer(fantasyLeagueId, fantasyTeamId, playerId);
+        Transaction transaction = draftService.draftPlayer(fantasyTeamId, playerId);
         return ResponseEntity.ok(new TransactionDTO().from(transaction));
     }
 }
