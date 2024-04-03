@@ -34,7 +34,7 @@ public class FantasyWeekService {
     private final PlayerGameStatsService playerGameStatsService;
     private final PlayerService playerService;
     private final FantasyTeamRepository fantasyTeamRepository;
-    private static final int GAME_DURATION = 4;
+    private final GameService gameService;
     private static final int MIN_GK = 1;
     private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
@@ -51,12 +51,13 @@ public class FantasyWeekService {
 
     public FantasyWeekService(FantasyWeekRepository fantasyWeekRepository, FantasyLeagueService fantasyLeagueService,
                               PlayerGameStatsService playerGameStatsService, PlayerService playerService,
-                              FantasyTeamRepository fantasyTeamRepository) {
+                              FantasyTeamRepository fantasyTeamRepository, GameService gameService) {
         this.fantasyWeekRepository = fantasyWeekRepository;
         this.fantasyLeagueService = fantasyLeagueService;
         this.playerGameStatsService = playerGameStatsService;
         this.playerService = playerService;
         this.fantasyTeamRepository = fantasyTeamRepository;
+        this.gameService = gameService;
     }
 
     public FantasyWeek getFantasyWeekById(Long weekId) throws Error404 {
@@ -111,33 +112,23 @@ public class FantasyWeekService {
         });
     }
     public void updateActiveFantasyWeeks() {
+
         Specification<FantasyWeek> spec = (root, query, criteriaBuilder) ->
             criteriaBuilder.equal(root.get("status"), FantasyWeekStatus.IN_PROGRESS);
         List<FantasyWeek> fantasyWeeks = fantasyWeekRepository.findAll(spec);
+        gameService.getPastNoStatsGames().forEach(game -> {
+            try {
+                playerGameStatsService.createPlayerGameStats(String.valueOf(game.getId()));
+            } catch (Exception ignored) {
+            }
+        });
 
         fantasyWeeks.forEach(fantasyWeek -> {
             String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ", ",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
             List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, DEFAULT_LIMIT, 0);
-            updateGamesInFantasyWeek(players);
             setFantasyWeekStats(fantasyWeek, players);
             finishFantasyWeek(fantasyWeek, players);
         });
-    }
-
-    public void updateGamesInFantasyWeek(List<Player> players) {
-        players.stream().map(player -> player.getTeam().getGames().stream()
-                        .filter(game -> game.getDate().isBefore(LocalDateTime.now().minusHours(GAME_DURATION))
-                                && CollectionUtils.isEmpty(game.getPlayerGameStats()))
-                        .toList())
-                .flatMap(List::stream)
-                .map(Game::getId)
-                .distinct()
-                .forEach(gameId -> {
-                    try {
-                        playerGameStatsService.createPlayerGameStats(String.valueOf(gameId));
-                    } catch (Error404 ignored) {
-                    }
-                });
     }
 
     public void finishFantasyWeek(FantasyWeek fantasyWeek, List<Player> players) {

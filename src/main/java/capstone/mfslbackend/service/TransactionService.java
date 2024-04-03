@@ -166,7 +166,12 @@ public class TransactionService {
 
 //        add player to the team immediately
         proposingFantasyTeam.setPlayers(players);
-        String lineup = proposingFantasyTeam.getPlayerIdsInOrder() + " " + playerIn.getPlayerId();
+        String lineup;
+        if (proposingFantasyTeam.getPlayerIdsInOrder() != null && !proposingFantasyTeam.getPlayerIdsInOrder().equals("null")) {
+            lineup = proposingFantasyTeam.getPlayerIdsInOrder() + " " + playerIn.getPlayerId();
+        } else {
+            lineup = playerIn.getPlayerId().toString().trim();
+        }
         if (players.size() == MAX_PLAYERS) {
             lineup = "";
             List<Player> gks = players.stream().filter(player -> player.getPosition().equals("Goalkeeper")).toList();
