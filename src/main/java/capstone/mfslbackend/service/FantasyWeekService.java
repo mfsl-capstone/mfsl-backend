@@ -133,11 +133,11 @@ public class FantasyWeekService {
             return;
         }
         fantasyWeek.setStatus(FantasyWeekStatus.COMPLETED);
-        List<Player> playersTeamA  = Stream.of(fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().split(" "))
+        List<Player> playersTeamA = Stream.of(fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().split(" "))
                 .map(Long::parseLong)
                 .map(playerId -> players.stream().filter(player -> player.getPlayerId().equals(playerId)).findFirst().orElse(null))
                 .toList();
-        List<Player> playersTeamB  = Stream.of(fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().split(" "))
+        List<Player> playersTeamB = Stream.of(fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().split(" "))
                 .map(Long::parseLong)
                 .map(playerId -> players.stream().filter(player -> player.getPlayerId().equals(playerId)).findFirst().orElse(null))
                 .toList();
@@ -205,8 +205,8 @@ public class FantasyWeekService {
             }
         }
         String teamInOrder = startingXI.stream().map(player -> player.getPlayerId().toString()).reduce("", (a, b) -> a + " " + b)
-                + " "
                 + bench.stream().map(player -> player.getPlayerId().toString()).reduce("", (a, b) -> a + " " + b);
+        teamInOrder = teamInOrder.trim();
         return Map.of(sum, teamInOrder);
     }
     private boolean isValidSwap(List<Player> players, Player playerOut, Player playerIn) {
