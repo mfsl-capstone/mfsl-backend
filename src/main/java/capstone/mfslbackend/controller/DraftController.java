@@ -25,6 +25,11 @@ public class DraftController {
         Draft draft = draftService.getDraft(fantasyLeagueId);
         return ResponseEntity.ok(new DraftDTO().from(draft));
     }
+    @GetMapping("status")
+    public ResponseEntity<String> getDraftStatus(@RequestParam long fantasyLeagueId) {
+        String draft = draftService.getDraftStatus(fantasyLeagueId);
+        return ResponseEntity.ok(draft);
+    }
 
     @PostMapping("")
     public ResponseEntity<TransactionDTO> draftPlayer(@RequestParam long fantasyTeamId,

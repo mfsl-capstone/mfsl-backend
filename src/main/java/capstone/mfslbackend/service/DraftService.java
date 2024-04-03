@@ -33,6 +33,10 @@ public class DraftService {
         this.fantasyLeagueService = fantasyLeagueService;
         this.fantasyTeamService = fantasyTeamService;
     }
+    public String getDraftStatus(long fantasyLeagueId) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
+        return fantasyLeague.getDraft().getStatus().toString();
+    }
     public Draft getDraft(long fantasyLeagueId) {
         FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
         Draft d = fantasyLeague.getDraft();

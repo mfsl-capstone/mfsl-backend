@@ -27,9 +27,9 @@ public class FantasyWeekPlayer {
         }
         for (Game game : games) {
             if (game.getHomeTeam().getTeamId().equals(player.getTeam().getTeamId())) {
-                display.append(game.getAwayTeam().getName()).append(" ");
+                display.append(game.getAwayTeam().getName(), 0, 3).append(" ");
             } else if (game.getAwayTeam().getTeamId().equals(player.getTeam().getTeamId())) {
-                display.append(game.getHomeTeam().getName()).append(" ");
+                display.append(game.getHomeTeam().getName(), 0, 3).append(" ");
             }
         }
         this.display = display.toString().strip();

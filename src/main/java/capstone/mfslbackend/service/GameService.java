@@ -121,7 +121,7 @@ public class GameService {
 
     public List<Game> getPastNoStatsGames() {
         Specification<Game> spec = (root, query, criteriaBuilder) -> {
-            Predicate statsPredicate = criteriaBuilder.equal(root.get("playerGameStats"), null);
+            Predicate statsPredicate = criteriaBuilder.isEmpty(root.get("playerGameStats"));
             Predicate pastPredicate = criteriaBuilder.lessThan(root.get("date"), LocalDateTime.now().minusHours(GAME_DURATION));
             return criteriaBuilder.and(statsPredicate, pastPredicate);
         };

@@ -294,19 +294,29 @@ public class FantasyLeagueService {
         List<FantasyTeam> teams = new ArrayList<>(getFantasyLeagueById(leagueId).getFantasyTeams());
         switch (sortField) {
             case "wins":
-                teams.sort(Comparator.comparingInt(FantasyTeam::getWins));
+                teams.sort(Comparator.comparingInt(FantasyTeam::getWins)
+                        .thenComparingInt(FantasyTeam::getPoints)
+                        .thenComparingInt(FantasyTeam::getFantasyPoints));
                 break;
             case "losses":
-                teams.sort(Comparator.comparingInt(FantasyTeam::getLosses));
+                teams.sort(Comparator.comparingInt(FantasyTeam::getLosses)
+                        .thenComparingInt(FantasyTeam::getPoints)
+                        .thenComparingInt(FantasyTeam::getFantasyPoints));
                 break;
             case "ties":
-                teams.sort(Comparator.comparingInt(FantasyTeam::getTies));
+                teams.sort(Comparator.comparingInt(FantasyTeam::getTies)
+                        .thenComparingInt(FantasyTeam::getPoints)
+                        .thenComparingInt(FantasyTeam::getFantasyPoints));
                 break;
             case "points":
-                teams.sort(Comparator.comparingInt(FantasyTeam::getPoints));
+                teams.sort(Comparator.comparingInt(FantasyTeam::getPoints)
+                        .thenComparingInt(FantasyTeam::getFantasyPoints)
+                        .thenComparingInt(FantasyTeam::getWins));
                 break;
             case "fantasyPoints":
-                teams.sort(Comparator.comparingInt(FantasyTeam::getFantasyPoints));
+                teams.sort(Comparator.comparingInt(FantasyTeam::getFantasyPoints)
+                        .thenComparingInt(FantasyTeam::getPoints)
+                        .thenComparingInt(FantasyTeam::getWins));
                 break;
             default:
                 throw new Error400("Invalid sort field");
