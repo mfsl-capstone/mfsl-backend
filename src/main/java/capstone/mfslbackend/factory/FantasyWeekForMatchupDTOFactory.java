@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 @Component
 public class FantasyWeekForMatchupDTOFactory {
     private final PlayerService playerService;
+    private static final int HOURS_IN_DAY = 23;
+    private static final int MINUTES_SECONDS = 59;
     public FantasyWeekForMatchupDTOFactory(PlayerService playerService) {
         this.playerService = playerService;
     }
@@ -37,7 +39,7 @@ public class FantasyWeekForMatchupDTOFactory {
                             .toList();
                     List<Game> games = p.getTeam().getGames().stream()
                             .filter(game -> game.getDate().isAfter(fantasyWeek.getStartDate().atStartOfDay()))
-                            .filter(game -> game.getDate().isBefore(fantasyWeek.getEndDate().atTime(23, 59, 59)))
+                            .filter(game -> game.getDate().isBefore(fantasyWeek.getEndDate().atTime(HOURS_IN_DAY, MINUTES_SECONDS)))
                             .filter(game -> stats.stream().noneMatch(stat -> stat.getGame().getId().equals(game.getId())))
                             .toList();
                     return new FantasyWeekPlayer().from(p, stats, games);
