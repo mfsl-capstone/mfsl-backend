@@ -37,6 +37,10 @@ public class DraftService {
         FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
         return fantasyLeague.getDraft().getStatus().toString();
     }
+    public LocalDateTime getDraftDate(long fantasyLeagueId) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
+        return fantasyLeague.getDraft().getDraftDate();
+    }
     public Draft getDraft(long fantasyLeagueId) {
         FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
         Draft d = fantasyLeague.getDraft();

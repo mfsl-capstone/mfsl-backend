@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 @Data
@@ -19,6 +20,7 @@ public class StandingPlayerDTO {
         teamsCopy.sort(Comparator.comparingInt(FantasyTeam::getPoints)
                 .thenComparingInt(FantasyTeam::getFantasyPoints)
                 .thenComparingInt(FantasyTeam::getWins));
+        Collections.reverse(teamsCopy);
         List<StandingPlayerDTO> standingPlayerDTOS = new ArrayList<>();
         for (FantasyTeam team : teams) {
             standingPlayerDTOS.add(new StandingPlayerDTO(new FantasyTeamWithNoTransactionsNoLeagueDTO().from(team), teamsCopy.indexOf(team) + 1));
