@@ -8,6 +8,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class FantasyWeekPlayer {
+    private static final int CHARACTERS_TO_DISPLAY = 3;
     private PlayerWithNoStatsDTO player;
     private List<PlayerGameStats> stats;
     private String display;
@@ -27,9 +28,9 @@ public class FantasyWeekPlayer {
         }
         for (Game game : games) {
             if (game.getHomeTeam().getTeamId().equals(player.getTeam().getTeamId())) {
-                display.append(game.getAwayTeam().getName(), 0, 3).append(" ");
+                display.append(game.getAwayTeam().getName(), 0, CHARACTERS_TO_DISPLAY).append(" ");
             } else if (game.getAwayTeam().getTeamId().equals(player.getTeam().getTeamId())) {
-                display.append(game.getHomeTeam().getName(), 0, 3).append(" ");
+                display.append(game.getHomeTeam().getName(), 0, CHARACTERS_TO_DISPLAY).append(" ");
             }
         }
         this.display = display.toString().strip();

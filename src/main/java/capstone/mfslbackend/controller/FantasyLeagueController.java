@@ -1,7 +1,6 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
-import capstone.mfslbackend.DTO.FantasyTeamWithNoTransactionsNoLeagueDTO;
 import capstone.mfslbackend.DTO.FantasyWeeksDTO;
 import capstone.mfslbackend.DTO.StandingPlayerDTO;
 import capstone.mfslbackend.error.Error400;
