@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.time.LocalDateTime;
+
 @RestController()
 @RequestMapping("draft")
 public class DraftController {
@@ -25,11 +28,20 @@ public class DraftController {
         Draft draft = draftService.getDraft(fantasyLeagueId);
         return ResponseEntity.ok(new DraftDTO().from(draft));
     }
-
-    @PostMapping("{fantasyLeagueId}")
-    public ResponseEntity<TransactionDTO> draftPlayer(@PathVariable long fantasyLeagueId, @RequestParam long fantasyTeamId,
+    @GetMapping("status")
+    public ResponseEntity<String> getDraftStatus(@RequestParam long fantasyLeagueId) {
+        String draft = draftService.getDraftStatus(fantasyLeagueId);
+        return ResponseEntity.ok(draft);
+    }
+    @GetMapping("date")
+    public ResponseEntity<LocalDateTime> getDraftDate(@RequestParam long fantasyLeagueId) {
+        LocalDateTime draft = draftService.getDraftDate(fantasyLeagueId);
+        return ResponseEntity.ok(draft);
+    }
+    @PostMapping("")
+    public ResponseEntity<TransactionDTO> draftPlayer(@RequestParam long fantasyTeamId,
                                                       @RequestParam long playerId) {
-        Transaction transaction = draftService.draftPlayer(fantasyLeagueId, fantasyTeamId, playerId);
+        Transaction transaction = draftService.draftPlayer(fantasyTeamId, playerId);
         return ResponseEntity.ok(new TransactionDTO().from(transaction));
     }
 }

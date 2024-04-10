@@ -5,19 +5,16 @@ import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
 import capstone.mfslbackend.model.FantasyTeam;
 import capstone.mfslbackend.model.FantasyWeek;
-import capstone.mfslbackend.model.Game;
 import capstone.mfslbackend.model.Player;
 import capstone.mfslbackend.model.PlayerGameStats;
 import capstone.mfslbackend.model.enums.FantasyWeekStatus;
 import capstone.mfslbackend.repository.FantasyTeamRepository;
 import capstone.mfslbackend.repository.FantasyWeekRepository;
 import jakarta.persistence.criteria.Predicate;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +31,7 @@ public class FantasyWeekService {
     private final PlayerGameStatsService playerGameStatsService;
     private final PlayerService playerService;
     private final FantasyTeamRepository fantasyTeamRepository;
-    private static final int GAME_DURATION = 4;
+    private final GameService gameService;
     private static final int MIN_GK = 1;
     private static final int MIN_DEF = 3;
     private static final int MAX_DEF = 5;
@@ -51,12 +48,13 @@ public class FantasyWeekService {
 
     public FantasyWeekService(FantasyWeekRepository fantasyWeekRepository, FantasyLeagueService fantasyLeagueService,
                               PlayerGameStatsService playerGameStatsService, PlayerService playerService,
-                              FantasyTeamRepository fantasyTeamRepository) {
+                              FantasyTeamRepository fantasyTeamRepository, GameService gameService) {
         this.fantasyWeekRepository = fantasyWeekRepository;
         this.fantasyLeagueService = fantasyLeagueService;
         this.playerGameStatsService = playerGameStatsService;
         this.playerService = playerService;
         this.fantasyTeamRepository = fantasyTeamRepository;
+        this.gameService = gameService;
     }
 
     public FantasyWeek getFantasyWeekById(Long weekId) throws Error404 {
@@ -111,33 +109,23 @@ public class FantasyWeekService {
         });
     }
     public void updateActiveFantasyWeeks() {
+
         Specification<FantasyWeek> spec = (root, query, criteriaBuilder) ->
             criteriaBuilder.equal(root.get("status"), FantasyWeekStatus.IN_PROGRESS);
         List<FantasyWeek> fantasyWeeks = fantasyWeekRepository.findAll(spec);
+        gameService.getPastNoStatsGames().forEach(game -> {
+            try {
+                playerGameStatsService.createPlayerGameStats(String.valueOf(game.getId()));
+            } catch (Exception ignored) {
+            }
+        });
 
         fantasyWeeks.forEach(fantasyWeek -> {
             String playerIds = fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().replace(" ", ",") + "," + fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().replace(" ", ",");
             List<Player> players = playerService.getPlayers(null, List.of(Map.of("field", "playerId", "value", playerIds)), "asc", "playerId", false, DEFAULT_LIMIT, 0);
-            updateGamesInFantasyWeek(players);
             setFantasyWeekStats(fantasyWeek, players);
             finishFantasyWeek(fantasyWeek, players);
         });
-    }
-
-    public void updateGamesInFantasyWeek(List<Player> players) {
-        players.stream().map(player -> player.getTeam().getGames().stream()
-                        .filter(game -> game.getDate().isBefore(LocalDateTime.now().minusHours(GAME_DURATION))
-                                && CollectionUtils.isEmpty(game.getPlayerGameStats()))
-                        .toList())
-                .flatMap(List::stream)
-                .map(Game::getId)
-                .distinct()
-                .forEach(gameId -> {
-                    try {
-                        playerGameStatsService.createPlayerGameStats(String.valueOf(gameId));
-                    } catch (Error404 ignored) {
-                    }
-                });
     }
 
     public void finishFantasyWeek(FantasyWeek fantasyWeek, List<Player> players) {
@@ -145,11 +133,11 @@ public class FantasyWeekService {
             return;
         }
         fantasyWeek.setStatus(FantasyWeekStatus.COMPLETED);
-        List<Player> playersTeamA  = Stream.of(fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().split(" "))
+        List<Player> playersTeamA = Stream.of(fantasyWeek.getFantasyTeamA().getPlayerIdsInOrder().split(" "))
                 .map(Long::parseLong)
                 .map(playerId -> players.stream().filter(player -> player.getPlayerId().equals(playerId)).findFirst().orElse(null))
                 .toList();
-        List<Player> playersTeamB  = Stream.of(fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().split(" "))
+        List<Player> playersTeamB = Stream.of(fantasyWeek.getFantasyTeamB().getPlayerIdsInOrder().split(" "))
                 .map(Long::parseLong)
                 .map(playerId -> players.stream().filter(player -> player.getPlayerId().equals(playerId)).findFirst().orElse(null))
                 .toList();
@@ -217,8 +205,8 @@ public class FantasyWeekService {
             }
         }
         String teamInOrder = startingXI.stream().map(player -> player.getPlayerId().toString()).reduce("", (a, b) -> a + " " + b)
-                + " "
                 + bench.stream().map(player -> player.getPlayerId().toString()).reduce("", (a, b) -> a + " " + b);
+        teamInOrder = teamInOrder.trim();
         return Map.of(sum, teamInOrder);
     }
     private boolean isValidSwap(List<Player> players, Player playerOut, Player playerIn) {

@@ -1,6 +1,8 @@
 package capstone.mfslbackend.controller;
 
 import capstone.mfslbackend.DTO.FantasyLeaguePlayer;
+import capstone.mfslbackend.DTO.FantasyWeeksDTO;
+import capstone.mfslbackend.DTO.StandingPlayerDTO;
 import capstone.mfslbackend.error.Error400;
 import capstone.mfslbackend.error.Error404;
 import capstone.mfslbackend.model.FantasyLeague;
@@ -79,21 +81,21 @@ public class FantasyLeagueController {
     }
 
     @GetMapping("completed-weeks")
-    public ResponseEntity<List<FantasyWeek>> getCompletedFantasyWeeks(@RequestParam Long leagueId) {
+    public ResponseEntity<FantasyWeeksDTO> getCompletedFantasyWeeks(@RequestParam Long leagueId) {
         List<FantasyWeek> weeks = fantasyLeagueService.getCompletedFantasyWeeks(leagueId);
-        return ResponseEntity.ok(weeks);
+        return ResponseEntity.ok(new FantasyWeeksDTO().from(weeks));
     }
 
     @GetMapping("incomplete-weeks")
-    public ResponseEntity<List<FantasyWeek>> getIncompleteFantasyWeeks(@RequestParam Long leagueId) {
+    public ResponseEntity<FantasyWeeksDTO> getIncompleteFantasyWeeks(@RequestParam Long leagueId) {
         List<FantasyWeek> weeks = fantasyLeagueService.getIncompleteFantasyWeeks(leagueId);
-        return ResponseEntity.ok(weeks);
+        return ResponseEntity.ok(new FantasyWeeksDTO().from(weeks));
     }
 
     @GetMapping("results")
-    public ResponseEntity<List<FantasyTeam>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortField, @RequestParam String sortDirection) {
+    public ResponseEntity<List<StandingPlayerDTO>> getFantasyLeagueResults(@RequestParam Long leagueId, @RequestParam String sortField, @RequestParam String sortDirection) {
         List<FantasyTeam> teams = fantasyLeagueService.getFantasyLeagueResults(leagueId, sortField, sortDirection);
-        return ResponseEntity.ok(teams);
+        return ResponseEntity.ok(new StandingPlayerDTO().from(teams));
     }
 
 }

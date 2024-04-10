@@ -22,13 +22,24 @@ public class DraftService {
     private final TransactionService transactionService;
     private final PlayerService playerService;
     private final FantasyLeagueService fantasyLeagueService;
+    private final FantasyTeamService fantasyTeamService;
     private static final int DRAFT_TURN_TIME = 30;
     private static final int MAX_ROUNDS = 15;
-    public DraftService(DraftRepository draftRepository, TransactionService transactionService, PlayerService playerService, FantasyLeagueService fantasyLeagueService) {
+    public DraftService(DraftRepository draftRepository, TransactionService transactionService, PlayerService playerService,
+                        FantasyLeagueService fantasyLeagueService, FantasyTeamService fantasyTeamService) {
         this.draftRepository = draftRepository;
         this.transactionService = transactionService;
         this.playerService = playerService;
         this.fantasyLeagueService = fantasyLeagueService;
+        this.fantasyTeamService = fantasyTeamService;
+    }
+    public String getDraftStatus(long fantasyLeagueId) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
+        return fantasyLeague.getDraft().getStatus().toString();
+    }
+    public LocalDateTime getDraftDate(long fantasyLeagueId) {
+        FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
+        return fantasyLeague.getDraft().getDraftDate();
     }
     public Draft getDraft(long fantasyLeagueId) {
         FantasyLeague fantasyLeague = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId);
@@ -36,11 +47,14 @@ public class DraftService {
 
         if (d.getStatus().equals(DraftStatus.NOT_STARTED) && LocalDateTime.now().isAfter(d.getDraftDate())) {
             d.setStatus(DraftStatus.IN_PROGRESS);
-            List<FantasyTeam> fantasyTeams = new ArrayList(fantasyLeague.getFantasyTeams());
+            List<FantasyTeam> fantasyTeams = new ArrayList<>(fantasyLeague.getFantasyTeams());
             int i = 1;
             Random r = new Random();
             while (fantasyTeams.size() > 0) {
-                int index = r.nextInt(1, fantasyTeams.size());
+                int index = 0;
+                if (fantasyTeams.size() > 1) {
+                    index = r.nextInt(0, fantasyTeams.size());
+                }
                 FantasyTeam ft = fantasyTeams.remove(index);
                 ft.setOrderNumber(i);
                 i++;
@@ -52,12 +66,13 @@ public class DraftService {
             d.setDirection("asc");
             d.setRound(1);
         }
-        if (d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())
-                && d.getStatus().equals(DraftStatus.IN_PROGRESS)) {
+        if (d.getStatus().equals(DraftStatus.IN_PROGRESS)
+                && d.getTimePlayerStarted().plusSeconds(DRAFT_TURN_TIME).isBefore(LocalDateTime.now())
+                ) {
             Transaction t = null;
             while (t == null) {
                 try {
-                    t = draftPlayer(fantasyLeagueId, d.getFantasyTeam().getId(), playerService.getRandomPlayer().getPlayerId());
+                    t = draftPlayer(d.getFantasyTeam().getId(), playerService.getRandomPlayer().getPlayerId());
                 } catch (Exception e) {
                     t = null;
                 }
@@ -66,54 +81,56 @@ public class DraftService {
         return draftRepository.save(d);
     }
 
-    public Transaction draftPlayer(long fantasyLeagueId, long fantasyTeamId, long playerId) {
-        Draft d = fantasyLeagueService.getFantasyLeagueById(fantasyLeagueId).getDraft();
+    public Transaction draftPlayer(long fantasyTeamId, long playerId) {
+        FantasyTeam team = fantasyTeamService.getFantasyTeam(fantasyTeamId);
+        Draft draft = team.getFantasyLeague().getDraft();
         Set<Transaction> transactions;
-        if (d.getTransactions() != null) {
-            transactions = d.getTransactions();
+        if (draft.getTransactions() != null) {
+            transactions = draft.getTransactions();
         } else {
             transactions = new HashSet<>();
         }
 
 
-        if (!d.getStatus().equals(DraftStatus.IN_PROGRESS)) {
+        if (!draft.getStatus().equals(DraftStatus.IN_PROGRESS)) {
             throw new Error400("Draft is not in progress");
         }
-        if (d.getFantasyTeam().getId() != fantasyTeamId) {
+        if (draft.getFantasyTeam().getId() != fantasyTeamId) {
             throw new Error400("It is not your turn to draft");
         }
         Transaction t = transactionService.draftTransaction(fantasyTeamId, playerId);
         transactions.add(t);
-        d.setTransactions(transactions);
+        draft.setTransactions(transactions);
 
-        if (d.getDirection().equals("asc")) {
-            d.setFantasyTeam(d.getFantasyLeague().getFantasyTeams().stream()
-                    .filter(fantasyTeam -> fantasyTeam.getOrderNumber() == d.getFantasyTeam().getOrderNumber() + 1)
+        if (draft.getDirection().equals("asc")) {
+            draft.setFantasyTeam(draft.getFantasyLeague().getFantasyTeams().stream()
+                    .filter(fantasyTeam -> fantasyTeam.getOrderNumber() == draft.getFantasyTeam().getOrderNumber() + 1)
                     .findFirst()
                     .orElseGet(() -> {
-                        d.setDirection("desc");
-                        d.setRound(d.getRound() + 1);
-                        return d.getFantasyTeam();
+                        draft.setDirection("desc");
+                        draft.setRound(draft.getRound() + 1);
+                        return draft.getFantasyTeam();
                     })
             );
         } else {
-            d.setFantasyTeam(d.getFantasyLeague().getFantasyTeams().stream()
-                    .filter(fantasyTeam -> fantasyTeam.getOrderNumber() == d.getFantasyTeam().getOrderNumber() - 1)
+            draft.setFantasyTeam(draft.getFantasyLeague().getFantasyTeams().stream()
+                    .filter(fantasyTeam -> fantasyTeam.getOrderNumber() == draft.getFantasyTeam().getOrderNumber() - 1)
                     .findFirst()
                     .orElseGet(() -> {
-                        d.setDirection("asc");
-                        d.setRound(d.getRound() + 1);
-                        return d.getFantasyTeam();
+                        draft.setDirection("asc");
+                        draft.setRound(draft.getRound() + 1);
+                        return draft.getFantasyTeam();
                     })
             );
         }
 
-        d.setTimePlayerStarted(LocalDateTime.now());
-        draftRepository.save(d);
+        draft.setTimePlayerStarted(LocalDateTime.now());
+        draftRepository.save(draft);
 
-        if (d.getRound() > MAX_ROUNDS) {
-            d.setStatus(DraftStatus.COMPLETED);
-            fantasyLeagueService.createFantasyLeagueSchedule(fantasyLeagueId);
+        if (draft.getRound() > MAX_ROUNDS) {
+            draft.setStatus(DraftStatus.COMPLETED);
+            draftRepository.save(draft);
+            fantasyLeagueService.createFantasyLeagueSchedule(draft.getFantasyLeague().getId());
         }
 
         return t;

@@ -166,7 +166,12 @@ public class TransactionService {
 
 //        add player to the team immediately
         proposingFantasyTeam.setPlayers(players);
-        String lineup = proposingFantasyTeam.getPlayerIdsInOrder() + " " + playerIn.getPlayerId();
+        String lineup;
+        if (proposingFantasyTeam.getPlayerIdsInOrder() != null && !proposingFantasyTeam.getPlayerIdsInOrder().equals("null")) {
+            lineup = proposingFantasyTeam.getPlayerIdsInOrder() + " " + playerIn.getPlayerId();
+        } else {
+            lineup = playerIn.getPlayerId().toString().trim();
+        }
         if (players.size() == MAX_PLAYERS) {
             lineup = "";
             List<Player> gks = players.stream().filter(player -> player.getPosition().equals("Goalkeeper")).toList();
@@ -273,7 +278,10 @@ public class TransactionService {
         String[] newLineup = proposingFantasyTeam.getPlayerIdsInOrder().split(" ");
         List<Player> players = new ArrayList<>();
         for (String playerId : newLineup) {
-            players.add(playerService.getPlayerById(Long.parseLong(playerId)));
+            players.add(proposingFantasyTeam.getPlayers().stream()
+                    .filter(player -> player.getPlayerId().equals(Long.parseLong(playerId)))
+                    .findFirst()
+                    .orElseThrow(() -> new Error404("Player with id " + playerId + " not found in fantasy team with id " + proposingFantasyTeam.getId())));
         }
 
         int index = players.indexOf(playerOut);

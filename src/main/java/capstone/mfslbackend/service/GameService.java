@@ -7,7 +7,9 @@ import capstone.mfslbackend.model.Team;
 import capstone.mfslbackend.repository.GameRepository;
 import capstone.mfslbackend.response.container.GamesContainer;
 import capstone.mfslbackend.response.dto.GamesResponse;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,6 +30,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final ApiService apiService;
     private final TeamService teamService;
+    private static final int GAME_DURATION = 4;
     public GameService(GameRepository gameRepository, ApiService apiService, TeamService teamService,
                        @Value("${base.url}") String baseUrl) {
         this.gameRepository = gameRepository;
@@ -114,6 +117,15 @@ public class GameService {
         LocalDateTime startTime = start.atStartOfDay();
         LocalDateTime endTime = end.atTime(LocalTime.MAX);
         return gameRepository.findGamesByDateBetween(startTime, endTime);
+    }
+
+    public List<Game> getPastNoStatsGames() {
+        Specification<Game> spec = (root, query, criteriaBuilder) -> {
+            Predicate statsPredicate = criteriaBuilder.isEmpty(root.get("playerGameStats"));
+            Predicate pastPredicate = criteriaBuilder.lessThan(root.get("date"), LocalDateTime.now().minusHours(GAME_DURATION));
+            return criteriaBuilder.and(statsPredicate, pastPredicate);
+        };
+        return gameRepository.findAll(spec);
     }
 
 }

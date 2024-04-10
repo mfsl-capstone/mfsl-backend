@@ -1,7 +1,9 @@
 package capstone.mfslbackend.controller;
 
 
-import capstone.mfslbackend.error.Error404;
+import capstone.mfslbackend.DTO.FantasyWeekForMatchupDTO;
+import capstone.mfslbackend.DTO.FantasyWeekForTableDTO;
+import capstone.mfslbackend.factory.FantasyWeekForMatchupDTOFactory;
 import capstone.mfslbackend.model.FantasyWeek;
 import capstone.mfslbackend.service.FantasyWeekService;
 import org.springframework.http.ResponseEntity;
@@ -18,39 +20,43 @@ import java.util.List;
 @RequestMapping("fantasy-week")
 public class FantasyWeekController {
     private final FantasyWeekService fantasyWeekService;
-    public FantasyWeekController(FantasyWeekService fantasyWeekService) {
+    private final FantasyWeekForMatchupDTOFactory fantasyWeekForMatchupDTOFactory;
+    public FantasyWeekController(FantasyWeekService fantasyWeekService,
+                                 FantasyWeekForMatchupDTOFactory fantasyWeekForMatchupDTOFactory) {
         this.fantasyWeekService = fantasyWeekService;
+        this.fantasyWeekForMatchupDTOFactory = fantasyWeekForMatchupDTOFactory;
     }
 
     @GetMapping("{fantasyWeekId}")
-    public ResponseEntity<FantasyWeek> getFantasyWeekById(@PathVariable long fantasyWeekId) throws Error404 {
-        FantasyWeek week = fantasyWeekService.getFantasyWeekById(fantasyWeekId);
-        return ResponseEntity.ok(week);
+    public ResponseEntity<FantasyWeekForMatchupDTO> getFantasyWeekById(@PathVariable long fantasyWeekId) {
+        FantasyWeek fantasyWeek = fantasyWeekService.getFantasyWeekById(fantasyWeekId);
+        return ResponseEntity.ok(fantasyWeekForMatchupDTOFactory.from(fantasyWeek));
     }
 
     @GetMapping("")
-    public ResponseEntity<FantasyWeek> getFantasyWeekByWeekNumber(@RequestParam long fantasyLeagueId, @RequestParam long fantasyTeamId,
+    public ResponseEntity<FantasyWeekForMatchupDTO> getFantasyWeekByWeekNumber(@RequestParam long fantasyLeagueId, @RequestParam long fantasyTeamId,
                                                                   @RequestParam int weekNumber) {
-        FantasyWeek fantasyWeeks = fantasyWeekService.getFantasyWeekByWeekNumber(fantasyLeagueId, fantasyTeamId, weekNumber);
-        return ResponseEntity.ok(fantasyWeeks);
+        FantasyWeek fantasyWeek = fantasyWeekService.getFantasyWeekByWeekNumber(fantasyLeagueId, fantasyTeamId, weekNumber);
+        return ResponseEntity.ok(fantasyWeekForMatchupDTOFactory.from(fantasyWeek));
     }
     @GetMapping("{fantasyLeagueId}")
-    public ResponseEntity<List<FantasyWeek>> getFantasyWeeksByLeagueId(@PathVariable long fantasyLeagueId) {
+    public ResponseEntity<List<FantasyWeekForTableDTO>> getFantasyWeeksByLeagueId(@PathVariable long fantasyLeagueId) {
         List<FantasyWeek> fantasyWeeks = fantasyWeekService.getFantasyWeeksByLeagueId(fantasyLeagueId);
-        return ResponseEntity.ok(fantasyWeeks);
+        return ResponseEntity.ok(fantasyWeeks.stream().map(week -> new FantasyWeekForTableDTO().from(week)).toList());
     }
 
     @GetMapping("active")
-    public ResponseEntity<FantasyWeek> getActiveFantasyWeek(@RequestParam long fantasyLeagueId, @RequestParam long fantasyTeamId) {
-        FantasyWeek fantasyWeeks = fantasyWeekService.getActiveFantasyWeek(fantasyLeagueId, fantasyTeamId);
-        return ResponseEntity.ok(fantasyWeeks);
+    public ResponseEntity<FantasyWeekForMatchupDTO> getActiveFantasyWeek(@RequestParam long fantasyLeagueId, @RequestParam long fantasyTeamId) {
+        FantasyWeek fantasyWeek = fantasyWeekService.getActiveFantasyWeek(fantasyLeagueId, fantasyTeamId);
+        return ResponseEntity.ok(fantasyWeekForMatchupDTOFactory.from(fantasyWeek));
+
     }
 
     @GetMapping("date")
-    public ResponseEntity<FantasyWeek> getFantasyWeekByDate(@RequestParam long fantasyLeagueId, @RequestParam long fantasyTeamId,
+    public ResponseEntity<FantasyWeekForMatchupDTO> getFantasyWeekByDate(@RequestParam long fantasyLeagueId, @RequestParam long fantasyTeamId,
                                                             @RequestParam LocalDate date) {
-        FantasyWeek fantasyWeeks = fantasyWeekService.getFantasyWeekByDate(fantasyLeagueId, fantasyTeamId, date);
-        return ResponseEntity.ok(fantasyWeeks);
+        FantasyWeek fantasyWeek = fantasyWeekService.getFantasyWeekByDate(fantasyLeagueId, fantasyTeamId, date);
+        return ResponseEntity.ok(fantasyWeekForMatchupDTOFactory.from(fantasyWeek));
     }
     @PostMapping("start")
     public ResponseEntity<Boolean> startActiveFantasyWeeks() {

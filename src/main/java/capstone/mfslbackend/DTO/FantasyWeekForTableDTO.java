@@ -1,0 +1,24 @@
+package capstone.mfslbackend.DTO;
+
+import capstone.mfslbackend.model.FantasyWeek;
+import capstone.mfslbackend.model.enums.FantasyWeekStatus;
+import lombok.Data;
+
+@Data
+public class FantasyWeekForTableDTO {
+    private int weekNumber;
+    private String fantasyTeamA;
+    private String fantasyTeamB;
+    private int teamAScore;
+    private int teamBScore;
+    private FantasyWeekStatus status;
+    public FantasyWeekForTableDTO from(FantasyWeek fantasyWeek) {
+        this.weekNumber = fantasyWeek.getWeekNumber();
+        this.fantasyTeamA = fantasyWeek.getFantasyTeamA().getTeamName();
+        this.fantasyTeamB = fantasyWeek.getFantasyTeamB().getTeamName();
+        this.teamAScore = fantasyWeek.getTeamAScore();
+        this.teamBScore = fantasyWeek.getTeamBScore();
+        this.status = fantasyWeek.getStatus();
+        return this;
+    }
+}

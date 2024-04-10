@@ -16,6 +16,10 @@ public class FantasyTeamLineup {
     private List<Player> players;
     public FantasyTeamLineup(Set<Player> players, String playerIdsInOrder) {
         List<Player> playersInOrder = new ArrayList<>();
+        if (playerIdsInOrder.split(" ")[0].equals("null")) {
+            this.players = players.stream().toList();
+            return;
+        }
         String[] playerIds = playerIdsInOrder.split(" ");
         for (String playerId : playerIds) {
             for (Player player : players) {
